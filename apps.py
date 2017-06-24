@@ -6,5 +6,8 @@ class BooksConfig(AppConfig):
     name = 'books'
 
     def ready(self, *args, **kwargs):
-        initial_account_types()
+        try:
+            initial_account_types()
+        except:
+            pass
 
