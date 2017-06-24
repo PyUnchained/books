@@ -79,7 +79,7 @@ class VirtualJournal(VirtualObject):
 		if side == 'D':
 			entry_attribute = 'debit_acc'
 		elif side == 'C':
-			entry_attribute = 'credit_accs'
+			entry_attribute = 'credit_acc'
 
 		totals = OrderedDict()
 		for h in headings:
