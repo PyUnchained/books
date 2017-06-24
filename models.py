@@ -5,6 +5,10 @@ from django.db import models
 from books.conf.settings import ACC_CHOICES, CURRENCIES, ACTIONS
 
 # Create your models here.
+class BooksOfficeSystem(models.Model):
+	system_code = models.CharField(primary_key = True, default=uuid.uuid4,
+		max_length = 2000)
+	
 class AccountType(models.Model):
 	name = models.CharField(max_length = 100, primary_key = True)
 	description = models.CharField(max_length = 300, blank = True, null = True)

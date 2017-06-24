@@ -12,6 +12,9 @@ class AccountTypeAdmin(admin.ModelAdmin):
 class JournalAdmin(admin.ModelAdmin):
 	pass
 
+class BooksOfficeSystemAdmin(admin.ModelAdmin):
+	pass
+
 class JournalCreationRuleAdmin(admin.ModelAdmin):
 	filter_horizontal = ['include_debt_from', 'include_credit_from']
 

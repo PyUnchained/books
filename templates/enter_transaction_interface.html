@@ -1,0 +1,10 @@
+{% extends 'interface.html' %}
+{% load static crispy_forms_tags %}
+
+{% block menu %}
+<div class = 'menu-holder'>
+	{% for e in all_entries %}
+	<a class = 'btn' href="{% url 'enter_transaction' e.pk %}">Record {{e}}</a>
+	{% endfor %}
+</div>
+{% endblock %}
