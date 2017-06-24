@@ -57,7 +57,8 @@ class JournalEntry(models.Model):
 	value = models.DecimalField(decimal_places = 2,
 		max_digits = 15)
 	rule = models.ForeignKey('JournalEntryRule', blank = True, null = True)
-	approved = models.BooleanField()
+	details = models.TextField(max_length = 2000, blank = True, null = True)
+	approved = models.BooleanField(default = False)
 
 	def __str__(self):
 		if self.rule:

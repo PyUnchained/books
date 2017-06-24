@@ -35,14 +35,16 @@ class JournalEntryRuleForm(forms.ModelForm):
 class JournalEntryForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
-        self.helper.form_class = 'opexa_accounting_form_def'
+        # self.helper.form_class = 'opexa_accounting_form_def'
         self.helper.layout = Layout(
 
             Div(
-                Div('debit_acc', css_class='col-xs-3'),
-                Div('debit_branch', css_class='col-xs-3'),
+                Div('value', css_class='col-xs-3'),
+                Div('date', css_class='col-xs-3'),
                 Div('credit_acc', css_class='col-xs-3'),
-                Div('credit_branch', css_class='col-xs-3'),
+                Div('debit_acc', css_class='col-xs-3'),
+                Div('details', css_class='col-xs-6'),
+                Div('currency', css_class='col-xs-6'),
                 css_class='row'),
 
         Div(
@@ -54,4 +56,4 @@ class JournalEntryForm(forms.ModelForm):
 
     class Meta:
         model = JournalEntry
-        exclude = ('approved',)
+        exclude = ('approved', 'code')

@@ -21,6 +21,15 @@ class NewJournalEntry(BaseCreateView):
     form_class = JournalEntryForm
     template_name = 'interface.html'
 
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponse('Okay')
+            
+        return render(request, self.template_name, {'form': form, 'form_heading':
+            'New Transaction'})
+
 class NewJournalEntryRule(BaseCreateView):
     model = JournalEntryRule
     form_class = JournalEntryRuleForm
