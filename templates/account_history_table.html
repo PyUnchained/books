@@ -1,0 +1,62 @@
+<div class = 'container'>
+	<h2 class ='text-center'>History</h2>
+	<div class = 'table-holder'>
+		<h3>Debit</h3>
+		<table id ='debit_table' class = 'table-striped nice_table'>
+
+			<thead>
+				<tr>
+					<th>Date</th>
+					<th>Transaction Details</th>
+					<th>Value ($)</th>
+				</tr>
+			</thead>
+				
+			<tbody>
+				{% for t in debit_entries %}
+				<tr>
+					<td>{{t.date}}</td>
+					<td>{{t.rule.name }}-({{t.credit_acc}})</td>
+					<td>{{t.value }}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	<div class = 'table-holder'>
+		<h3>Credit</h3>
+		<table id ='credit_table' class = 'table-striped nice_table'>
+
+			<thead>
+				<tr>
+					<th>Date</th>
+					<th>Transaction Details</th>
+					<th>Value ($)</th>
+				</tr>
+			</thead>
+				
+			<tbody>
+				{% for t in credit_entries %}
+				<tr>
+					<td>{{t.date}}</td>
+					<td>{{t.rule.name }}-({{t.debit_acc}})</td>
+					<td>{{t.value }}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	
+</div>
+
+<script
+			  src="https://code.jquery.com/jquery-3.2.1.min.js"
+			  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+			  crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css" media="all">
+<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+	    $('.nice_table').DataTable();
+	});
+</script>

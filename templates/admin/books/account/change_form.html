@@ -1,0 +1,12 @@
+{% extends 'admin/change_form.html' %}
+{% load book_tags %}
+
+
+
+{% block after_related_objects %}
+  
+  
+  {{ block.super }}
+  {% account_history original%}
+
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'interface_base.html' %}
+{% load static crispy_forms_tags %}
+
+{% block main_window %}
+
+{% if form %}
+
+{% if form_heading %}
+<h2 class = 'text-center'>{{form_heading}}</h2>
+{% endif %}
+
+{% crispy form %}
+{% endif %}
+
+{% endblock %}

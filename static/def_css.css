@@ -1,0 +1,60 @@
+.table-holder {
+  display: inline-block;
+}
+
+
+.opexa_accounting_form_def {
+	border-style: line;
+	display: block;
+    margin: auto;
+    width: 80%;
+    background: rgba(215, 255, 173, 0.3);
+    padding: 30px;
+    border-radius: 10px;
+}
+
+.opexa_accounting_form_def .control-group  {
+	display: block;
+    margin: auto;
+    min-width: 200px;
+}
+
+.opexa_accounting_form_def textarea {
+  max-height: 60px;
+}
+
+.opexa_accounting_form_def, legend {
+  background: none repeat scroll 0% 0% #F9F9F9;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0px 4px 10px 4px rgba(19, 35, 47, 0.3);
+}
+
+.opexa_accounting_form_def legend {
+  padding: 5px;
+}
+
+.opexa_accounting_form_def option{
+  background-color: #152531 !important;
+  color: white;
+}
+
+.opexa_accounting_form_def select, .opexa_accounting_form_def textarea {
+  color: black;
+}
+
+.opexa_accounting_form_def .btn {
+  margin-left: 20px;
+}
+
+
+.intro-section h2 {
+  margin-top: -30px;
+}
+
+.add-bg {
+  background: white;
+  border-radius: 12px;
+}
+
+
