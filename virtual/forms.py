@@ -32,6 +32,7 @@ class BaseRuleBasedTransactionForm(forms.ModelForm):
 	    	            Div('date', css_class='col-sm-4'),
 	    	            Div('currency', css_class='col-sm-4'),
 	    	            Div('value', css_class='col-sm-4'),
+	    	            Div('details', css_class='col-sm-4'),
 	    	            Field('rule', type="hidden"),
 	    	            css_class='row'),
 	    	        
