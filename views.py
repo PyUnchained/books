@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
@@ -25,8 +25,8 @@ class NewJournalEntry(BaseCreateView):
         form = self.form_class(request.POST)
         if form.is_valid():
             form.save()
-            return HttpResponse('Okay')
-            
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
         return render(request, self.template_name, {'form': form, 'form_heading':
             'New Transaction'})
 
@@ -54,7 +54,7 @@ class EnterTransactionView(View):
         form = initialize_form(self.form_class, rule, form = form)
         if form.is_valid():
             form.save()
-            return HttpResponse('Okay')
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
         return render(request, self.template_name, {'form': form, 'form_heading':
             'Record {0}'.format(rule.name)})

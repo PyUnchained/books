@@ -35,7 +35,7 @@ class JournalEntryRuleForm(forms.ModelForm):
 class JournalEntryForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
-        # self.helper.form_class = 'opexa_accounting_form_def'
+        self.helper.form_class = 'opexa_accounting_form_def'
         self.helper.layout = Layout(
 
             Div(

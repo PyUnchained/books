@@ -64,7 +64,7 @@ class JournalEntry(models.Model):
 		if self.rule:
 			return self.rule.name
 		else:
-			return self.code
+			return str(self.code)
 
 class Branch(models.Model):
 	name = models.CharField(max_length = 120)
