@@ -5,10 +5,10 @@ from django.db import models
 from books.conf.settings import ACC_CHOICES, CURRENCIES, ACTIONS
 
 # Create your models here.
-class BooksOfficeSystem(models.Model):
+class OpexaBooksSystem(models.Model):
 	system_code = models.CharField(primary_key = True, default=uuid.uuid4,
 		max_length = 2000)
-	
+
 class AccountType(models.Model):
 	name = models.CharField(max_length = 100, primary_key = True)
 	description = models.CharField(max_length = 300, blank = True, null = True)
@@ -67,6 +67,8 @@ class JournalEntry(models.Model):
 	def __str__(self):
 		if self.rule:
 			return self.rule.name
+		elif self.details:
+			return self.details
 		else:
 			return str(self.code)
 
@@ -105,14 +107,25 @@ class JournalCreationRule(models.Model):
 	name = models.CharField(max_length = 120,
 		null = True)
 	include_debt_from = models.ManyToManyField('Account',
-		related_name = 'debt_included')
+		related_name = 'debt_included',
+		help_text = 'Accounts from which to extract debt entries.')
+	reversed_debit_entries = models.ManyToManyField('Account',
+		related_name = 'reversed_debit_entries',
+		help_text = 'Reversed entries will appear on the credit side of the journal.',
+		blank = True)
 	include_credit_from = models.ManyToManyField('Account',
-		related_name = 'credit_included')
+		related_name = 'credit_included',
+		help_text = 'Accounts from which to extract credit entries.')
+	reversed_credit_entries = models.ManyToManyField('Account',
+		related_name = 'reversed_credit_entries',
+		help_text = 'Reversed entries will appear on the debit side of the journal.',
+		blank = True)
 	multi_column = models.BooleanField(default = False)
-	column_to_use = models.CharField(max_length = 1,
-		choices = ACTIONS)
-	reverse_column = models.BooleanField()
+	latest_pdf = models.FileField(upload_to ='journal_pdfs', null = True)
 
 	class Meta:
 		verbose_name = 'Posting Rule'
 		verbose_name_plural = 'Posting Rules'
+
+	def __str__(self):
+		return self.name

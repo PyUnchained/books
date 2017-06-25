@@ -1,0 +1,29 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static "def_css.css" %}" />
+{% endblock %}
+
+
+
+
+{% block content %}
+  <div id="content-main">
+  	<h2>Actions</h2>
+  	<div class = 'opexabooks-options-holder'>
+	    <a href="{% url 'enter_any_transaction' %}" class = 'opexabooks-option-btn'>Record Transaction</a>
+	    <a href="{% url 'admin:books_journalentryrule_add' %}" class = 'opexabooks-option-btn'>Define New Transaction</a>
+
+    </div>
+    <h2>Documents & Settings</h2>
+    <div class = 'opexabooks-options-holder'>
+	    <a href="{% url 'admin:books_journalentry_changelist' %}" class = 'opexabooks-option-btn'>Manage Transactions</a>
+    	<a href="{% url 'admin:books_account_changelist' %}" class = 'opexabooks-option-btn'>Manage Accounts</a>
+    	<a href="{% url 'all_journals_list' %}" class = 'opexabooks-option-btn'>Manage Journals</a>
+    	<a href="#" class = 'opexabooks-option-btn'>Manage Ledgers</a>
+    </div>
+    
+  </div>
+{% endblock %}

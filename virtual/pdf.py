@@ -26,7 +26,7 @@ def journal_to_pdf(virtual_joural):
     styles=getSampleStyleSheet()
     elements = []
 
-    col_widths = [50,50]
+    col_widths = [35,70]
     remaining_width = (550-200)/2
     extra_cols = len(virtual_joural.col_headings[2:])
     for i in range(extra_cols):
@@ -53,7 +53,7 @@ def journal_to_pdf(virtual_joural):
         ]
     middel_index = int(len(col_widths)/2)
     style_data.append(
-        ('LINEBEFORE', (middel_index, 0), (middel_index, -1), 1, colors.black)
+        ('LINEBEFORE', (middel_index, 1), (middel_index, -1), 1, colors.black)
     )
 
     default_style = TableStyle(style_data)

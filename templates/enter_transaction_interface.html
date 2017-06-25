@@ -3,8 +3,18 @@
 
 {% block menu %}
 <div class = 'menu-holder'>
-	{% for e in all_entries %}
-	<a class = 'btn' href="{% url 'enter_transaction' e.pk %}">Record {{e}}</a>
-	{% endfor %}
+	<a href="{% url 'admin:books_opexabookssystem_changelist'%}" class = 'btn btn-warning'>Return to Main Menu</a>
+	{% if all_entries %}
+	 <div class="dropdown">
+	  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Transaction List
+	  <span class="caret"></span></button>
+	  <ul class="dropdown-menu">
+	  	<li><a class = 'btn' href="{% url 'enter_any_transaction' %}">General Transaction</a></li>
+	    {% for e in all_entries %}
+	    <li><a class = 'btn' href="{% url 'enter_transaction' e.pk %}">Record {{e}}</a></li>
+	    {% endfor %}
+	  </ul>
+	</div>
+	{% endif %} 
 </div>
 {% endblock %}

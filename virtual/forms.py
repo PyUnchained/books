@@ -20,19 +20,18 @@ class BaseRuleBasedTransactionForm(forms.ModelForm):
 	    	TabHolder(
 	    	    Tab('Record Transaction',
 	    	    	Div(
-	    	    	    Div('debit_acc', css_class='col-sm-4'),
-	    	    	    HTML('<div class = "col-sm-4"></div>'),
-	    	    	    Div('credit_acc', css_class='col-sm-4'),
-	    	    	    Div('debit_branch', css_class='col-sm-4'),
-	    	    	    HTML('<div class = "col-sm-4"></div>'),
-	    	    	    Div('credit_branch', css_class='col-sm-4'),
+	    	    		HTML('<br>'),
+	    	    	    Div('debit_acc', css_class='col-lg-3'),
+	    	    	    Div('credit_acc', css_class='col-lg-3'),
+	    	            Div('currency', css_class='col-lg-1'),
+	    	            Div('value', css_class='col-lg-2'),
+	    	            Div('date', css_class='col-lg-2'),
+	    	    	    Div('debit_branch', css_class='col-lg-3'),
+	    	    	    Div('credit_branch', css_class='col-lg-3'),
+	    	    	    Div('details', css_class='col-lg-6'),
 	    	    	    css_class='row'),
 
 	    	        Div(
-	    	            Div('date', css_class='col-sm-4'),
-	    	            Div('currency', css_class='col-sm-4'),
-	    	            Div('value', css_class='col-sm-4'),
-	    	            Div('details', css_class='col-sm-4'),
 	    	            Field('rule', type="hidden"),
 	    	            css_class='row'),
 	    	        

@@ -19,20 +19,26 @@ from django.contrib import admin
 from books.views import*
 
 urlpatterns = [
-    url(r'^new_journal_entry/$',
-        NewJournalEntry.as_view(),
-        name = 'new_journal_entry'),
+    
     url(r'^new_transaction/$',
         NewJournalEntryRule.as_view(),
         name = 'new_transaction'),
-
     url(r'^enter_transaction/(\w+)/$',
         EnterTransactionView.as_view(),
         name = 'enter_transaction'),
+    url(r'^enter_any_transaction/$',
+        EnterAnyTransactionView.as_view(),
+        name = 'enter_any_transaction'),
 
+    url(r'^all_journals/$',
+        JournalListView.as_view(),
+        name = 'all_journals_list'),
     url(r'^view_journal/(\w+)/$',
         JournalView.as_view(),
         name = 'view_journal'),
+    url(r'^new_journal_entry/$',
+        NewJournalEntry.as_view(),
+        name = 'new_journal_entry'),
 
     
 ]

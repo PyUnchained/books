@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from books.admin_inlines import JournalEntryActionInline, JournalEntryInline
 from books.models import (JournalEntry, Account, Branch, JournalEntryAction,
-	JournalEntryRule, Journal, JournalCreationRule, AccountType)
+	JournalEntryRule, Journal, JournalCreationRule, AccountType, OpexaBooksSystem)
 
 # Register your models here.
 
@@ -12,11 +12,12 @@ class AccountTypeAdmin(admin.ModelAdmin):
 class JournalAdmin(admin.ModelAdmin):
 	pass
 
-class BooksOfficeSystemAdmin(admin.ModelAdmin):
+class OpexaBooksSystemAdmin(admin.ModelAdmin):
 	pass
 
 class JournalCreationRuleAdmin(admin.ModelAdmin):
-	filter_horizontal = ['include_debt_from', 'include_credit_from']
+	filter_horizontal = ['include_debt_from', 'include_credit_from', 'reversed_debit_entries',
+		'reversed_credit_entries']
 
 class JournalEntryAdmin(admin.ModelAdmin):
 	list_display = ('name', 'approved', 'date', 'value', 'currency',
@@ -54,3 +55,4 @@ admin.site.register(Account, AccountAdmin)
 admin.site.register(Branch, BranchAdmin)
 admin.site.register(JournalEntryAction, JournalEntryActionAdmin)
 admin.site.register(JournalEntryRule, JournalEntryRuleAdmin)
+admin.site.register(OpexaBooksSystem, OpexaBooksSystemAdmin)

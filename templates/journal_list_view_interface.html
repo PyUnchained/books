@@ -1,0 +1,16 @@
+{% extends 'interface.html' %}
+{% load static crispy_forms_tags %}
+
+{% block main_window %}
+<h2>{{heading}}</h2>
+<ul  class = "opexabooks-list">
+{% for entry in object_list %}
+    <li class = 'opexabooks-li'><h4>{{entry}}</h4>
+    <a class="opexabooks-li-btn" href="{% url 'admin:books_journalcreationrule_change' entry.pk %}">Edit</a>
+    <a class="opexabooks-li-btn" target="_blank" href="{% url 'view_journal' entry.pk %}">Download</a></li>
+{% empty %}
+    <li class = 'opexabooks-li'>No journals defined yet.</li>
+{% endfor %}
+</ul>
+
+{% endblock %}
