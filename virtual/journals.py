@@ -35,6 +35,7 @@ def trial_balance_table_preset(virtual_journal):
 		if use_record:
 			table.append(record)
 
+	
 	table.append(['', db_tot, cr_tot])
 	
 	return table
