@@ -1,8 +1,9 @@
 import uuid
 from decimal import Decimal
 from django.db import models
+from django.utils import timezone
 
-from books.conf.settings import ACC_CHOICES, CURRENCIES, ACTIONS
+from books.conf.settings import ACC_CHOICES, CURRENCIES, ACTIONS, JOURNAL_PRESETS
 
 # Create your models here.
 class OpexaBooksSystem(models.Model):
@@ -32,12 +33,25 @@ class Account(models.Model):
 
 		debit = Decimal(0)
 		credit = Decimal(0)
-
 		for e in debit_entries:
 			debit += e.value
 		for e in credit_entries:
 			credit += e.value
+		return debit - credit
 
+	
+	def debit_minus_credit_balance(self, date__gte = None, date__lte = None):
+		debit_entries = JournalEntry.objects.filter(debit_acc = self,
+			date__gte = date__gte, date__lte = date__lte).order_by('date')
+		credit_entries = JournalEntry.objects.filter(credit_acc = self,
+			date__gte = date__gte, date__lte = date__lte).order_by('date')
+
+		debit = Decimal(0)
+		credit = Decimal(0)
+		for e in debit_entries:
+			debit += e.value
+		for e in credit_entries:
+			credit += e.value
 		return debit - credit
 
 class JournalEntry(models.Model):
@@ -64,6 +78,9 @@ class JournalEntry(models.Model):
 	details = models.TextField(max_length = 2000, blank = True, null = True)
 	approved = models.BooleanField(default = False)
 
+	class Meta:
+		verbose_name_plural = 'Journal entries'
+
 	def __str__(self):
 		if self.rule:
 			return self.rule.name
@@ -74,6 +91,9 @@ class JournalEntry(models.Model):
 
 class Branch(models.Model):
 	name = models.CharField(max_length = 120)
+
+	class Meta:
+		verbose_name_plural = 'Branches'
 
 class JournalEntryRule(models.Model):
 	name = models.CharField(max_length = 200)
@@ -106,6 +126,10 @@ class Journal(models.Model):
 class JournalCreationRule(models.Model):
 	name = models.CharField(max_length = 120,
 		null = True)
+	preset = models.CharField(max_length = 2, choices = JOURNAL_PRESETS, blank = True,
+		null = True)
+	after_date = models.DateField(null = True)
+	before_date = models.DateField(default = timezone.now)
 	include_debt_from = models.ManyToManyField('Account',
 		related_name = 'debt_included',
 		help_text = 'Accounts from which to extract debt entries.')
@@ -121,7 +145,7 @@ class JournalCreationRule(models.Model):
 		help_text = 'Reversed entries will appear on the debit side of the journal.',
 		blank = True)
 	multi_column = models.BooleanField(default = False)
-	latest_pdf = models.FileField(upload_to ='journal_pdfs', null = True)
+	latest_pdf = models.FileField(upload_to ='journal_pdfs', null = True, blank = True)
 
 	class Meta:
 		verbose_name = 'Posting Rule'

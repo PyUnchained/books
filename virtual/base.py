@@ -1,8 +1,9 @@
 from decimal import Decimal
 from collections import OrderedDict
 
-from books.virtual.pdf import journal_to_pdf
+from books.virtual.pdf import journal_to_pdf, pdf_from_preset
 from books.models import JournalCreationRule, JournalEntry
+from books.virtual.journals import build_table_from_preset
 
 
 class VirtualObject(object):
@@ -24,7 +25,7 @@ class VirtualJournal(VirtualObject):
 			credit_acc__in = self.reversed_credit_accs
 			).order_by('date')
 		self.table = self.build_table()
-		# self.pdf_version()
+		self.pdf_version()
 
 	def build_table(self):
 		debt_side = []
@@ -32,6 +33,10 @@ class VirtualJournal(VirtualObject):
 
 		#Determine the parameters to use to build the table, such as the number of columns
 		#to create and their headings
+		if self.rule.preset:
+			return build_table_from_preset(self)
+			
+
 		col_headings = ['Date', 'Details']
 		if self.rule.multi_column:
 			extra_columns = max([len(self.debt_accs), len(self.credit_accs)])
@@ -79,6 +84,8 @@ class VirtualJournal(VirtualObject):
 		return combined_table
 
 	def pdf_version(self):
+		if self.rule.preset:
+			return pdf_from_preset(self)
 		file = journal_to_pdf(self)
 		return file
 
@@ -117,7 +124,6 @@ class VirtualJournal(VirtualObject):
 		for h in headings:
 			totals[h] = Decimal(0)
 
-		print (include_entries, '\n')
 		for item in entries:
 			#Change the details column depending on whether or not the double-entry
 			#is based on a rule or not.
@@ -141,8 +147,8 @@ class VirtualJournal(VirtualObject):
 						row.append('-')
 			else:
 				row.append(item.value)
-				totals[headings[3]] += item.value
-			print (item, row)
+				totals[headings[2]] += item.value
+
 			built_side.append(row)
 
 		#Add the grand totals at the bottom of the side

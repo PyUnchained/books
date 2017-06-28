@@ -19,3 +19,8 @@ ACTIONS = (
 	('D', 'Debit'),
 	('C', 'Credit')
 	)
+
+JOURNAL_PRESETS = (
+	('TB', 'Trial Balance'),
+	('CB', 'Cash Book')
+)
