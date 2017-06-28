@@ -39,6 +39,8 @@ class Account(models.Model):
 			credit += e.value
 		return debit - credit
 
+	def extra_data(self):
+		pass
 	
 	def debit_minus_credit_balance(self, date__gte = None, date__lte = None):
 		debit_entries = JournalEntry.objects.filter(debit_acc = self,
