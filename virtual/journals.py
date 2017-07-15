@@ -14,6 +14,7 @@ def trial_balance_table_preset(virtual_journal):
 	table = []
 	table.append(virtual_journal.col_headings)
 	accounts = Account.objects.all()
+	print (accounts)
 	cr_tot = Decimal('0')
 	db_tot = Decimal('0')
 	for a in accounts:
@@ -22,6 +23,8 @@ def trial_balance_table_preset(virtual_journal):
 		balance = a.debit_minus_credit_balance(
 			date__gte = virtual_journal.rule.after_date,
 			date__lte = virtual_journal.rule.before_date)
+
+		print (a, balance)
 
 		if balance < 0:
 			record += ['', abs(balance)]

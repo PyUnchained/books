@@ -37,7 +37,7 @@ class Account(models.Model):
 			debit += e.value
 		for e in credit_entries:
 			credit += e.value
-		return debit - credit
+		return abs(debit - credit)
 
 	def extra_data(self):
 		pass

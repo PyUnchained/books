@@ -34,6 +34,7 @@ class VirtualJournal(VirtualObject):
 		#Determine the parameters to use to build the table, such as the number of columns
 		#to create and their headings
 		if self.rule.preset:
+			print (build_table_from_preset(self))
 			return build_table_from_preset(self)
 			
 
