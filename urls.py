@@ -40,5 +40,8 @@ urlpatterns = [
         NewJournalEntry.as_view(),
         name = 'new_journal_entry'),
 
+    #Stand Alone Site
+    url(r'^$', landing, name = 'demo_landing'),
+
     
 ]

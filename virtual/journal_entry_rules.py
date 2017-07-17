@@ -13,7 +13,7 @@ from books.virtual.base import VirtualJournal
 from books.virtual.forms import BaseRuleBasedTransactionForm
 from books.models import JournalEntryRule, JournalEntryAction, Account
 
-def initialize_form(form_class, rule, form = None):
+def initialize_form(form_class, rule, form = None, return_qs = False):
 	"""Takes a transaction rule and generates the appropriate form to input said transaction."""
 
 
@@ -35,6 +35,8 @@ def initialize_form(form_class, rule, form = None):
 				qs = Account.objects.filter(pk = a.account.pk)
 				initial_0 = True
 			action_fields[field_name] = {'queryset':qs, 'initial_0':initial_0}
+
+		return action_fields
 		
 		#Determine the initial values to set when creating the form
 		initial_data = {'rule':rule}

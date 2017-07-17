@@ -13,6 +13,10 @@ from books.forms import JournalEntryForm, JournalEntryRuleForm
 from books.virtual.journal_entry_rules import initialize_form, build_journal
 from books.virtual.forms import BaseRuleBasedTransactionForm
 
+def landing(request):
+
+    return render(request, 'books/landing.html')
+
 class BaseCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(BaseCreateView, self).get_context_data(**kwargs)

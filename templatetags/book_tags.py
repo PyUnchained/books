@@ -18,3 +18,9 @@ def account_history(account):
     debit_entries = JournalEntry.objects.filter(debit_acc = account).order_by('date')
     credit_entries = JournalEntry.objects.filter(credit_acc = account).order_by('date')
     return {'debit_entries':debit_entries, 'credit_entries':credit_entries}
+
+@register.inclusion_tag('books/popup_base.html')
+def pop_up(instance = None):
+    print (instance)
+    content = 'Pies'
+    return {'content':content}

@@ -1,0 +1,18 @@
+{% load static %}
+
+
+<div class = 'pop_up'>
+	<div class = 'content_holder'>
+		{{content}}
+	</div>
+	
+</div>
+
+<script src="https://code.jquery.com/jquery-2.2.4.js" ></script>
+<script src="{% static 'js/jquery.bpopup.min.js' %}"></script>
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		$('.pop_up').bPopup();
+	});
+</script>
