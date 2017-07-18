@@ -3,10 +3,14 @@ from django.contrib import admin
 from books.admin_inlines import JournalEntryActionInline, JournalEntryInline
 from books.models import (JournalEntry, Account, Branch, JournalEntryAction,
     JournalEntryRule, Journal, JournalCreationRule, AccountType, OpexaBooksSystem,
-    TermSheet, Upload)
+    TermSheet, Upload, SingleEntry)
 from books.admin_forms import InitialJournalEntryForm, ReadyJournalEntryForm, TermSheetJournalEntryForm
 
 # Register your models here.
+
+class SingleEntryInline(admin.TabularInline):
+    model = SingleEntry
+    exclude = ('',)
 
 class AccountTypeAdmin(admin.ModelAdmin):
     pass
@@ -24,10 +28,18 @@ class JournalCreationRuleAdmin(admin.ModelAdmin):
 
 
 class JournalEntryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'approved', 'date', 'value', 'currency',
-        'debit_acc', 'credit_acc')
+    list_display = ('name', 'approved', 'date', 'value', 'currency')
+    filter_horizontal = ['debit_acc', 'credit_acc']
     search_fields = ('debit_acc__name', 'debit_acc__account_type',
         'credit_acc__name', 'credit_acc__account_type', 'currency', 'rule__name')
+    inlines = [SingleEntryInline]
+
+    class Media:
+        css = {
+          'all': ('css/extra_admin.css',)
+        }
+        js = ('js/jquery-2.2.4.js','js/jquery.bpopup.min.js','js/books_admin_popup.js',
+            'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css')
 
     def get_form(self, request, obj=None, **kwargs):
         form_found = False
@@ -78,3 +90,4 @@ admin.site.register(JournalEntryRule, JournalEntryRuleAdmin)
 admin.site.register(OpexaBooksSystem, OpexaBooksSystemAdmin)
 admin.site.register(TermSheet)
 admin.site.register(Upload)
+admin.site.register(SingleEntry)

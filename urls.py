@@ -43,5 +43,11 @@ urlpatterns = [
     #Stand Alone Site
     url(r'^$', landing, name = 'demo_landing'),
 
+    #Admin URLS
+    url(r'^single_entries/([a-zA-Z0-9-]*)/$',
+        AdminSingleEntryView.as_view(),
+        name = 'admin_single_entries'),
+
+
     
 ]

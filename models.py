@@ -27,9 +27,30 @@ class Account(models.Model):
         primary_key = True)
     name = models.CharField(max_length = 120)
     account_type = models.ForeignKey('AccountType', null = True)
+    parent = models.ForeignKey('Account', blank = True, null = True,
+        verbose_name = 'Group Account Under')
 
     def __str__(self):
+        if self.parent:
+            names = []
+            for p in self.parents:
+                names.append(p.name)
+            names.append(self.name)
+            return ' - '.join(names)
         return self.name
+
+    @property
+    def parents(self):
+        parents = []
+        current = self
+        while True:
+            if current.parent:
+                parents.append(current.parent)
+                current = current.parent
+            else:
+                return parents
+
+            
 
     @property
     def balance(self):
@@ -64,12 +85,12 @@ class Account(models.Model):
 class JournalEntry(models.Model):
     code = models.UUIDField(max_length = 100,
         primary_key = True, default=uuid.uuid4)
-    debit_acc = models.ForeignKey('Account',
+    debit_acc = models.ManyToManyField('Account',
         related_name = 'debit_entry',
-        verbose_name = 'debit', null = True)
-    credit_acc = models.ForeignKey('Account',
+        verbose_name = 'debit')
+    credit_acc = models.ManyToManyField('Account',
         related_name = 'credit_entry',
-        verbose_name = 'credit', null = True)
+        verbose_name = 'credit')
     debit_branch = models.ForeignKey('Branch',
         related_name = 'debit_branch', null = True,verbose_name = 'branch',
         blank = True)
@@ -87,7 +108,8 @@ class JournalEntry(models.Model):
     approved = models.BooleanField(default = False)
 
     class Meta:
-        verbose_name_plural = 'Journal entries'
+        verbose_name = 'Transaction'
+        verbose_name_plural = 'Transactions'
 
     def __str__(self):
         if self.rule:
@@ -96,6 +118,12 @@ class JournalEntry(models.Model):
             return self.details
         else:
             return str(self.code)
+
+class SingleEntry(models.Model):
+    journal_entry = models.ForeignKey('JournalEntry')
+    account = models.ForeignKey('Account', blank = True)
+    value = models.DecimalField(decimal_places = 2,
+        max_digits = 15, null = True, blank = True)
 
 class Branch(models.Model):
     name = models.CharField(max_length = 120)

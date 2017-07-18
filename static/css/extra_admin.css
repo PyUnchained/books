@@ -1,0 +1,42 @@
+#popup_div {
+	display: none;
+	background-color: #24343C;
+	padding: 30px;
+	border-radius: 8px;
+	min-width: 80%;
+}
+
+#popup_div h4 {
+	color: white;
+}
+
+#popup_div h3 {
+	color: white;
+	font-size: 22px;
+	text-align: center;
+}
+
+.half_div {
+	display: inline-block;
+	vertical-align: top;
+	width: 48%;
+}
+
+
+.btn-regular {
+	border-radius: 3px;
+	border: solid #13232B 1px;
+	padding: 2px;
+	background-color: #F2F1F0;
+	margin-top: 20px;
+	display: inline-block;
+}
+
+#add_entries_form {
+	width: 95%;
+}
+
+.formset_entry {
+	display: inline;
+	max-width: 100px;
+}
