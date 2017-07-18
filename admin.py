@@ -21,6 +21,8 @@ class JournalCreationRuleAdmin(admin.ModelAdmin):
     filter_horizontal = ['include_debt_from', 'include_credit_from', 'reversed_debit_entries',
         'reversed_credit_entries']
 
+
+
 class JournalEntryAdmin(admin.ModelAdmin):
     list_display = ('name', 'approved', 'date', 'value', 'currency',
         'debit_acc', 'credit_acc')
