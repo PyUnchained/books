@@ -4,11 +4,12 @@ from books.models import JournalEntry, Account, Branch, JournalEntryAction, Jour
 # Register your models here.
 
 class JournalEntryInline(admin.TabularInline):
-	model = JournalEntry
+    model = JournalEntry
 
-	
+    
 
-class JournalEntryActionInline(admin.TabularInline):
+class JournalEntryActionInline(admin.StackedInline):
+    filter_horizontal = ['account_type', 'sub_type', 'accounts']
     model = JournalEntryAction
     verbose_name = 'Transaction Effect'
     verbose_name_plural = 'Transaction Effects'

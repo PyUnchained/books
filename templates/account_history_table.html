@@ -15,8 +15,8 @@
 			<tbody>
 				{% for t in debit_entries %}
 				<tr>
-					<td>{{t.date}}</td>
-					<td>{{t.rule.name }}-({{t.credit_acc}})</td>
+					<td>{{t.journal_entry.date}}</td>
+					<td><a target = '_blank' href="{% url 'admin:books_journalentry_change' t.journal_entry.pk %}">{{t.journal_entry}}</a></td>
 					<td>{{t.value }}</td>
 				</tr>
 				{% endfor %}
@@ -38,8 +38,8 @@
 			<tbody>
 				{% for t in credit_entries %}
 				<tr>
-					<td>{{t.date}}</td>
-					<td>{{t.rule.name }}-({{t.debit_acc}})</td>
+					<td>{{t.journal_entry.date}}</td>
+					<td><a target = '_blank' href="{% url 'admin:books_journalentry_change' t.journal_entry.pk %}">{{t.journal_entry}}</a></td>
 					<td>{{t.value }}</td>
 				</tr>
 				{% endfor %}

@@ -26,7 +26,6 @@ sub_heading_style.fontSize = 13
 sub_heading_style.alignment = TA_CENTER
 
 def pdf_from_preset(virtual_joural):
-
     if virtual_joural.rule.preset == 'TB':
         return trial_balance_preset(virtual_joural)
 
@@ -74,6 +73,7 @@ def trial_balance_preset(virtual_joural):
 
     default_style = TableStyle(style_data)
 
+    print (virtual_joural.table)
     t=Table(virtual_joural.table,
         colWidths=col_widths
         )

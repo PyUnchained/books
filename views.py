@@ -8,13 +8,14 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from django.conf import settings
 from django.forms.formsets import formset_factory
+from django.forms import modelformset_factory
 from django.template.loader import render_to_string
 
-from books.models import JournalEntry, JournalEntryRule, JournalCreationRule
+from books.models import JournalEntry, JournalEntryRule, JournalCreationRule, SingleEntry, Journal
 from books.forms import JournalEntryForm, JournalEntryRuleForm
 from books.virtual.journal_entry_rules import initialize_form, build_journal
 from books.virtual.forms import BaseRuleBasedTransactionForm
-from books.templatetags.forms import DebitSingleEntryForm, CreditSingleEntryForm, SingleEntryFormSetHelper, SingleEntryForm
+from books.templatetags.forms import DebitSingleEntryForm, CreditSingleEntryForm, SingleEntryFormSetHelper, SingleEntryForm, DebitEntryFormset, CreditEntryFormset
 
 def landing(request):
 
@@ -25,44 +26,83 @@ class AdminSingleEntryView(View):
     initial = {}
     template_name = 'books/admin_popup.html'
 
+    def get(self, request, *args, **kwargs):
+        journal_entry = JournalEntry.objects.get(pk=args[0])
+        number_of_forms = 5
+        querysets = initialize_form(SingleEntryForm, journal_entry.rule,
+            return_qs = True)
+
+        debit_formset = DebitEntryFormset(
+            form_kwargs={'journal_entry': journal_entry,
+                'acc_qs':querysets['debit_acc']['queryset'],
+                'action':'D'},
+            prefix='debit', queryset=journal_entry.debit_entries)
+        credit_formset = CreditEntryFormset(
+            form_kwargs = {'journal_entry': journal_entry,
+                'acc_qs':querysets['credit_acc']['queryset'],
+                'action':'C'},
+            prefix='credit', queryset=journal_entry.credit_entries)
+
+        debit_form_helper = SingleEntryFormSetHelper()
+        credit_form_helper = SingleEntryFormSetHelper()
+        form_html = render_to_string('books/input_single_entries_popup.html',
+            context = {'debit_formset':debit_formset,
+                'debit_form_helper':debit_form_helper,
+                'credit_formset':credit_formset,
+                'journal_entry':journal_entry,
+                'credit_form_helper':credit_form_helper},
+            request = request)
+        return JsonResponse({'form_html':form_html})
+
     def post(self, request, *args, **kwargs):
         journal_entry = JournalEntry.objects.get(pk=args[0])
         debit_form_helper = SingleEntryFormSetHelper()
-        DebitEntryFormset = formset_factory(DebitSingleEntryForm)
-        CreditEntryFormset = formset_factory(CreditSingleEntryForm,
-            min_num=1, validate_min=True)
+        credit_form_helper = SingleEntryFormSetHelper()
 
-        number_of_forms = 4
+        number_of_forms = 5
         querysets = initialize_form(SingleEntryForm, journal_entry.rule, return_qs = True)
         debit_initial_data = []
         for i in range(number_of_forms):
             debit_initial_data.append({'journal_entry':journal_entry,
                 'queryset':querysets['debit_acc']['queryset']})
-
-        credit_data = []
-        for i in range(number_of_forms):
-            credit_data.append({'journal_entry':journal_entry,
-                'queryset':querysets['credit_acc']['queryset']})
-
-        debit_formset = DebitEntryFormset(request.POST,
-            initial = debit_initial_data)
+        
         credit_formset = CreditEntryFormset(request.POST,
-            initial = credit_data)
+            form_kwargs = {'journal_entry': journal_entry,
+                'acc_qs':querysets['credit_acc']['queryset'],
+                'action':'C'},
+            prefix='credit', queryset=journal_entry.credit_entries)
+        if credit_formset.is_valid():
+            debit_formset = DebitEntryFormset(request.POST,
+                form_kwargs={'journal_entry': journal_entry,
+                'acc_qs':querysets['debit_acc']['queryset'],
+                'action':'D'},
+                prefix='debit', queryset=journal_entry.debit_entries,
+                credit_formset = credit_formset)
+            if debit_formset.is_valid():
+                credit_formset.save()
+                debit_formset.save()
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-        if debit_formset.is_valid() and credit_formset.is_valid():
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-        for f in debit_formset.forms:
-            print(f)
+            
+
+        else:
+            debit_formset = DebitEntryFormset(request.POST,
+                form_kwargs={'journal_entry': journal_entry,
+                'acc_qs':querysets['debit_acc']['queryset'],
+                'action':'D'},
+                prefix='debit', queryset=journal_entry.debit_entries)
 
 
-        form_html = render_to_string('books/admin_popup.html',
+
+        form_html = render_to_string('books/input_single_entries_popup.html',
             context = {'debit_formset':debit_formset,
                 'debit_form_helper':debit_form_helper,
                 'credit_formset':credit_formset,
-                'journal_entry':journal_entry},
+                'journal_entry':journal_entry,
+                'credit_form_helper':credit_form_helper},
             request = request)
-        return JsonResponse({'form_html':form_html})
+        return JsonResponse({'form_html':form_html, 'success':False})
 
 class BaseCreateView(CreateView):
     def get_context_data(self, **kwargs):
@@ -158,15 +198,24 @@ class JournalListView(ListView):
     #         'Record General Transaction', 'all_entries':all_entries})
 
 class JournalView(View):
+    """ Creates a Virtual Journal object using real-time data and redirects to a download
+    link for the pdf verion of it."""
     template_name = 'journal_interface.html'
 
     def get(self, request, *args, **kwargs):
-        rule = JournalCreationRule.objects.get(pk = args[0])
-        journal = build_journal(rule)
-        file_path = journal.rule.latest_pdf.path
+        journal = Journal.objects.get(code = args[0])
+        if journal.preset:
+            rule, created = JournalCreationRule.objects.get_or_create(
+                preset = journal.preset, default = True, before_date = journal.date_to,
+                after_date = journal.date_from, name =journal.name)
+        else:
+            rule = journal.rule
+
+        virtual_journal = build_journal(rule)
+        file_path = virtual_journal.rule.latest_pdf.path
         if os.path.exists(file_path):
             with open(file_path, 'rb') as fh:
                 response = HttpResponse(fh.read(), content_type="application/pdf")
-                response['Content-Disposition'] = 'inline; filename=' + journal.rule.latest_pdf.path
+                response['Content-Disposition'] = 'inline; filename=' + virtual_journal.rule.latest_pdf.path
                 return response
         # return render(request, self.template_name, {'virtual_journal': journal})

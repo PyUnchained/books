@@ -32,7 +32,7 @@ def initialize_form(form_class, rule, form = None, return_qs = False):
 				qs = Account.objects.filter(account_type = a.account_type)
 				initial_0 = False
 			else:
-				qs = Account.objects.filter(pk = a.account.pk)
+				qs = a.accounts.all()
 				initial_0 = True
 			action_fields[field_name] = {'queryset':qs, 'initial_0':initial_0}
 

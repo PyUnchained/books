@@ -1,0 +1,1733 @@
+[
+{
+    "model": "books.accounttype",
+    "pk": "cost of sales",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accounttype",
+    "pk": "current assets",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accounttype",
+    "pk": "current liabilities",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accounttype",
+    "pk": "equity",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accounttype",
+    "pk": "expense",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accounttype",
+    "pk": "income",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accounttype",
+    "pk": "long term assets",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accounttype",
+    "pk": "long-term liabilities",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "accounts payable",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "accounts receivable",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "capital",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "cash and cash equivalents",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "cost of sales",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "depreciation",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "finance costs",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "general and administrative",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "income tax expense",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "inventory",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "loans",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "mortgages",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "other current assets",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "other current liabilities",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "other income",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "property, plant and equipment",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "research and development",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "retained earnings",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "revenue",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.accountsubtype",
+    "pk": "sales and marketing",
+    "fields": {
+        "description": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "1000",
+    "fields": {
+        "name": "Bank Checking Account",
+        "account_type": "current assets",
+        "sub_type": "cash and cash equivalents",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "1010",
+    "fields": {
+        "name": "Bank Savings Account",
+        "account_type": "current assets",
+        "sub_type": "cash and cash equivalents",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "1020",
+    "fields": {
+        "name": "Online Savings Account",
+        "account_type": "current assets",
+        "sub_type": "cash and cash equivalents",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "1030",
+    "fields": {
+        "name": "Petty Cash Account",
+        "account_type": "current assets",
+        "sub_type": "cash and cash equivalents",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "1040",
+    "fields": {
+        "name": "Paypal Account",
+        "account_type": "current assets",
+        "sub_type": "cash and cash equivalents",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "1200",
+    "fields": {
+        "name": "Accounts Receivable",
+        "account_type": "current assets",
+        "sub_type": "accounts receivable",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "1210",
+    "fields": {
+        "name": "Allowance For Doubtful Debts Account",
+        "account_type": "current assets",
+        "sub_type": "accounts receivable",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "1400",
+    "fields": {
+        "name": "Stock/Inventory",
+        "account_type": "current assets",
+        "sub_type": "inventory",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "1600",
+    "fields": {
+        "name": "Prepayments",
+        "account_type": "current assets",
+        "sub_type": "other current assets",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "1800",
+    "fields": {
+        "name": "Property",
+        "account_type": "long term assets",
+        "sub_type": "property, plant and equipment",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "1810",
+    "fields": {
+        "name": "Property Depreciation",
+        "account_type": "long term assets",
+        "sub_type": "property, plant and equipment",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "1820",
+    "fields": {
+        "name": "Plant",
+        "account_type": "long term assets",
+        "sub_type": "property, plant and equipment",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "1830",
+    "fields": {
+        "name": "Plant Depreciation",
+        "account_type": "long term assets",
+        "sub_type": "property, plant and equipment",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "1840",
+    "fields": {
+        "name": "Equipment",
+        "account_type": "long term assets",
+        "sub_type": "property, plant and equipment",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "1850",
+    "fields": {
+        "name": "Equipment Depreciation",
+        "account_type": "long term assets",
+        "sub_type": "property, plant and equipment",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "2000",
+    "fields": {
+        "name": "Accounts Payable",
+        "account_type": "current liabilities",
+        "sub_type": "accounts payable",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "2200",
+    "fields": {
+        "name": "Payroll Payable",
+        "account_type": "current liabilities",
+        "sub_type": "other current liabilities",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "2210",
+    "fields": {
+        "name": "Interest Payable",
+        "account_type": "current liabilities",
+        "sub_type": "other current liabilities",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "2220",
+    "fields": {
+        "name": "Accrued Expenses",
+        "account_type": "current liabilities",
+        "sub_type": "other current liabilities",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "2230",
+    "fields": {
+        "name": "Unearned Revenue",
+        "account_type": "current liabilities",
+        "sub_type": "other current liabilities",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "2240",
+    "fields": {
+        "name": "Sales Tax Payable",
+        "account_type": "current liabilities",
+        "sub_type": "other current liabilities",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "2250",
+    "fields": {
+        "name": "Purchase Tax Payable",
+        "account_type": "current liabilities",
+        "sub_type": "other current liabilities",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "2260",
+    "fields": {
+        "name": "Payroll Tax Payable",
+        "account_type": "current liabilities",
+        "sub_type": "other current liabilities",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "2270",
+    "fields": {
+        "name": "Income Tax Payable",
+        "account_type": "current liabilities",
+        "sub_type": "other current liabilities",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "2400",
+    "fields": {
+        "name": "Mortgage Loan",
+        "account_type": "long-term liabilities",
+        "sub_type": "mortgages",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "2600",
+    "fields": {
+        "name": "Other Loans",
+        "account_type": "long-term liabilities",
+        "sub_type": "loans",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "3000",
+    "fields": {
+        "name": "Owners Contributions",
+        "account_type": "equity",
+        "sub_type": "capital",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "3010",
+    "fields": {
+        "name": "Owners Draw",
+        "account_type": "equity",
+        "sub_type": "capital",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "3020",
+    "fields": {
+        "name": "Retained Earnings",
+        "account_type": "equity",
+        "sub_type": "retained earnings",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "4000",
+    "fields": {
+        "name": "Retail Sales",
+        "account_type": "income",
+        "sub_type": "revenue",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "4010",
+    "fields": {
+        "name": "Services",
+        "account_type": "income",
+        "sub_type": "revenue",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "4020",
+    "fields": {
+        "name": "Discounts Allowed",
+        "account_type": "income",
+        "sub_type": "revenue",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "4200",
+    "fields": {
+        "name": "Interest Income",
+        "account_type": "income",
+        "sub_type": "other income",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "4210",
+    "fields": {
+        "name": "Rent Income",
+        "account_type": "income",
+        "sub_type": "other income",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "4400",
+    "fields": {
+        "name": "Purchases",
+        "account_type": "cost of sales",
+        "sub_type": "cost of sales",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "4410",
+    "fields": {
+        "name": "Packaging",
+        "account_type": "cost of sales",
+        "sub_type": "cost of sales",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "4420",
+    "fields": {
+        "name": "Discounts Taken",
+        "account_type": "cost of sales",
+        "sub_type": "cost of sales",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "4430",
+    "fields": {
+        "name": "Shipping Costs",
+        "account_type": "cost of sales",
+        "sub_type": "cost of sales",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "4440",
+    "fields": {
+        "name": "Import Duty",
+        "account_type": "cost of sales",
+        "sub_type": "cost of sales",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "4450",
+    "fields": {
+        "name": "Opening Stock/Inventory",
+        "account_type": "cost of sales",
+        "sub_type": "cost of sales",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "4460",
+    "fields": {
+        "name": "Closing Stock/Inventory",
+        "account_type": "cost of sales",
+        "sub_type": "cost of sales",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "4470",
+    "fields": {
+        "name": "Productive Labour",
+        "account_type": "cost of sales",
+        "sub_type": "cost of sales",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "4800",
+    "fields": {
+        "name": "Research And Development",
+        "account_type": "expense",
+        "sub_type": "research and development",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5000",
+    "fields": {
+        "name": "Sales Commissions",
+        "account_type": "expense",
+        "sub_type": "sales and marketing",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5010",
+    "fields": {
+        "name": "Sales Promotion",
+        "account_type": "expense",
+        "sub_type": "sales and marketing",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5020",
+    "fields": {
+        "name": "Advertising",
+        "account_type": "expense",
+        "sub_type": "sales and marketing",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5030",
+    "fields": {
+        "name": "Gifts & Samples",
+        "account_type": "expense",
+        "sub_type": "sales and marketing",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5040",
+    "fields": {
+        "name": "Marketing Expenses",
+        "account_type": "expense",
+        "sub_type": "sales and marketing",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5200",
+    "fields": {
+        "name": "Payroll",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5210",
+    "fields": {
+        "name": "Contract Labor",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5220",
+    "fields": {
+        "name": "Payroll Expenses",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5230",
+    "fields": {
+        "name": "Payroll Benefits",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5240",
+    "fields": {
+        "name": "Payroll Taxes",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5250",
+    "fields": {
+        "name": "Computer And Internet",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5260",
+    "fields": {
+        "name": "Software",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5270",
+    "fields": {
+        "name": "Website",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5280",
+    "fields": {
+        "name": "Rent",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5290",
+    "fields": {
+        "name": "Property Taxes",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5300",
+    "fields": {
+        "name": "Utilities",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5310",
+    "fields": {
+        "name": "Motor Expenses",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5320",
+    "fields": {
+        "name": "Travelling",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5330",
+    "fields": {
+        "name": "Hotels",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5340",
+    "fields": {
+        "name": "Meals And Entertainment",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5350",
+    "fields": {
+        "name": "Printing",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5360",
+    "fields": {
+        "name": "Postage & Carriage",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5370",
+    "fields": {
+        "name": "Telephone",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5380",
+    "fields": {
+        "name": "Office Supplies",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5390",
+    "fields": {
+        "name": "Professional Fees",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5400",
+    "fields": {
+        "name": "Equipment Hire",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5410",
+    "fields": {
+        "name": "Repairs & Maintenance",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5420",
+    "fields": {
+        "name": "Housekeeping Supplies And Cleaning",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5430",
+    "fields": {
+        "name": "Bad Debt Expense",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5440",
+    "fields": {
+        "name": "Dues And Membership Fees",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5450",
+    "fields": {
+        "name": "Research And Professional Development",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5460",
+    "fields": {
+        "name": "Insurance",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5470",
+    "fields": {
+        "name": "Security",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5480",
+    "fields": {
+        "name": "Suspense Account",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5600",
+    "fields": {
+        "name": "Depreciation",
+        "account_type": "expense",
+        "sub_type": "depreciation",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5800",
+    "fields": {
+        "name": "Interest Expense",
+        "account_type": "expense",
+        "sub_type": "finance costs",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5810",
+    "fields": {
+        "name": "Bank Fees",
+        "account_type": "expense",
+        "sub_type": "finance costs",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "5900",
+    "fields": {
+        "name": "Income Tax Expense",
+        "account_type": "expense",
+        "sub_type": "income tax expense",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "C Dunn",
+    "fields": {
+        "name": "C Dunn",
+        "account_type": "current liabilities",
+        "sub_type": "accounts payable",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "E. Farnham",
+    "fields": {
+        "name": "E. Farnham",
+        "account_type": "current liabilities",
+        "sub_type": "accounts payable",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "I Jumpstart",
+    "fields": {
+        "name": "I Jumpstart",
+        "account_type": "current liabilities",
+        "sub_type": "accounts payable",
+        "parent": null
+    }
+},
+{
+    "model": "books.account",
+    "pk": "Stationery ACC",
+    "fields": {
+        "name": "Stationery",
+        "account_type": "expense",
+        "sub_type": "general and administrative",
+        "parent": null
+    }
+},
+{
+    "model": "books.journalentry",
+    "pk": "1fe27bc1-1070-4dac-9e1b-eff1a16e6ab9",
+    "fields": {
+        "debit_branch": null,
+        "credit_branch": null,
+        "term": null,
+        "date": "2017-08-03",
+        "currency": "USD",
+        "rule": 5,
+        "details": "",
+        "approved": false,
+        "debit_acc": [],
+        "credit_acc": []
+    }
+},
+{
+    "model": "books.journalentry",
+    "pk": "378cd410-b098-4f16-8b9d-0246f7d7ae16",
+    "fields": {
+        "debit_branch": null,
+        "credit_branch": null,
+        "term": null,
+        "date": "2017-08-10",
+        "currency": "USD",
+        "rule": 5,
+        "details": "",
+        "approved": false,
+        "debit_acc": [],
+        "credit_acc": []
+    }
+},
+{
+    "model": "books.journalentry",
+    "pk": "845a2949-c8f9-49f6-8c3b-c2ec62b34cf3",
+    "fields": {
+        "debit_branch": null,
+        "credit_branch": null,
+        "term": null,
+        "date": "2017-08-14",
+        "currency": "USD",
+        "rule": 5,
+        "details": "",
+        "approved": false,
+        "debit_acc": [],
+        "credit_acc": []
+    }
+},
+{
+    "model": "books.journalentry",
+    "pk": "87007c09-7eae-420a-8656-18ed21b64471",
+    "fields": {
+        "debit_branch": null,
+        "credit_branch": null,
+        "term": null,
+        "date": "2017-08-02",
+        "currency": "USD",
+        "rule": 5,
+        "details": "",
+        "approved": false,
+        "debit_acc": [],
+        "credit_acc": []
+    }
+},
+{
+    "model": "books.journalentry",
+    "pk": "8759bf47-35cb-4381-9994-f7c096d783a8",
+    "fields": {
+        "debit_branch": null,
+        "credit_branch": null,
+        "term": null,
+        "date": "2017-08-30",
+        "currency": "USD",
+        "rule": 5,
+        "details": "",
+        "approved": false,
+        "debit_acc": [],
+        "credit_acc": []
+    }
+},
+{
+    "model": "books.journalentry",
+    "pk": "924e6e2f-157d-41fb-87da-8d4015882f84",
+    "fields": {
+        "debit_branch": null,
+        "credit_branch": null,
+        "term": null,
+        "date": "2017-08-01",
+        "currency": "USD",
+        "rule": 5,
+        "details": "",
+        "approved": false,
+        "debit_acc": [],
+        "credit_acc": []
+    }
+},
+{
+    "model": "books.journalentry",
+    "pk": "92a79af1-f11b-433c-b5b2-0df11b5860c6",
+    "fields": {
+        "debit_branch": null,
+        "credit_branch": null,
+        "term": null,
+        "date": "2017-08-31",
+        "currency": "USD",
+        "rule": 5,
+        "details": "",
+        "approved": false,
+        "debit_acc": [],
+        "credit_acc": []
+    }
+},
+{
+    "model": "books.journalentry",
+    "pk": "b6c27cd7-d096-466f-82fa-28b4d28b78a2",
+    "fields": {
+        "debit_branch": null,
+        "credit_branch": null,
+        "term": null,
+        "date": "2017-08-06",
+        "currency": "USD",
+        "rule": 5,
+        "details": "",
+        "approved": false,
+        "debit_acc": [],
+        "credit_acc": []
+    }
+},
+{
+    "model": "books.journalentry",
+    "pk": "ba992449-f6b3-4e7a-870a-a42e00af31af",
+    "fields": {
+        "debit_branch": null,
+        "credit_branch": null,
+        "term": null,
+        "date": "2017-08-31",
+        "currency": "USD",
+        "rule": 5,
+        "details": "",
+        "approved": false,
+        "debit_acc": [],
+        "credit_acc": []
+    }
+},
+{
+    "model": "books.journalentry",
+    "pk": "c72ea52d-d4ef-4c6d-b917-ce429291dd94",
+    "fields": {
+        "debit_branch": null,
+        "credit_branch": null,
+        "term": null,
+        "date": "2017-08-12",
+        "currency": "USD",
+        "rule": 5,
+        "details": "",
+        "approved": false,
+        "debit_acc": [],
+        "credit_acc": []
+    }
+},
+{
+    "model": "books.journalentry",
+    "pk": "cefbc162-c50b-44c3-a1b1-e93a179e0144",
+    "fields": {
+        "debit_branch": null,
+        "credit_branch": null,
+        "term": null,
+        "date": "2017-08-31",
+        "currency": "USD",
+        "rule": 6,
+        "details": "",
+        "approved": false,
+        "debit_acc": [],
+        "credit_acc": []
+    }
+},
+{
+    "model": "books.journalentry",
+    "pk": "f69fed20-94d9-4305-9cde-903a17bad9a6",
+    "fields": {
+        "debit_branch": null,
+        "credit_branch": null,
+        "term": null,
+        "date": "2017-08-20",
+        "currency": "USD",
+        "rule": 5,
+        "details": "",
+        "approved": false,
+        "debit_acc": [],
+        "credit_acc": []
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 41,
+    "fields": {
+        "journal_entry": "924e6e2f-157d-41fb-87da-8d4015882f84",
+        "account": "3000",
+        "action": "C",
+        "value": "1500.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 42,
+    "fields": {
+        "journal_entry": "924e6e2f-157d-41fb-87da-8d4015882f84",
+        "account": "1000",
+        "action": "D",
+        "value": "1500.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 43,
+    "fields": {
+        "journal_entry": "924e6e2f-157d-41fb-87da-8d4015882f84",
+        "account": "1030",
+        "action": "D",
+        "value": "500.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 44,
+    "fields": {
+        "journal_entry": "924e6e2f-157d-41fb-87da-8d4015882f84",
+        "account": "3000",
+        "action": "C",
+        "value": "500.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 45,
+    "fields": {
+        "journal_entry": "87007c09-7eae-420a-8656-18ed21b64471",
+        "account": "C Dunn",
+        "action": "C",
+        "value": "1750.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 46,
+    "fields": {
+        "journal_entry": "87007c09-7eae-420a-8656-18ed21b64471",
+        "account": "4400",
+        "action": "D",
+        "value": "1750.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 47,
+    "fields": {
+        "journal_entry": "1fe27bc1-1070-4dac-9e1b-eff1a16e6ab9",
+        "account": "1000",
+        "action": "C",
+        "value": "150.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 48,
+    "fields": {
+        "journal_entry": "1fe27bc1-1070-4dac-9e1b-eff1a16e6ab9",
+        "account": "1840",
+        "action": "D",
+        "value": "150.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 49,
+    "fields": {
+        "journal_entry": "b6c27cd7-d096-466f-82fa-28b4d28b78a2",
+        "account": "E. Farnham",
+        "action": "C",
+        "value": "115.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 50,
+    "fields": {
+        "journal_entry": "b6c27cd7-d096-466f-82fa-28b4d28b78a2",
+        "account": "4400",
+        "action": "D",
+        "value": "115.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 51,
+    "fields": {
+        "journal_entry": "378cd410-b098-4f16-8b9d-0246f7d7ae16",
+        "account": "1030",
+        "action": "C",
+        "value": "300.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 52,
+    "fields": {
+        "journal_entry": "378cd410-b098-4f16-8b9d-0246f7d7ae16",
+        "account": "5280",
+        "action": "D",
+        "value": "300.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 53,
+    "fields": {
+        "journal_entry": "c72ea52d-d4ef-4c6d-b917-ce429291dd94",
+        "account": "1030",
+        "action": "C",
+        "value": "75.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 54,
+    "fields": {
+        "journal_entry": "c72ea52d-d4ef-4c6d-b917-ce429291dd94",
+        "account": "Stationery ACC",
+        "action": "D",
+        "value": "75.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 55,
+    "fields": {
+        "journal_entry": "845a2949-c8f9-49f6-8c3b-c2ec62b34cf3",
+        "account": "4000",
+        "action": "C",
+        "value": "125.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 56,
+    "fields": {
+        "journal_entry": "845a2949-c8f9-49f6-8c3b-c2ec62b34cf3",
+        "account": "1200",
+        "action": "D",
+        "value": "125.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 57,
+    "fields": {
+        "journal_entry": "f69fed20-94d9-4305-9cde-903a17bad9a6",
+        "account": "I Jumpstart",
+        "action": "C",
+        "value": "2000.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 58,
+    "fields": {
+        "journal_entry": "f69fed20-94d9-4305-9cde-903a17bad9a6",
+        "account": "1840",
+        "action": "D",
+        "value": "2000.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 59,
+    "fields": {
+        "journal_entry": "8759bf47-35cb-4381-9994-f7c096d783a8",
+        "account": "1000",
+        "action": "C",
+        "value": "450.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 60,
+    "fields": {
+        "journal_entry": "8759bf47-35cb-4381-9994-f7c096d783a8",
+        "account": "5200",
+        "action": "D",
+        "value": "450.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 61,
+    "fields": {
+        "journal_entry": "92a79af1-f11b-433c-b5b2-0df11b5860c6",
+        "account": "1030",
+        "action": "C",
+        "value": "2000.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 62,
+    "fields": {
+        "journal_entry": "92a79af1-f11b-433c-b5b2-0df11b5860c6",
+        "account": "1000",
+        "action": "C",
+        "value": "500.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 63,
+    "fields": {
+        "journal_entry": "92a79af1-f11b-433c-b5b2-0df11b5860c6",
+        "account": "1000",
+        "action": "D",
+        "value": "2000.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 64,
+    "fields": {
+        "journal_entry": "92a79af1-f11b-433c-b5b2-0df11b5860c6",
+        "account": "3010",
+        "action": "D",
+        "value": "500.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 65,
+    "fields": {
+        "journal_entry": "ba992449-f6b3-4e7a-870a-a42e00af31af",
+        "account": "4000",
+        "action": "C",
+        "value": "2500.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 66,
+    "fields": {
+        "journal_entry": "ba992449-f6b3-4e7a-870a-a42e00af31af",
+        "account": "1030",
+        "action": "D",
+        "value": "2500.00"
+    }
+},
+{
+    "model": "books.singleentry",
+    "pk": 67,
+    "fields": {
+        "journal_entry": "cefbc162-c50b-44c3-a1b1-e93a179e0144",
+        "account": "4460",
+        "action": "D",
+        "value": "500.00"
+    }
+},
+{
+    "model": "books.journalentryrule",
+    "pk": 5,
+    "fields": {
+        "name": "Generic Transaction",
+        "term_sheet": null,
+        "allow_single_entry": false,
+        "display_template": null
+    }
+},
+{
+    "model": "books.journalentryrule",
+    "pk": 6,
+    "fields": {
+        "name": "Generic Single Entry",
+        "term_sheet": null,
+        "allow_single_entry": true,
+        "display_template": null
+    }
+},
+{
+    "model": "books.journalentryaction",
+    "pk": 1,
+    "fields": {
+        "rule": 5,
+        "action": "D",
+        "account_type": [],
+        "sub_type": [],
+        "accounts": []
+    }
+},
+{
+    "model": "books.journalentryaction",
+    "pk": 2,
+    "fields": {
+        "rule": 5,
+        "action": "C",
+        "account_type": [],
+        "sub_type": [],
+        "accounts": []
+    }
+},
+{
+    "model": "books.journalentryaction",
+    "pk": 3,
+    "fields": {
+        "rule": 6,
+        "action": "D",
+        "account_type": [
+            "cost of sales",
+            "current assets",
+            "current liabilities",
+            "equity",
+            "expense",
+            "income",
+            "long term assets",
+            "long-term liabilities"
+        ],
+        "sub_type": [],
+        "accounts": []
+    }
+},
+{
+    "model": "books.journalentryaction",
+    "pk": 4,
+    "fields": {
+        "rule": 6,
+        "action": "C",
+        "account_type": [
+            "cost of sales",
+            "current assets",
+            "current liabilities",
+            "equity",
+            "expense",
+            "income",
+            "long term assets",
+            "long-term liabilities"
+        ],
+        "sub_type": [],
+        "accounts": []
+    }
+},
+{
+    "model": "books.journal",
+    "pk": "Some Code232",
+    "fields": {
+        "name": "Trial Balance Test",
+        "rule": null
+    }
+},
+{
+    "model": "books.journalcreationrule",
+    "pk": 1,
+    "fields": {
+        "name": "Cash Book",
+        "preset": "CB",
+        "date_from": "2016-08-02",
+        "date_to": "2017-07-15",
+        "multi_column": true,
+        "latest_pdf": "",
+        "default": false,
+        "include_debt_from": [],
+        "reversed_debit_entries": [],
+        "include_credit_from": [],
+        "reversed_credit_entries": []
+    }
+},
+{
+    "model": "books.journalcreationrule",
+    "pk": 7,
+    "fields": {
+        "name": "Trial Balance Test",
+        "preset": "TB",
+        "date_from": "2017-08-01",
+        "date_to": "2017-08-31",
+        "multi_column": false,
+        "latest_pdf": "",
+        "default": true,
+        "include_debt_from": [],
+        "reversed_debit_entries": [],
+        "include_credit_from": [],
+        "reversed_credit_entries": []
+    }
+},
+{
+    "model": "books.journalcreationrule",
+    "pk": 8,
+    "fields": {
+        "name": "Balance Sheet",
+        "preset": "BS",
+        "date_from": "2016-08-31",
+        "date_to": "2017-08-31",
+        "multi_column": false,
+        "latest_pdf": "",
+        "default": false,
+        "include_debt_from": [],
+        "reversed_debit_entries": [],
+        "include_credit_from": [],
+        "reversed_credit_entries": []
+    }
+},
+{
+    "model": "books.journalcreationrule",
+    "pk": 9,
+    "fields": {
+        "name": "Generic T-Accounts",
+        "preset": "T",
+        "date_from": "2016-08-02",
+        "date_to": "2017-08-02",
+        "multi_column": false,
+        "latest_pdf": "",
+        "default": false,
+        "include_debt_from": [],
+        "reversed_debit_entries": [],
+        "include_credit_from": [],
+        "reversed_credit_entries": []
+    }
+},
+{
+    "model": "books.journalcreationrule",
+    "pk": 10,
+    "fields": {
+        "name": "Trading, Profit & Loss",
+        "preset": "PL",
+        "date_from": "2016-08-31",
+        "date_to": "2017-08-31",
+        "multi_column": false,
+        "latest_pdf": "",
+        "default": false,
+        "include_debt_from": [],
+        "reversed_debit_entries": [],
+        "include_credit_from": [],
+        "reversed_credit_entries": []
+    }
+},
+{
+    "model": "books.termsheet",
+    "pk": 1,
+    "fields": {
+        "description": "Short Term Loan",
+        "interest_method": "S",
+        "last_modified": "2017-07-17T13:26:29.991Z",
+        "date_issued": "2017-07-15",
+        "expiry_date": "2017-07-15",
+        "security": null,
+        "guarantee": null,
+        "buffer_days": 7,
+        "max_value": "500.00",
+        "min_value": "200.00",
+        "establishment_fee_rate": "1.0000",
+        "roll_over_fee_rate": null,
+        "default_fee_rate": null,
+        "discount_rate": "2.00",
+        "rollover_discount_rate": null,
+        "default_discount_rate": null,
+        "pdf_version": "",
+        "recourse_measures": []
+    }
+},
+{
+    "model": "books.termsheet",
+    "pk": 2,
+    "fields": {
+        "description": "Medium Term Loan",
+        "interest_method": "S",
+        "last_modified": "2017-07-17T13:27:17.868Z",
+        "date_issued": null,
+        "expiry_date": null,
+        "security": null,
+        "guarantee": null,
+        "buffer_days": 7,
+        "max_value": "1000.00",
+        "min_value": "20000.00",
+        "establishment_fee_rate": "1.5000",
+        "roll_over_fee_rate": null,
+        "default_fee_rate": null,
+        "discount_rate": "3.70",
+        "rollover_discount_rate": null,
+        "default_discount_rate": null,
+        "pdf_version": "",
+        "recourse_measures": []
+    }
+}
+]

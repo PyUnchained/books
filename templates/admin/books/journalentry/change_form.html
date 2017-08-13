@@ -9,11 +9,14 @@
 {% endblock %}
 
 
-
 {% block content %}
-	<div id = 'popup_div'>
-	{% admin_popup original model='JournalEntry' %}
-	</div>
-  {{ block.super }}
+	{% admin_base_popup  %}
+	<a href="#" formurl = '{% url "opexa_books:admin_single_entries" original.pk %}' class = 'btn btn-regular popup-btn'>Manage Entries</a>
+	<script type="text/javascript">
+		$('.popup-btn').click(function() {
+			showPopup($(this));
+		})
+	</script>
+ 	{{ block.super }}
 
 {% endblock %}

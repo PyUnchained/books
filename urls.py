@@ -33,7 +33,7 @@ urlpatterns = [
     url(r'^all_journals/$',
         JournalListView.as_view(),
         name = 'all_journals_list'),
-    url(r'^view_journal/(\w+)/$',
+    url(r'^view_journal/(.*)/$',
         JournalView.as_view(),
         name = 'view_journal'),
     url(r'^new_journal_entry/$',
@@ -47,6 +47,8 @@ urlpatterns = [
     url(r'^single_entries/([a-zA-Z0-9-]*)/$',
         AdminSingleEntryView.as_view(),
         name = 'admin_single_entries'),
+    # url(r'^admin_forms/(\w+)/$',
+    #     AdminForms.as_view(), name = 'admin_forms'),
 
 
     

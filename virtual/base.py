@@ -12,7 +12,8 @@ class VirtualObject(object):
 
 class VirtualJournal(VirtualObject):
 
-	def __init__(self, rule):
+	def __init__(self, rule, date = None):
+		self.date = None
 		self.rule = rule
 		self.debt_accs = rule.include_debt_from.all()
 		self.reversed_debit_accs = rule.reversed_debit_entries.all()
@@ -30,12 +31,13 @@ class VirtualJournal(VirtualObject):
 	def build_table(self):
 		debt_side = []
 		credit_side = []
-
 		#Determine the parameters to use to build the table, such as the number of columns
 		#to create and their headings
 		if self.rule.preset:
-			print (build_table_from_preset(self))
 			return build_table_from_preset(self)
+		else:
+			raise RuntimeError('Journals can only be created from a journal creation '
+				'rule that defines a preset.')
 			
 
 		col_headings = ['Date', 'Details']

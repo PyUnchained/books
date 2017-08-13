@@ -5,6 +5,7 @@ ACC_CHOICES = (
 	('E', 'Expense'),
 	('R', 'Revenue'),
 	('P', 'Profits'),
+	('PU', 'Purchases'),
 	('LO', 'Losses'),
 	('CL', 'Customer'),
 	('S', 'Supplier')
@@ -22,5 +23,8 @@ ACTIONS = (
 
 JOURNAL_PRESETS = (
 	('TB', 'Trial Balance'),
-	('CB', 'Cash Book')
+	('BS', 'Balance Sheet'),
+	('CB', 'Cash Book'),
+	('PL', 'Trading, Profit & Loss'),
+	('T', 'Generic T-Account')
 )

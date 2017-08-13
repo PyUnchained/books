@@ -1,18 +1,68 @@
 {% load static %}
 
 
-<div class = 'pop_up'>
-	<div class = 'content_holder'>
-		{{content}}
-	</div>
+<div id = 'popup_div'>
 	
 </div>
-
-<script src="https://code.jquery.com/jquery-2.2.4.js" ></script>
-<script src="{% static 'js/jquery.bpopup.min.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.1/jquery.form.min.js" integrity="sha384-tIwI8+qJdZBtYYCKwRkjxBGQVZS3gGozr3CtI+5JF/oL1JmPEHzCEnIKbDbLTCer" crossorigin="anonymous"></script>
 <script type="text/javascript">
+	function showPopup(show_element) {
+		$.ajax({
+		    url: show_element.attr('formurl'),
+		    type: 'GET',
+		    async: true,
+		    success: function(response) {
+		    	// Have to put this in a try loop because otherwise it interferes with the suit js when
+		    	// only called once
+		    	$("#popup_div").html(response.form_html);
+		    	window.newPopup = $('#popup_div').bPopup({
+		    	  modal: false,
+		    	  fadeSpeed: 'slow',
+	              followSpeed: 1500,
+		    	});
+		    	console.log('First');
+		    	$('#popup_div').show();
+		    	overrideSubmit();
+		    	// $('#popup_div form').find("input[class*='dateinput']").datepicker({format: 'dd/mm/yy'});
+		    	// $("#popup_div form select").chosen();
+		    	
+		    	
+		    },
+		    error : function(xhr,errmsg,err) {
+		        console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+		    }
+		});
+		
+	}
 
-	$(document).ready(function() {
-		$('.pop_up').bPopup();
-	});
+	function overrideSubmit(){
+		console.log('In Override Func');
+		console.log($('#popup_div form'));
+		$('#popup_div form').on('submit', function(event){
+		    event.preventDefault();
+		    submit_query($(this));
+		});
+	}
+
+
+	function submit_query(raw_form) {
+		$(raw_form).ajaxSubmit({
+			type: 'POST',
+			success : function(response) {
+				console.log(response);
+	            if (response.success == false){
+	                $("#popup_div").html(response.form_html);
+	                // $("#popup_div form select").chosen();
+	                console.log('Overrriding');
+	                overrideSubmit();
+	            } else {
+	            	$('#popup_div').hide();
+	            } 
+	        },
+	        error : function(xhr,errmsg,err) {
+	            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+	        }
+		}); 
+	    return false;
+	};
 </script>

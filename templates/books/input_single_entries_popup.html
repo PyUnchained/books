@@ -1,0 +1,26 @@
+{% load static crispy_forms_tags %}
+
+<div id='popup_ajax'>
+<form id = 'add_entries_form' action="{% url 'opexa_books:admin_single_entries' journal_entry.pk %}">
+<div class = 'half_div'>
+	<h3>Debit</h3>
+	{% if debit_formset %}
+	{% crispy debit_formset debit_form_helper %}
+	{% endif %}
+	<a class = 'btn-regular extra_entry_btn'><i class = 'fa fa-plus'></i></a>
+</div>
+<div class = 'half_div'>
+	<h3>Credit</h3>
+	{% if credit_formset %}
+	{% crispy credit_formset credit_form_helper %}
+	{% endif %}
+	<a class = 'btn-regular extra_entry_btn'><i class = 'fa fa-plus'></i></a>
+
+</div>
+<a href="#"></a>
+<hr>
+<input type="submit" value="Submit">
+</form>
+
+
+</div>

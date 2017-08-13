@@ -26,9 +26,8 @@
 .btn-regular {
 	border-radius: 3px;
 	border: solid #13232B 1px;
-	padding: 2px;
+	padding: 5px;
 	background-color: #F2F1F0;
-	margin-top: 20px;
 	display: inline-block;
 }
 
@@ -39,4 +38,9 @@
 .formset_entry {
 	display: inline;
 	max-width: 100px;
+}
+
+
+#popup_div .alert-danger li{
+  color:white !important;
 }
