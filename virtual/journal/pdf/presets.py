@@ -78,7 +78,7 @@ def trial_balance_preset(virtual_joural):
     pdf = file_buffer.getvalue()
     with open('/tmp/trial_balance_journal.pdf', 'wb') as f:
         f.write(pdf)
-    return ContentFile(pdf)
+    return ContentFile(pdf), 'trial_balance_journal.pdf'
 
 def balace_sheet_preset(virtual_joural):
     file_buffer = StringIO()
@@ -132,7 +132,7 @@ def balace_sheet_preset(virtual_joural):
     pdf = file_buffer.getvalue()
     with open('/tmp/balance_sheet_journal.pdf', 'wb') as f:
         f.write(pdf)
-    return ContentFile(pdf)
+    return ContentFile(pdf), 'balance_sheet_journal.pdf'
 
 def profit_and_loss_preset(virtual_joural):
     file_buffer = StringIO()
@@ -186,7 +186,7 @@ def profit_and_loss_preset(virtual_joural):
     pdf = file_buffer.getvalue()
     with open('/tmp/profit_and_loss_account.pdf', 'wb') as f:
         f.write(pdf)
-    return ContentFile(pdf)
+    return ContentFile(pdf), 'profit_and_loss_account.pdf'
 
 def cash_book_preset(virtual_joural):
     file_buffer = StringIO()
@@ -251,4 +251,4 @@ def cash_book_preset(virtual_joural):
     pdf = file_buffer.getvalue()
     with open('/tmp/cash_book_joural.pdf', 'wb') as f:
         f.write(pdf)
-    return ContentFile(pdf)
+    return ContentFile(pdf), 'cash_book_joural.pdf'

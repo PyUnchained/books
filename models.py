@@ -243,6 +243,9 @@ class JournalEntryAction(models.Model):
     accounts = models.ManyToManyField('Account', verbose_name = 'Specific account',
         blank = True, help_text = 'Choose one of account type or specific account.')
 
+    def __str__(self):
+        return "{0}"
+
 class Journal(models.Model):
     code = models.CharField(max_length = 100,
         primary_key = True)

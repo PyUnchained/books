@@ -16,6 +16,7 @@ from books.forms import JournalEntryForm, JournalEntryRuleForm
 from books.virtual.journal_entry_rules import initialize_form, build_journal
 from books.virtual.forms import BaseRuleBasedTransactionForm
 from books.templatetags.forms import DebitSingleEntryForm, CreditSingleEntryForm, SingleEntryFormSetHelper, SingleEntryForm, DebitEntryFormset, CreditEntryFormset
+from books.virtual.journal import VirtualJournal
 
 def landing(request):
 
@@ -204,18 +205,19 @@ class JournalView(View):
 
     def get(self, request, *args, **kwargs):
         journal = Journal.objects.get(code = args[0])
-        if journal.preset:
-            rule, created = JournalCreationRule.objects.get_or_create(
-                preset = journal.preset, default = True, before_date = journal.date_to,
-                after_date = journal.date_from, name =journal.name)
-        else:
-            rule = journal.rule
+        # if journal.rule.preset:
+        #     rule, created = JournalCreationRule.objects.get_or_create(
+        #         preset = journal.preset, default = True, before_date = journal.date_to,
+        #         after_date = journal.date_from, name =journal.name)
+        # else:
+        rule = journal.rule
 
-        virtual_journal = build_journal(rule)
-        file_path = virtual_journal.rule.latest_pdf.path
-        if os.path.exists(file_path):
-            with open(file_path, 'rb') as fh:
-                response = HttpResponse(fh.read(), content_type="application/pdf")
-                response['Content-Disposition'] = 'inline; filename=' + virtual_journal.rule.latest_pdf.path
-                return response
+        virtual_journal = VirtualJournal(rule)
+        print (virtual_journal.pdf)
+        # file_path = virtual_journal.rule.latest_pdf.path
+        # if os.path.exists(file_path):
+        #     with open(file_path, 'rb') as fh:
+        response = HttpResponse(virtual_journal.pdf, content_type="application/pdf")
+        response['Content-Disposition'] = 'inline; filename=' + virtual_journal.pdf_name
+        return response
         # return render(request, self.template_name, {'virtual_journal': journal})

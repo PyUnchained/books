@@ -25,7 +25,7 @@ class VirtualJournal(VirtualObject):
 			credit_acc__in = self.reversed_credit_accs
 			).order_by('date')
 		self.table = self.build_table()
-		self.pdf_version = self.pdf_version()
+		self.pdf, self.pdf_name = self.pdf_version()
 
 	def build_table(self):
 		if self.rule.preset:
