@@ -22,8 +22,7 @@ class AccountTypeAdmin(admin.ModelAdmin):
 class JournalAdmin(admin.ModelAdmin):
     form = JournalForm
     readonly_fields = ['link']
-    fields = ['link', ('code', 'name'), ('date_from', 'date_to'),
-        ('preset', 'rule')]
+    fields = ['link', ('code', 'name'),'rule']
 
     def link(self, obj):
         return obj.link

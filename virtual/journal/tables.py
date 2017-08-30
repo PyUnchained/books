@@ -329,6 +329,7 @@ def trial_balance_table_preset(virtual_journal):
             date__gte = virtual_journal.rule.date_from,
             date__lte = virtual_journal.rule.date_to)
 
+
         if balance < 0:
             record += ['-', abs(balance)]
             cr_tot += abs(balance)
@@ -340,6 +341,7 @@ def trial_balance_table_preset(virtual_journal):
             record += ['0.00', '0.00']
 
         if use_record:
+            print (a, balance)
             table.append(record)
 
     table.append(['', db_tot, cr_tot])
