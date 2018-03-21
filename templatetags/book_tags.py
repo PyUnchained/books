@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.forms import formset_factory
 from django.contrib.contenttypes.models import ContentType
 from django.forms.formsets import formset_factory

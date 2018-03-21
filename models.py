@@ -5,7 +5,7 @@ from decimal import Decimal
 from django.db import models
 from django.db.models import Sum
 from django.utils import timezone
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from books.conf.settings import ACC_CHOICES, CURRENCIES, ACTIONS, JOURNAL_PRESETS
 
@@ -58,9 +58,9 @@ class Account(models.Model):
     code = models.CharField(max_length = 100,
         primary_key = True)
     name = models.CharField(max_length = 120)
-    account_type = models.ForeignKey('AccountType', null = True)
-    sub_type = models.ForeignKey('AccountSubType', null = True, blank = True)
-    parent = models.ForeignKey('Account', blank = True, null = True,
+    account_type = models.ForeignKey('AccountType', models.CASCADE, null = True)
+    sub_type = models.ForeignKey('AccountSubType', models.CASCADE, null = True, blank = True)
+    parent = models.ForeignKey('Account', models.CASCADE, blank = True, null = True,
         verbose_name = 'Grouped under',
         help_text = 'Describes the account under which this particular one is grouped.')
 
@@ -146,17 +146,17 @@ class JournalEntry(models.Model):
     credit_acc = models.ManyToManyField('Account',
         related_name = 'credit_entry',
         verbose_name = 'credit')
-    debit_branch = models.ForeignKey('Branch',
+    debit_branch = models.ForeignKey('Branch', models.CASCADE,
         related_name = 'debit_branch', null = True,verbose_name = 'branch',
         blank = True)
-    credit_branch = models.ForeignKey('Branch',
+    credit_branch = models.ForeignKey('Branch', models.CASCADE,
         related_name = 'credit_branch', null = True,verbose_name = 'branch',
         blank = True)
     term = models.FloatField(null = True, help_text = 'In Days')
     date = models.DateField(null = True)
     currency = models.CharField(choices = CURRENCIES, max_length = 3,
         default = 'USD', null = True)
-    rule = models.ForeignKey('JournalEntryRule', blank = True, null = True,
+    rule = models.ForeignKey('JournalEntryRule', models.CASCADE, blank = True, null = True,
         help_text = 'Please select a rule, then save and continue.')
     details = models.TextField(max_length = 2000, blank = True, null = True)
     approved = models.BooleanField(default = False)
@@ -191,8 +191,8 @@ class JournalEntry(models.Model):
                     Sum('value'))['value__sum'] or Decimal('0.00')
 
 class SingleEntry(models.Model):
-    journal_entry = models.ForeignKey('JournalEntry')
-    account = models.ForeignKey('Account')
+    journal_entry = models.ForeignKey('JournalEntry', models.CASCADE)
+    account = models.ForeignKey('Account', models.CASCADE)
     action = models.CharField(max_length = 1, choices = ACTIONS)
     value = models.DecimalField(decimal_places = 2,
         max_digits = 15, null = True)
@@ -217,7 +217,7 @@ class Branch(models.Model):
 
 class JournalEntryRule(models.Model):
     name = models.CharField(max_length = 200)
-    term_sheet = models.ForeignKey('TermSheet', blank = True, null = True)
+    term_sheet = models.ForeignKey('TermSheet', models.CASCADE, blank = True, null = True)
     allow_single_entry = models.BooleanField(default = False,
         help_text = 'If selected, system will no longer force debit '
         'and credit totals to match.')
@@ -233,7 +233,7 @@ class JournalEntryRule(models.Model):
 
 
 class JournalEntryAction(models.Model):
-    rule = models.ForeignKey('JournalEntryRule')
+    rule = models.ForeignKey('JournalEntryRule', models.CASCADE)
     action = models.CharField(choices = ACTIONS, max_length = 1)
     account_type = models.ManyToManyField('AccountType',
         blank = True,
@@ -250,7 +250,8 @@ class Journal(models.Model):
     code = models.CharField(max_length = 100,
         primary_key = True)
     name = models.CharField(max_length = 120)
-    rule = models.ForeignKey('JournalCreationRule', blank = True, null = True,
+    rule = models.ForeignKey('JournalCreationRule', models.CASCADE,
+        blank = True, null = True,
         help_text = 'Custom user defined rule.')
 
     @property
@@ -303,10 +304,10 @@ class Upload(models.Model):
     file = models.FileField(upload_to = 'upload_docs')
 
 class Settlement(models.Model):
-    account = models.ForeignKey('Account')
+    account = models.ForeignKey('Account', models.CASCADE)
     initial_amount = models.DecimalField(max_digits = 15, decimal_places = 2)
     term = models.IntegerField(default = 90)
-    term_sheet = models.ForeignKey('TermSheet')
+    term_sheet = models.ForeignKey('TermSheet', models.CASCADE)
 
 class TermSheet(models.Model):
     """
@@ -319,9 +320,9 @@ class TermSheet(models.Model):
         null = True, editable = False)
     date_issued = models.DateField(null = True, blank = True)
     expiry_date = models.DateField(null = True, blank = True)
-    security = models.ForeignKey('Upload', related_name = 'ts_security',
+    security = models.ForeignKey('Upload', models.CASCADE, related_name = 'ts_security',
         null = True, blank = True)
-    guarantee = models.ForeignKey('Upload', related_name = 'ts_guarantee',
+    guarantee = models.ForeignKey('Upload', models.CASCADE, related_name = 'ts_guarantee',
         null = True, blank = True)
     recourse_measures = models.ManyToManyField('Upload', blank = True,
         related_name = 'ts_recourse')
