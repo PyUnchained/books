@@ -27,10 +27,13 @@ def account_history(account):
 
 @register.inclusion_tag('books/popup_base.html')
 def pop_up(instance = None):
-    print (instance)
     content = 'Pies'
     return {'content':content}
 
 @register.inclusion_tag('books/popup_base.html')
 def admin_base_popup(form_url = None):
+    return {}
+
+@register.inclusion_tag('books/popup_base.html')
+def url_popup(form_url = None):
     return {}

@@ -4,7 +4,7 @@ Django integrated bookkeeping and accounting package.
 
 ## Getting Started
 
-Add 'books' to your INSTALLED_APPS setting.
+Clone repo. Add the following 'crispy_forms','books' to your INSTALLED_APPS setting.
 
 ### Prerequisites
 
@@ -16,9 +16,7 @@ Give examples
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
+To use the built-in admin interface, add 
 
 ```
 Give the example

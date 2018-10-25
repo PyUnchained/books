@@ -15,6 +15,8 @@ from crispy_forms.bootstrap import Tab, TabHolder, InlineCheckboxes
 from books.models import SingleEntry
 
 class SingleEntryForm(forms.ModelForm):
+    debit = forms.DecimalField(decimal_places = 2)
+    credit = forms.DecimalField(decimal_places = 2)
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -34,6 +36,9 @@ class SingleEntryForm(forms.ModelForm):
         action = kwargs.pop('action', None)
         super(SingleEntryForm, self).__init__(*args, **kwargs)
 
+        if self.instance:
+            print ('\n\n FOUND INSNSTNNSTNSNT \n\n', self.instance)
+
         #Set the initial queryset from the initial information supplied
         if journal_entry:
             self.fields['journal_entry'].initial = journal_entry
@@ -45,7 +50,7 @@ class SingleEntryForm(forms.ModelForm):
     class Meta:
         model = SingleEntry
         fields = ['journal_entry', 'account', 'action', 'value']
-        widgets = {'journal_entry':forms.HiddenInput(),
+        widgets = {
             'action':forms.HiddenInput()}
 
 class DebitSingleEntryForm(SingleEntryForm):
@@ -66,8 +71,24 @@ class SingleEntryFormSetHelper(FormHelper):
         )
         self.form_tag = False
 
+class GeneralDoubleEntryFormSetHelper(FormHelper):
+    def __init__(self, *args, **kwargs):
+        super(GeneralDoubleEntryFormSetHelper, self).__init__(*args, **kwargs)
+        self.template = 'bootstrap/table_inline_formset.html'
+        self.add_input(Submit("submit", "Save"))
+        self.layout = Layout(
+
+            Div(
+                HTML("<div class ='col-sm-12'><h4>Entry {{ forloop.counter }}</h4></div>"),
+                Field('journal_entry'),'account','credit', 'debit',
+                css_class='inline-row formset_entry'),
+        )
+        # self.form_tag = False
+
 
 # ParcelFormSet = formset_factory(ParcleForm, extra=5,min_num=1, validate_min=True)
+
+
 
 class DebitEntryBaseFormset(BaseModelFormSet):
     def __init__(self, *args, **kwargs):
@@ -102,6 +123,15 @@ class DebitEntryBaseFormset(BaseModelFormSet):
                     c_tot)
                 raise forms.ValidationError(msg)
 
+class GeneralDoubleEntryBaseFormset(BaseModelFormSet):
+    def __init__(self, *args, **kwargs):
+        self.journal_entry = kwargs.pop('journal_entry', None)
+        super(GeneralDoubleEntryBaseFormset, self).__init__(*args, **kwargs)
+
+GeneralDoubleEntryFormSet = modelformset_factory(
+    SingleEntry, form = SingleEntryForm, formset =GeneralDoubleEntryBaseFormset,
+    extra = 10, validate_min=True, min_num = 2,
+    )
 DebitEntryFormset = modelformset_factory(SingleEntry,
     fields = ('journal_entry','account', 'value', 'action'),
     form = DebitSingleEntryForm, formset = DebitEntryBaseFormset, extra = 4)

@@ -202,8 +202,15 @@ class SingleEntry(models.Model):
             action = 'Debit'
         else:
             action = 'Credit'
-        return "{0} {1}: {2}".format(action, self.account,
-            self.value)
+
+        #Catch exception that occurs when there's no account associated with the single
+        #entry
+        try :
+            return "{0} {1}: {2}".format(action, self.account,
+                self.value)
+        except Account.DoesNotExist:
+            return "{0} {1}: {2}".format(action, 'N/A',
+                self.value)
 
     class Meta():
         verbose_name_plural = 'Single Entries'

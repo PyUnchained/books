@@ -11,7 +11,7 @@
 
 {% block content %}
 	{% admin_base_popup  %}
-	<a href="#" formurl = '{% url "opexa_books:admin_single_entries" original.pk %}' class = 'btn btn-regular popup-btn'>Manage Entries</a>
+	<a href="#" formurl = '{% url "open_books:admin_single_entries" original.pk %}' class = 'btn btn-regular popup-btn'>Double Entry</a>
 	<script type="text/javascript">
 		$('.popup-btn').click(function() {
 			showPopup($(this));

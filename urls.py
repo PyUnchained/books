@@ -18,6 +18,7 @@ from django.contrib import admin
 
 from books.views import*
 
+app_name = 'open_books'
 urlpatterns = [
     
     url(r'^new_transaction/$',
@@ -45,7 +46,7 @@ urlpatterns = [
 
     #Admin URLS
     url(r'^single_entries/([a-zA-Z0-9-]*)/$',
-        AdminSingleEntryView.as_view(),
+        DoubleEntryWidget.as_view(),
         name = 'admin_single_entries'),
     # url(r'^admin_forms/(\w+)/$',
     #     AdminForms.as_view(), name = 'admin_forms'),
