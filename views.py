@@ -11,13 +11,14 @@ from django.forms.formsets import formset_factory
 from django.forms import modelformset_factory
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
+from django.db import transaction
 
 from books.models import JournalEntry, JournalEntryRule, JournalCreationRule, SingleEntry, Journal
 from books.forms import JournalEntryForm, JournalEntryRuleForm
 from books.virtual.journal_entry_rules import initialize_form, build_journal
 from books.virtual.forms import BaseRuleBasedTransactionForm
 from books.templatetags.forms import (DebitSingleEntryForm, CreditSingleEntryForm, SingleEntryFormSetHelper, SingleEntryForm, DebitEntryFormset, CreditEntryFormset,
-    GeneralDoubleEntryFormSetHelper, GeneralDoubleEntryFormSet)
+    GeneralDoubleEntryFormSetHelper, GeneralDoubleEntryFormSet, GeneralDoubleEntryBaseFormset)
 from books.virtual.journal import VirtualJournal
 
 def landing(request):
@@ -28,10 +29,12 @@ class DoubleEntryWidget(View):
     form_class = BaseRuleBasedTransactionForm
     initial = {}
     template_name = 'books/double_entry_widget.html'
+    max_entries = 10
 
     def render_form_html_by_journal(journal_entry):
         return render_to_string(self.template_name,
             context = context, request = request)
+
 
     def get(self, request, *args, **kwargs):
         if args[0] == '':
@@ -41,8 +44,6 @@ class DoubleEntryWidget(View):
             
 
         number_of_forms = 5
-        querysets = initialize_form(SingleEntryForm, journal_entry.rule,
-            return_qs = True)
 
         heading_message = "Double Entry"
         formset = GeneralDoubleEntryFormSet()
@@ -77,15 +78,23 @@ class DoubleEntryWidget(View):
         return JsonResponse({'form_html':form_html})
 
     def post(self, request, *args, **kwargs):
-        journal_entry = JournalEntry.objects.get_or_create(pk=args[0])
-        formset = GeneralDoubleEntryFormSet(request.POST, request.FILES)
-        print (request.POST)
-        if formset.is_valid():
-            # do something with the formset.cleaned_data
-            print ('OK\n'*3)
-        else:
-            formset = GeneralDoubleEntryFormSet()
-            print (formset.errors, '\n'*3)
+        with transaction.atomic():
+            journal_entry, created = JournalEntry.objects.get_or_create(pk=args[0])
+            formset = GeneralDoubleEntryFormSet(request.POST, request.FILES)
+            if formset.is_valid():
+                # do something with the formset.cleaned_data
+                print ('OK\n'*3)
+            else:
+                heading_message = "Double Entry"
+                formset_helper = GeneralDoubleEntryFormSetHelper()
+                formset_helper.form_action = reverse_lazy('open_books:admin_single_entries', args=(journal_entry.pk,))
+                form_html = render_to_string(self.template_name,
+                    context = {'formset': formset,
+                        'heading': heading_message,
+                        'formset_helper':formset_helper,
+                        'non_form_errors':formset.non_form_errors()},
+                    request = request)
+                return JsonResponse({'form_html':form_html, 'success':False})
         # return render(request, 'manage_articles.html', {'formset': formset})
         # debit_form_helper = SingleEntryFormSetHelper()
         # credit_form_helper = SingleEntryFormSetHelper()

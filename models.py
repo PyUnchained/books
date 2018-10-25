@@ -191,11 +191,12 @@ class JournalEntry(models.Model):
                     Sum('value'))['value__sum'] or Decimal('0.00')
 
 class SingleEntry(models.Model):
-    journal_entry = models.ForeignKey('JournalEntry', models.CASCADE)
-    account = models.ForeignKey('Account', models.CASCADE)
-    action = models.CharField(max_length = 1, choices = ACTIONS)
+    journal_entry = models.ForeignKey('JournalEntry', models.CASCADE,
+        blank = True, null = True)
+    account = models.ForeignKey('Account', models.CASCADE, blank = True)
+    action = models.CharField(max_length = 1, choices = ACTIONS, blank = True)
     value = models.DecimalField(decimal_places = 2,
-        max_digits = 15, null = True)
+        max_digits = 15, null = True, blank = True)
 
     def __str__(self):
         if self.action == 'D':
