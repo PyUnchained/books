@@ -1,0 +1,12 @@
+{% load crispy_forms_tags %}
+{% load crispy_forms_utils %}
+{% load crispy_forms_field %}
+
+<h3>Fly</h3>
+
+<span style="color:white;">double_entry_js.html</span>
+{% for form in formset %}
+{% for field in form %}
+	{{ field }}
+{% endfor %}
+{% endfor %}

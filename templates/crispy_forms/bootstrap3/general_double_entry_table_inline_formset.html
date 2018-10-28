@@ -1,6 +1,7 @@
 {% load crispy_forms_tags %}
 {% load crispy_forms_utils %}
 {% load crispy_forms_field %}
+{% load book_tags %}
 
 {% specialspaceless %}
 {% if formset_tag %}
@@ -57,6 +58,7 @@
             {% endfor %}
         </tbody>
     </table>
+    {% include "crispy_forms/bootstrap3/double_entry_js.html" %}
 
     {% include "bootstrap3/inputs.html" %}
 
