@@ -10,100 +10,122 @@ from django.conf import settings
 from django.forms.formsets import formset_factory
 from django.forms import modelformset_factory
 from django.template.loader import render_to_string
+from django.urls import reverse_lazy
+from django.db import transaction
 
 from books.models import JournalEntry, JournalEntryRule, JournalCreationRule, SingleEntry, Journal
 from books.forms import JournalEntryForm, JournalEntryRuleForm
 from books.virtual.journal_entry_rules import initialize_form, build_journal
 from books.virtual.forms import BaseRuleBasedTransactionForm
-from books.templatetags.forms import DebitSingleEntryForm, CreditSingleEntryForm, SingleEntryFormSetHelper, SingleEntryForm, DebitEntryFormset, CreditEntryFormset
+from books.templatetags.forms import (DebitSingleEntryForm, CreditSingleEntryForm, SingleEntryFormSetHelper, SingleEntryForm, DebitEntryFormset, CreditEntryFormset,
+    GeneralDoubleEntryFormSetHelper, GeneralDoubleEntryFormSet, GeneralDoubleEntryBaseFormset)
 from books.virtual.journal import VirtualJournal
 
 def landing(request):
 
     return render(request, 'books/landing.html')
 
-class AdminSingleEntryView(View):
+class DoubleEntryWidget(View):
     form_class = BaseRuleBasedTransactionForm
     initial = {}
-    template_name = 'books/admin_popup.html'
+    template_name = 'books/double_entry_widget.html'
+    min_num = 2
+
+    def render_form_html_by_journal(journal_entry):
+        return render_to_string(self.template_name,
+            context = context, request = request)
+
+    def forsmet_initial_data(self, journal_entry):
+        initial = []
+        for i in range(self.min_num):
+            initial.append({'journal_entry':journal_entry})
+        return initial
 
     def get(self, request, *args, **kwargs):
-        journal_entry = JournalEntry.objects.get(pk=args[0])
-        number_of_forms = 5
-        querysets = initialize_form(SingleEntryForm, journal_entry.rule,
-            return_qs = True)
+        if args[0] == '':
+            journal_entry = JournalEntry()
+        else:
+            journal_entry = JournalEntry.objects.get(pk=args[0])
 
-        debit_formset = DebitEntryFormset(
-            form_kwargs={'journal_entry': journal_entry,
-                'acc_qs':querysets['debit_acc']['queryset'],
-                'action':'D'},
-            prefix='debit', queryset=journal_entry.debit_entries)
-        credit_formset = CreditEntryFormset(
-            form_kwargs = {'journal_entry': journal_entry,
-                'acc_qs':querysets['credit_acc']['queryset'],
-                'action':'C'},
-            prefix='credit', queryset=journal_entry.credit_entries)
-
-        debit_form_helper = SingleEntryFormSetHelper()
-        credit_form_helper = SingleEntryFormSetHelper()
-        form_html = render_to_string('books/input_single_entries_popup.html',
-            context = {'debit_formset':debit_formset,
-                'debit_form_helper':debit_form_helper,
-                'credit_formset':credit_formset,
-                'journal_entry':journal_entry,
-                'credit_form_helper':credit_form_helper},
+        heading_message = "Double Entry"
+        formset = GeneralDoubleEntryFormSet(
+            initial = self.forsmet_initial_data(journal_entry)
+            )
+        formset_helper = GeneralDoubleEntryFormSetHelper()
+        formset_helper.form_action = reverse_lazy('open_books:admin_single_entries', args=(journal_entry.pk,))
+        form_html = render_to_string(self.template_name,
+            context = {'formset': formset,
+                'heading': heading_message,
+                'formset_helper':formset_helper},
             request = request)
         return JsonResponse({'form_html':form_html})
 
     def post(self, request, *args, **kwargs):
-        journal_entry = JournalEntry.objects.get(pk=args[0])
-        debit_form_helper = SingleEntryFormSetHelper()
-        credit_form_helper = SingleEntryFormSetHelper()
+        with transaction.atomic():
+            journal_entry, created = JournalEntry.objects.get_or_create(pk=args[0])
+            formset = GeneralDoubleEntryFormSet(request.POST, request.FILES)
+            if formset.is_valid():
+                # do something with the formset.cleaned_data
+                print ('OK\n'*3)
+            else:
+                heading_message = "Double Entry"
+                formset_helper = GeneralDoubleEntryFormSetHelper()
+                formset_helper.form_action = reverse_lazy('open_books:admin_single_entries', args=(journal_entry.pk,))
+                form_html = render_to_string(self.template_name,
+                    context = {'formset': formset,
+                        'heading': heading_message,
+                        'formset_helper':formset_helper,
+                        'non_form_errors':formset.non_form_errors()},
+                    request = request)
+                return JsonResponse({'form_html':form_html, 'success':False})
+        # return render(request, 'manage_articles.html', {'formset': formset})
+        # debit_form_helper = SingleEntryFormSetHelper()
+        # credit_form_helper = SingleEntryFormSetHelper()
 
-        number_of_forms = 5
-        querysets = initialize_form(SingleEntryForm, journal_entry.rule, return_qs = True)
-        debit_initial_data = []
-        for i in range(number_of_forms):
-            debit_initial_data.append({'journal_entry':journal_entry,
-                'queryset':querysets['debit_acc']['queryset']})
+        # number_of_forms = 5
+        # querysets = initialize_form(SingleEntryForm, journal_entry.rule, return_qs = True)
+        # debit_initial_data = []
+        # for i in range(number_of_forms):
+        #     debit_initial_data.append({'journal_entry':journal_entry,
+        #         'queryset':querysets['debit_acc']['queryset']})
         
-        credit_formset = CreditEntryFormset(request.POST,
-            form_kwargs = {'journal_entry': journal_entry,
-                'acc_qs':querysets['credit_acc']['queryset'],
-                'action':'C'},
-            prefix='credit', queryset=journal_entry.credit_entries)
-        if credit_formset.is_valid():
-            debit_formset = DebitEntryFormset(request.POST,
-                form_kwargs={'journal_entry': journal_entry,
-                'acc_qs':querysets['debit_acc']['queryset'],
-                'action':'D'},
-                prefix='debit', queryset=journal_entry.debit_entries,
-                credit_formset = credit_formset)
-            if debit_formset.is_valid():
-                credit_formset.save()
-                debit_formset.save()
-                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        # credit_formset = CreditEntryFormset(request.POST,
+        #     form_kwargs = {'journal_entry': journal_entry,
+        #         'acc_qs':querysets['credit_acc']['queryset'],
+        #         'action':'C'},
+        #     prefix='credit', queryset=journal_entry.credit_entries)
+        # if credit_formset.is_valid():
+        #     debit_formset = DebitEntryFormset(request.POST,
+        #         form_kwargs={'journal_entry': journal_entry,
+        #         'acc_qs':querysets['debit_acc']['queryset'],
+        #         'action':'D'},
+        #         prefix='debit', queryset=journal_entry.debit_entries,
+        #         credit_formset = credit_formset)
+        #     if debit_formset.is_valid():
+        #         credit_formset.save()
+        #         debit_formset.save()
+        #         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
             
 
-        else:
-            debit_formset = DebitEntryFormset(request.POST,
-                form_kwargs={'journal_entry': journal_entry,
-                'acc_qs':querysets['debit_acc']['queryset'],
-                'action':'D'},
-                prefix='debit', queryset=journal_entry.debit_entries)
+        # else:
+        #     debit_formset = DebitEntryFormset(request.POST,
+        #         form_kwargs={'journal_entry': journal_entry,
+        #         'acc_qs':querysets['debit_acc']['queryset'],
+        #         'action':'D'},
+        #         prefix='debit', queryset=journal_entry.debit_entries)
 
 
 
-        form_html = render_to_string('books/input_single_entries_popup.html',
-            context = {'debit_formset':debit_formset,
-                'debit_form_helper':debit_form_helper,
-                'credit_formset':credit_formset,
-                'journal_entry':journal_entry,
-                'credit_form_helper':credit_form_helper},
-            request = request)
-        return JsonResponse({'form_html':form_html, 'success':False})
+        # form_html = render_to_string('books/input_single_entries_popup.html',
+        #     context = {'debit_formset':debit_formset,
+        #         'debit_form_helper':debit_form_helper,
+        #         'credit_formset':credit_formset,
+        #         'journal_entry':journal_entry,
+        #         'credit_form_helper':credit_form_helper},
+        #     request = request)
+        # return JsonResponse({'form_html':form_html, 'success':False})
 
 class BaseCreateView(CreateView):
     def get_context_data(self, **kwargs):

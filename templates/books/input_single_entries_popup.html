@@ -1,7 +1,7 @@
 {% load static crispy_forms_tags %}
 
 <div id='popup_ajax'>
-<form id = 'add_entries_form' action="{% url 'opexa_books:admin_single_entries' journal_entry.pk %}">
+<form id = 'add_entries_form' action="{% url 'open_books:admin_single_entries' journal_entry.pk %}">
 <div class = 'half_div'>
 	<h3>Debit</h3>
 	{% if debit_formset %}

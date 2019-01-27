@@ -44,3 +44,29 @@
 #popup_div .alert-danger li{
   color:white !important;
 }
+
+#popup_div ul.errorlist  {
+	background: none;
+	color: #ff483a;
+}
+
+#popup_div .error span, #popup_div .alert-error {
+	color: #ff483a;
+}
+
+.balance_change_indicator {
+	color: blue;
+}
+
+.balance_change_up {
+	color:green;
+}
+
+.balance_change_down {
+	color:red;
+}
+
+.select2-container {
+	min-width: 80%;
+	z-index: 20000;
+}

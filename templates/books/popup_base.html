@@ -5,24 +5,23 @@
 	
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.1/jquery.form.min.js" integrity="sha384-tIwI8+qJdZBtYYCKwRkjxBGQVZS3gGozr3CtI+5JF/oL1JmPEHzCEnIKbDbLTCer" crossorigin="anonymous"></script>
+
 <script type="text/javascript">
 	function showPopup(show_element) {
+		
 		$.ajax({
 		    url: show_element.attr('formurl'),
 		    type: 'GET',
 		    async: true,
 		    success: function(response) {
-		    	// Have to put this in a try loop because otherwise it interferes with the suit js when
-		    	// only called once
 		    	$("#popup_div").html(response.form_html);
 		    	window.newPopup = $('#popup_div').bPopup({
 		    	  modal: false,
 		    	  fadeSpeed: 'slow',
-	              followSpeed: 1500,
 		    	});
-		    	console.log('First');
-		    	$('#popup_div').show();
 		    	overrideSubmit();
+
+
 		    	// $('#popup_div form').find("input[class*='dateinput']").datepicker({format: 'dd/mm/yy'});
 		    	// $("#popup_div form select").chosen();
 		    	
@@ -36,8 +35,6 @@
 	}
 
 	function overrideSubmit(){
-		console.log('In Override Func');
-		console.log($('#popup_div form'));
 		$('#popup_div form').on('submit', function(event){
 		    event.preventDefault();
 		    submit_query($(this));
