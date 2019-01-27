@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, MultiField, HTML, Field
 from crispy_forms.bootstrap import TabHolder, Tab, PrependedText
+from django_select2.forms import Select2Widget
 
 from books.models import JournalEntryRule, JournalEntry
 
@@ -37,18 +38,6 @@ class BaseRuleBasedTransactionForm(forms.ModelForm):
 	    	        
 	    	    )
 	    	),
-
-	        # Div(
-	        #     Div('debit_acc', css_class='col-xs-3'),
-	        #     Div('credit_acc', css_class='col-xs-3'),
-	        #     Div('debit_branch', css_class='col-xs-3'),
-	        #     Div('credit_branch', css_class='col-xs-3'),
-	        #     css_class='row'),
-	        # Div(
-	        #     Div('date', css_class='col-xs-4'),
-	        #     Div('currency', css_class='col-xs-4'),
-	        #     Div('value', css_class='col-xs-4'),
-	        #     css_class='row'),
 
 	    Div(
 	        Submit('create', 'Record'),

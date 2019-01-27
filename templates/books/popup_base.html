@@ -5,6 +5,7 @@
 	
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.1/jquery.form.min.js" integrity="sha384-tIwI8+qJdZBtYYCKwRkjxBGQVZS3gGozr3CtI+5JF/oL1JmPEHzCEnIKbDbLTCer" crossorigin="anonymous"></script>
+
 <script type="text/javascript">
 	function showPopup(show_element) {
 		
@@ -17,9 +18,7 @@
 		    	window.newPopup = $('#popup_div').bPopup({
 		    	  modal: false,
 		    	  fadeSpeed: 'slow',
-	              followSpeed: 1500,
 		    	});
-		    	// $('#popup_div').show();
 		    	overrideSubmit();
 
 
@@ -36,8 +35,6 @@
 	}
 
 	function overrideSubmit(){
-		console.log('In Override Func');
-		console.log($('#popup_div form'));
 		$('#popup_div form').on('submit', function(event){
 		    event.preventDefault();
 		    submit_query($(this));

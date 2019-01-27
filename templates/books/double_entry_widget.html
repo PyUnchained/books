@@ -1,9 +1,4 @@
 {% load crispy_forms_tags %}
-
 <div id='popup_ajax'>
-    <h4>Transaction</h4>
-    {% if non_form_errors %}
-        {{ non_form_errors }}
-    {% endif %}
     {% crispy formset formset_helper%}
 </div>

@@ -12,9 +12,10 @@ from django.forms import BaseModelFormSet
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, MultiField, HTML, Field
 from crispy_forms.bootstrap import Tab, TabHolder, InlineCheckboxes
+from django_select2.forms import Select2Widget
 
 
-from books.models import SingleEntry
+from books.models import SingleEntry, Account
 
 class SingleEntryForm(forms.ModelForm):
     debit = forms.DecimalField(decimal_places = 2)
@@ -27,10 +28,10 @@ class SingleEntryForm(forms.ModelForm):
 
             Div(
                 # Div('journal_entry', css_class='col-xs-3'),
-                Div('account', css_class='col-xs-3'),
-                Div('value', css_class='col-xs-3'),
-                Div('action', css_class='col-xs-3'),
-                css_class='col-sm-6'),
+                Div('account', css_class='col-xs-12'),
+                # Div('value', css_class='col-xs-3'),
+                # Div('action', css_class='col-xs-3'),
+                css_class='col-sm-12'),
 
             Submit('create', 'Record')
         )
@@ -50,11 +51,12 @@ class SingleEntryForm(forms.ModelForm):
         #     self.fields['journal_entry'].initial = journal_entry
         if acc_qs:
             self.fields['account'].queryset = acc_qs
+        else:
+            self.fields['account'].queryset = Account.objects.all()
         if action:
             self.fields['action'].initial = action
 
     def clean(self):
-        # print (self.cleaned_data.get("account"))
         debit = self.cleaned_data.get("debit")
         credit = self.cleaned_data.get("credit")
         if credit == None and debit == None:
@@ -68,8 +70,8 @@ class SingleEntryForm(forms.ModelForm):
     class Meta:
         model = SingleEntry
         fields = ['journal_entry', 'account', 'action', 'value']
-        widgets = {'journal_entry':forms.HiddenInput(),
-            'action':forms.HiddenInput()}
+        widgets = {
+            'account':Select2Widget()}
 
 class DebitSingleEntryForm(SingleEntryForm):
     pass
@@ -83,23 +85,39 @@ class SingleEntryFormSetHelper(FormHelper):
         self.layout = Layout(
 
             Div(
-                HTML("<div class ='col-sm-12'><h4>Entry {{ forloop.counter }}</h4></div>"),
+                
                 Field('journal_entry'),'account','value',
                 css_class='inline-row formset_entry'),
+            Div(
+                HTML("<div class ='col-sm-12'><h4>Entry {{ forloop.counter }}</h4></div>"),
+                css_class='col-sm-12'),
+            Div(
+                HTML("<div class ='col-sm-12'><h4>Entry {{ forloop.counter }}</h4></div>"),
+                Div('account', css_class='col-xs-6'),
+                Div('credit', css_class='col-xs-3'),
+                Div('debit', css_class='col-xs-3'),
+                css_class='col-sm-12'),
         )
         self.form_tag = False
 
 class GeneralDoubleEntryFormSetHelper(FormHelper):
     def __init__(self, *args, **kwargs):
         super(GeneralDoubleEntryFormSetHelper, self).__init__(*args, **kwargs)
-        self.template = 'crispy_forms/bootstrap3/general_double_entry_table_inline_formset.html'
+        # self.template = 'crispy_forms/bootstrap3/general_double_entry_table_inline_formset.html'
         self.add_input(Submit("submit", "Save"))
         self.layout = Layout(
-
             Div(
-                HTML("<div class ='col-sm-12'><h4>Entry {{ forloop.counter }}</h4></div>"),
-                Field('journal_entry'),'account','credit', 'debit',
-                css_class='inline-row formset_entry'),
+                Div(
+                    Div('account', css_class='col-sm-6'),
+                    Div('credit', css_class='col-sm-3'),
+                    Div('debit', css_class='col-sm-3'),
+                    css_class='row'),
+                Div(
+                    Div('journal_entry', css_class='col-sm-12'),
+                    css_class='row'),
+
+                css_class ='container')
+            
         )
         # self.form_tag = False
 
@@ -174,7 +192,10 @@ class GeneralDoubleEntryBaseFormset(BaseModelFormSet):
 
 GeneralDoubleEntryFormSet = modelformset_factory(
     SingleEntry, form = SingleEntryForm, formset =GeneralDoubleEntryBaseFormset,
-    extra = 4, validate_min=True, min_num = 2, fields = ('journal_entry', 'account', 'debit', 'credit'))
+    extra = 0, validate_min=True, min_num = 2,
+    fields = ('journal_entry', 'account', 'debit', 'credit'),
+    widgets = {
+            'account':Select2Widget()})
 DebitEntryFormset = modelformset_factory(SingleEntry,
     fields = ('journal_entry','account', 'value', 'action'),
     form = DebitSingleEntryForm, formset = DebitEntryBaseFormset, extra = 4)

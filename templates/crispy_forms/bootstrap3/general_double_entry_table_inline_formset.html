@@ -58,9 +58,11 @@
             {% endfor %}
         </tbody>
     </table>
-    {% include "crispy_forms/bootstrap3/double_entry_js.html" %}
+    
 
     {% include "bootstrap3/inputs.html" %}
 
 {% if formset_tag %}</form>{% endif %}
+
+{% include "crispy_forms/bootstrap3/double_entry_js.html" %}
 {% endspecialspaceless %}

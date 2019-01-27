@@ -29,24 +29,28 @@ class DoubleEntryWidget(View):
     form_class = BaseRuleBasedTransactionForm
     initial = {}
     template_name = 'books/double_entry_widget.html'
-    max_entries = 10
+    min_num = 2
 
     def render_form_html_by_journal(journal_entry):
         return render_to_string(self.template_name,
             context = context, request = request)
 
+    def forsmet_initial_data(self, journal_entry):
+        initial = []
+        for i in range(self.min_num):
+            initial.append({'journal_entry':journal_entry})
+        return initial
 
     def get(self, request, *args, **kwargs):
         if args[0] == '':
             journal_entry = JournalEntry()
         else:
             journal_entry = JournalEntry.objects.get(pk=args[0])
-            
-
-        number_of_forms = 5
 
         heading_message = "Double Entry"
-        formset = GeneralDoubleEntryFormSet()
+        formset = GeneralDoubleEntryFormSet(
+            initial = self.forsmet_initial_data(journal_entry)
+            )
         formset_helper = GeneralDoubleEntryFormSetHelper()
         formset_helper.form_action = reverse_lazy('open_books:admin_single_entries', args=(journal_entry.pk,))
         form_html = render_to_string(self.template_name,
@@ -54,27 +58,6 @@ class DoubleEntryWidget(View):
                 'heading': heading_message,
                 'formset_helper':formset_helper},
             request = request)
-
-        # debit_formset = DebitEntryFormset(
-        #     form_kwargs={'journal_entry': journal_entry,
-        #         'acc_qs':querysets['debit_acc']['queryset'],
-        #         'action':'D'},
-        #     prefix='debit', queryset=journal_entry.debit_entries)
-        # credit_formset = CreditEntryFormset(
-        #     form_kwargs = {'journal_entry': journal_entry,
-        #         'acc_qs':querysets['credit_acc']['queryset'],
-        #         'action':'C'},
-        #     prefix='credit', queryset=journal_entry.credit_entries)
-
-        # debit_form_helper = SingleEntryFormSetHelper()
-        # credit_form_helper = SingleEntryFormSetHelper()
-        # form_html = render_to_string('books/input_single_entries_popup.html',
-        #     context = {'debit_formset':debit_formset,
-        #         'debit_form_helper':debit_form_helper,
-        #         'credit_formset':credit_formset,
-        #         'journal_entry':journal_entry,
-        #         'credit_form_helper':credit_form_helper},
-        #     request = request)
         return JsonResponse({'form_html':form_html})
 
     def post(self, request, *args, **kwargs):
