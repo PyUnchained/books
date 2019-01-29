@@ -1,0 +1,6 @@
+*.pyc
+uploads/**/*
+media/**/*
+*.sqlite3
+dev/**/*
+
