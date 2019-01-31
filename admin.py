@@ -12,7 +12,7 @@ from books.admin_forms import (InitialJournalEntryForm, ReadyJournalEntryForm, T
 class SingleEntryInline(admin.TabularInline):
     model = SingleEntry
     exclude = ('',)
-    readonly_fields = ['journal_entry', 'account', 'action', 'value']
+    readonly_fields = ['account', 'action', 'value']
     extra = 0
     can_delete = False
 
@@ -53,7 +53,7 @@ class JournalEntryAdmin(admin.ModelAdmin):
     readonly_fields = ['value']
     search_fields = ('debit_acc__name', 'debit_acc__account_type',
         'credit_acc__name', 'credit_acc__account_type', 'currency', 'rule__name')
-    inlines = [SingleEntryInline]
+    # inlines = [SingleEntryInline]
 
     class Media:
         css = {
@@ -111,7 +111,7 @@ class JournalEntryRuleAdmin(admin.ModelAdmin):
 
 
 admin.site.register(AccountType, AccountTypeAdmin)
-# admin.site.register(Journal, JournalAdmin)
+admin.site.register(Journal, JournalAdmin)
 # admin.site.register(JournalCreationRule, JournalCreationRuleAdmin)
 admin.site.register(JournalEntry, JournalEntryAdmin)
 admin.site.register(Account, AccountAdmin)

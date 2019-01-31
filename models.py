@@ -142,10 +142,12 @@ class JournalEntry(models.Model):
         primary_key = True, default=uuid.uuid4)
     debit_acc = models.ManyToManyField('Account',
         related_name = 'debit_entry',
-        verbose_name = 'debit')
+        verbose_name = 'debit',
+        blank = True)
     credit_acc = models.ManyToManyField('Account',
         related_name = 'credit_entry',
-        verbose_name = 'credit')
+        verbose_name = 'credit',
+        blank = True)
     debit_branch = models.ForeignKey('Branch', models.CASCADE,
         related_name = 'debit_branch', null = True,verbose_name = 'branch',
         blank = True)
@@ -191,12 +193,12 @@ class JournalEntry(models.Model):
                     Sum('value'))['value__sum'] or Decimal('0.00')
 
 class SingleEntry(models.Model):
-    journal_entry = models.ForeignKey('JournalEntry', models.CASCADE,
-        blank = True, null = True)
     account = models.ForeignKey('Account', models.CASCADE, blank = True)
     action = models.CharField(max_length = 1, choices = ACTIONS, blank = True)
     value = models.DecimalField(decimal_places = 2,
         max_digits = 15, null = True, blank = True)
+    details = models.CharField(max_length = 300)
+    date = models.DateField()
 
     def __str__(self):
         if self.action == 'D':

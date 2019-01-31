@@ -30,4 +30,3 @@ def create_account(**kwargs):
         'account_type' : account_type_obj,
         'code':code}
     acc, created = Account.objects.get_or_create(**account_kwargs)
-    print ('Done', acc)

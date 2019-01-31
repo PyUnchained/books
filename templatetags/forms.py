@@ -21,7 +21,6 @@ class SingleEntryForm(forms.ModelForm):
     debit = forms.DecimalField(decimal_places = 2)
     credit = forms.DecimalField(decimal_places = 2)
 
-
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -69,7 +68,7 @@ class SingleEntryForm(forms.ModelForm):
 
     class Meta:
         model = SingleEntry
-        fields = ['journal_entry', 'account', 'action', 'value']
+        fields = ['account', 'action', 'value']
         widgets = {
             'account':Select2Widget()}
 
@@ -193,12 +192,12 @@ class GeneralDoubleEntryBaseFormset(BaseModelFormSet):
 GeneralDoubleEntryFormSet = modelformset_factory(
     SingleEntry, form = SingleEntryForm, formset =GeneralDoubleEntryBaseFormset,
     extra = 0, validate_min=True, min_num = 2,
-    fields = ('journal_entry', 'account', 'debit', 'credit'),
+    fields = ('account', 'debit', 'credit'),
     widgets = {
             'account':Select2Widget()})
 DebitEntryFormset = modelformset_factory(SingleEntry,
-    fields = ('journal_entry','account', 'value', 'action'),
+    fields = ('account', 'value', 'action'),
     form = DebitSingleEntryForm, formset = DebitEntryBaseFormset, extra = 4)
 CreditEntryFormset = modelformset_factory(SingleEntry,
-    fields = ('journal_entry','account', 'value', 'action'),
+    fields = ('account', 'value', 'action'),
     form = CreditSingleEntryForm, formset = BaseModelFormSet, extra = 4)
