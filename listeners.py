@@ -23,14 +23,14 @@ from .models import SingleEntry, Journal, Account, AccountType
 
 def create_standard_accs(name_list):
 	from django.conf import settings
-	
+
 	for n in name_list:
 		if n in settings.ACCOUNT_DEFINITIONS:
 			try:
 				acc_type, create = AccountType.objects.get_or_create(
 					name = settings.ACCOUNT_DEFINITIONS[n]['account_type'],
 					)
-				Account.objects.create(name = n,
+				Account.objects.get_or_create(name = n,
 					account_type = acc_type,
 					code = settings.ACCOUNT_DEFINITIONS[n]['code'])
 			except:

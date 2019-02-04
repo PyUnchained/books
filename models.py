@@ -217,7 +217,7 @@ class SingleEntry(models.Model):
 
     class Meta():
         verbose_name_plural = 'Single Entries'
-        ordering = ['-journal_entry__date']
+        ordering = ['-date']
 
 class Branch(models.Model):
     name = models.CharField(max_length = 120)
