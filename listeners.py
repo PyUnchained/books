@@ -57,13 +57,10 @@ def record_double_entry(signal = None, **kwargs):
 		details = kwargs.get('debit_details')
 		)
 
-
 	#Make the credit entry
 	credit_acc = Account.objects.get(name = kwargs.get('credit_acc'))
 	credit = SingleEntry.objects.create(date = kwargs.get('date'),
 		account = credit_acc, action = 'C',
 		value = kwargs.get('value'),
 		details = kwargs.get('credit_details'))
-
-	print (debit, credit)
 
