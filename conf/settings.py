@@ -9,7 +9,6 @@ ACC_CHOICES = (
 	('LO', 'Losses'),
 	('CL', 'Customer'),
 	('S', 'Supplier')
-
 	)
 
 CURRENCIES = (

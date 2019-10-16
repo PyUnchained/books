@@ -2,8 +2,8 @@ from django.contrib import admin
 
 from books.admin_inlines import JournalEntryActionInline, JournalEntryInline
 from books.models import (JournalEntry, Account, Branch, JournalEntryAction,
-    JournalEntryRule, Journal, JournalCreationRule, AccountType, OpexaBooksSystem,
-    TermSheet, Upload, SingleEntry, AccountSubType)
+    JournalEntryRule, Journal, JournalCreationRule, AccountGroup, OpexaBooksSystem,
+    TermSheet, Upload, SingleEntry)
 from books.admin_forms import (InitialJournalEntryForm, ReadyJournalEntryForm, TermSheetJournalEntryForm,
     JournalForm)
 
@@ -16,7 +16,7 @@ class SingleEntryInline(admin.TabularInline):
     extra = 0
     can_delete = False
 
-class AccountTypeAdmin(admin.ModelAdmin):
+class AccountGroupAdmin(admin.ModelAdmin):
     pass
 
 class JournalAdmin(admin.ModelAdmin):
@@ -92,8 +92,8 @@ class JournalEntryAdmin(admin.ModelAdmin):
         return str(obj)
 
 class AccountAdmin(admin.ModelAdmin):
-    list_display = ('name', 'account_type', 'sub_type', 'balance')
-    search_fields = ['name','account_type__name', 'sub_type__name']
+    list_display = ('name', 'account_type', 'balance')
+    search_fields = ['name','account_type__name']
 
     def balance(self, obj):
         return obj.balance
@@ -110,7 +110,7 @@ class JournalEntryRuleAdmin(admin.ModelAdmin):
     inlines = [JournalEntryActionInline]
 
 
-admin.site.register(AccountType, AccountTypeAdmin)
+admin.site.register(AccountGroup, AccountGroupAdmin)
 admin.site.register(Journal, JournalAdmin)
 # admin.site.register(JournalCreationRule, JournalCreationRuleAdmin)
 admin.site.register(JournalEntry, JournalEntryAdmin)

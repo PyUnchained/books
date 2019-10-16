@@ -2,7 +2,7 @@ import time
 import importlib
 from celery import shared_task
 
-from books.models import Account, AccountType
+from books.models import Account, AccountGroup
 
 def check_required_fields(fields, dict_obj):
     not_found = []
@@ -22,7 +22,7 @@ def create_account(**kwargs):
     required_fields = ['name', 'account_type']
     check_required_fields(required_fields,kwargs)
 
-    account_type_obj, created = AccountType.objects.get_or_create(
+    account_type_obj, created = AccountGroup.objects.get_or_create(
         name =kwargs.get('account_type'))
     name = kwargs.get('name')
     code = name

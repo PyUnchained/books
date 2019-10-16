@@ -1,55 +1,55 @@
 [
 {
-    "model": "books.accounttype",
+    "model": "books.AccountGroup",
     "pk": "cost of sales",
     "fields": {
         "description": null
     }
 },
 {
-    "model": "books.accounttype",
+    "model": "books.AccountGroup",
     "pk": "current assets",
     "fields": {
         "description": null
     }
 },
 {
-    "model": "books.accounttype",
+    "model": "books.AccountGroup",
     "pk": "current liabilities",
     "fields": {
         "description": null
     }
 },
 {
-    "model": "books.accounttype",
+    "model": "books.AccountGroup",
     "pk": "equity",
     "fields": {
         "description": null
     }
 },
 {
-    "model": "books.accounttype",
+    "model": "books.AccountGroup",
     "pk": "expense",
     "fields": {
         "description": null
     }
 },
 {
-    "model": "books.accounttype",
+    "model": "books.AccountGroup",
     "pk": "income",
     "fields": {
         "description": null
     }
 },
 {
-    "model": "books.accounttype",
+    "model": "books.AccountGroup",
     "pk": "long term assets",
     "fields": {
         "description": null
     }
 },
 {
-    "model": "books.accounttype",
+    "model": "books.AccountGroup",
     "pk": "long-term liabilities",
     "fields": {
         "description": null

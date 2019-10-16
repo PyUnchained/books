@@ -9,7 +9,7 @@ from django.db.models import Q
 from books.signals.api_signals import double_entry_sig,create_account_sig
 from books.tasks import create_account
 
-from .models import SingleEntry, Journal, Account, AccountType
+from .models import SingleEntry, Journal, Account, AccountGroup
 
 
 ["debit_acc", 'credit_acc', 'value', 'journal', 'date',
@@ -21,7 +21,7 @@ def create_standard_accs(name_list):
 	for n in name_list:
 		if n in settings.ACCOUNT_DEFINITIONS:
 			try:
-				acc_type, create = AccountType.objects.get_or_create(
+				acc_type, create = AccountGroup.objects.get_or_create(
 					name = settings.ACCOUNT_DEFINITIONS[n]['account_type'],
 					)
 				Account.objects.get_or_create(name = n,

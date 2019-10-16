@@ -6,6 +6,9 @@ from django.db import models
 from django.db.models import Sum
 from django.utils import timezone
 from django.urls import reverse
+from django.core.exceptions import ObjectDoesNotExist
+
+from mptt.models import MPTTModel, TreeForeignKey
 
 from books.conf.settings import ACC_CHOICES, CURRENCIES, ACTIONS, JOURNAL_PRESETS
 
@@ -16,7 +19,6 @@ INTEREST_METHODS = (
 
 def today():
     return timezone.now().date()
-
 
 def year_ago(years = 1, from_date=timezone.now().date()):
     if from_date is None:
@@ -34,7 +36,9 @@ class OpexaBooksSystem(models.Model):
     system_code = models.CharField(primary_key = True, default=uuid.uuid4,
         max_length = 2000)
 
-class AccountType(models.Model):
+class AccountGroup(MPTTModel):
+    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True,
+        related_name='children')
     name = models.CharField(max_length = 100, primary_key = True)
     description = models.CharField(max_length = 300, blank = True, null = True)
 
@@ -44,26 +48,22 @@ class AccountType(models.Model):
     class Meta():
         ordering = ['name']
 
-class AccountSubType(models.Model):
-    name = models.CharField(max_length = 100, primary_key = True)
-    description = models.CharField(max_length = 300, blank = True, null = True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta():
-        ordering = ['name']
-
-class Account(models.Model):
+class Account(MPTTModel):
+    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True,
+        related_name='children')
     code = models.CharField(max_length = 100,
         primary_key = True)
     name = models.CharField(max_length = 120)
-    account_type = models.ForeignKey('AccountType', models.CASCADE, null = True)
-    sub_type = models.ForeignKey('AccountSubType', models.CASCADE, null = True, blank = True)
-    parent = models.ForeignKey('Account', models.CASCADE, blank = True, null = True,
-        verbose_name = 'Grouped under',
-        help_text = 'Describes the account under which this particular one is grouped.')
+    account_type = models.ForeignKey('AccountGroup', models.CASCADE, blank = True)
 
+    def save(self, *args, **kwargs):
+        try:
+            self.account_type
+        except ObjectDoesNotExist:
+            if self.parent:
+                self.account_type = self.parent.account_type
+        super().save(*args, **kwargs)
+    
     def __str__(self):
         if self.parent:
             names = []
@@ -88,11 +88,21 @@ class Account(models.Model):
 
     @property
     def balance(self):
-        debit_entries = SingleEntry.objects.filter(account = self,
-            action = 'D').order_by('date')
-        credit_entries = SingleEntry.objects.filter(account = self,
-            action = 'C').order_by('date')
+        all_accs = []
+        try:
+            all_accs = list(self.get_children())
 
+        # In case this account has no children or has not yet been saved
+        except ValueError:
+            pass
+
+        finally:
+            all_accs.append(self)
+
+        debit_entries = SingleEntry.objects.filter(account__in = all_accs,
+            action = 'D')
+        credit_entries = SingleEntry.objects.filter(account__in = all_accs,
+            action = 'C')
         debit = debit_entries.aggregate(Sum('value'))['value__sum'] or Decimal('0.00')
         credit = credit_entries.aggregate(Sum('value'))['value__sum'] or Decimal('0.00')
         return abs(debit - credit)
@@ -136,6 +146,7 @@ class Account(models.Model):
 
     class Meta():
         ordering = ['name']
+
 
 class JournalEntry(models.Model):
     code = models.UUIDField(max_length = 100,
@@ -245,11 +256,9 @@ class JournalEntryRule(models.Model):
 class JournalEntryAction(models.Model):
     rule = models.ForeignKey('JournalEntryRule', models.CASCADE)
     action = models.CharField(choices = ACTIONS, max_length = 1)
-    account_type = models.ManyToManyField('AccountType',
+    account_type = models.ManyToManyField('AccountGroup',
         blank = True,
         help_text = 'Choose one of account type or specific account.')
-    sub_type = models.ManyToManyField('AccountSubType',
-        blank = True)
     accounts = models.ManyToManyField('Account', verbose_name = 'Specific account',
         blank = True, help_text = 'Choose one of account type or specific account.')
 
