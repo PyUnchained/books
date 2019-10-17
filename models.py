@@ -10,6 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from mptt.models import MPTTModel, TreeForeignKey
 
+from books.virtual.pdf import PDFBuilder
 from books.conf.settings import ACC_CHOICES, CURRENCIES, ACTIONS, JOURNAL_PRESETS
 
 INTEREST_METHODS = (
@@ -84,25 +85,78 @@ class Account(MPTTModel):
             else:
                 return parents
 
-            
-
-    @property
-    def balance(self):
-        all_accs = []
+    def _get_descendants(self, **kwargs):
         try:
-            all_accs = list(self.get_children())
-
-        # In case this account has no children or has not yet been saved
+            return self.get_descendants(**kwargs)
         except ValueError:
-            pass
+            return [self]
 
-        finally:
-            all_accs.append(self)
+    def as_dict(self, as_at = None, include_descendants = False):
+        if as_at == None:
+            as_at = timezone.now().date()
+
+        table = {'heading':str(self), 'as_at':as_at, 'debit':[],
+            'credit':[]}
+        entries = self.all_entries(include_descendants = include_descendants)
+        for e in entries:
+            if e.action == 'D':
+                table['debit'].append(e)
+            else:
+                table['credit'].append(e)
+        return table
+
+    def as_t(self, as_at = None, include_descendants = False):
+        table_dict = self.as_dict(as_at = as_at,
+            include_descendants = include_descendants)
+        table = []
+        table.append([table_dict['heading']])
+        max_entries_on_side = max([len(table_dict['credit']), len(table_dict['debit'])])
+
+        sides = ['debit', 'credit']
+        #Build the T-Account line by line, taking into account the fact that one side will likely
+        #have more entries on one side than it does on the other side.
+        for line_num in range(max_entries_on_side):
+            printed_line = []
+
+            #If there is no entry on both sides (i.e. we've already recorded all of the entries
+            #present on either the credit or debit side) make sure the new entry just has a blank
+            #line
+            for s in sides:
+                try:
+                    entry = table_dict[s][line_num]
+                    entry_as_list = [entry.date, entry.details, entry.value]
+                    printed_line.append(entry_as_list)
+                except IndexError:
+                    entry_as_list = ['', '', '']
+                    printed_line.append(entry_as_list)
+            table.append(printed_line)
+
+        return table
+
+    def as_pdf(self, as_at = None, include_descendants = False):
+        table = self.as_t(as_at = as_at,
+            include_descendants = include_descendants)
+        builder = PDFBuilder()
+        builder.build(table)
+
+    def all_entries(self, include_descendants = False):
+        if include_descendants:
+            all_accs = self._get_descendants(include_self  = True)
+        else:
+            all_accs = [self]
+        return SingleEntry.objects.filter(account__in = all_accs)
+
+    
+    def balance(self, as_at = None):
+        if as_at == None:
+            as_at = timezone.now().date()
+
+        all_accs = self._get_descendants(include_self  = True)
 
         debit_entries = SingleEntry.objects.filter(account__in = all_accs,
-            action = 'D')
+            action = 'D', date__lte = as_at)
         credit_entries = SingleEntry.objects.filter(account__in = all_accs,
-            action = 'C')
+            action = 'C', date__lte = as_at)
         debit = debit_entries.aggregate(Sum('value'))['value__sum'] or Decimal('0.00')
         credit = credit_entries.aggregate(Sum('value'))['value__sum'] or Decimal('0.00')
         return abs(debit - credit)

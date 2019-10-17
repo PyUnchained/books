@@ -3,6 +3,8 @@ try:
 except ImportError:
     from io import BytesIO as StringIO
 
+from importlib import import_module
+
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, TableStyle, SimpleDocTemplate, Paragraph, Spacer, Image,ListFlowable, ListItem, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -14,6 +16,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib import utils
 
 from django.core.files.base import ContentFile
+from django.conf import settings
+
 
 heading_style = ParagraphStyle('Heading')
 heading_style.textColor = 'black'
@@ -24,6 +28,26 @@ sub_heading_style = ParagraphStyle('Sub-Heading')
 sub_heading_style.textColor = 'black'
 sub_heading_style.fontSize = 13
 sub_heading_style.alignment = TA_CENTER
+
+class PDFBuilder():
+
+    def __init__(self):
+        self.file_buffer = StringIO()
+        self.doc = SimpleDocTemplate(self.file_buffer,
+            topMargin=10, bottomMargin=10)
+
+        #The styles avilable for the PDF builder are defined in the settings.py, as the BOOKS_PDF_STYLES
+        # setting. This represents a function we need to import and call in order to
+        # get the styles that should be available to the PDFBuilder objects.
+        module_path_split = settings.BOOKS_PDF_STYLES.split('.')
+        module_path = ".".join(module_path_split[:-1])
+        func = module_path_split[-1]
+        styles_module = import_module(module_path)
+        self.styles = getattr(styles_module, func)()
+
+    def build(self, table, style = None):
+        pass
+
 
 def pdf_from_preset(virtual_joural):
     if virtual_joural.rule.preset == 'TB':
@@ -72,8 +96,6 @@ def trial_balance_preset(virtual_joural):
         ]
 
     default_style = TableStyle(style_data)
-
-    print (virtual_joural.table)
     t=Table(virtual_joural.table,
         colWidths=col_widths
         )

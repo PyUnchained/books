@@ -12,22 +12,15 @@ class AccountingPrinciplesTestCase(TestCase):
 
 	def setUp(self):
 		chart_of_accounts_setup()
-
-		"""
-		The system needs to be able to correctly total accounts, including their child accounts, and here
-		is where we set that up.
-		"""
-
 		bank_acc = Account.objects.get(code = 1000)
 		bank_acc_2 = Account.objects.create(name = 'Secondary Bank Account',
-			parent = bank_acc)
+			parent = bank_acc, code = 1001)
 		petty_cash_acc = Account.objects.get(code = 1030)
 		loans_acc = Account.objects.get(code = 2600)
 		equipment_acc = Account.objects.get(code = 1840)
 		payroll_payable = Account.objects.get(code = 2200)
 		payroll_expense_acc = Account.objects.get(code = 5220)
 		payroll_tax_payable = Account.objects.get(code =2260)
-		payroll_tax_expense = Account.objects.get(code =5240)
 		# test_accs = [bank_acc, bank_acc_2, petty_cash_acc, loans_acc, equipment_acc]
 
 		# Take out 5000 dollar loan 1 month prior
@@ -53,24 +46,53 @@ class AccountingPrinciplesTestCase(TestCase):
 
 		#Pay 1500 wages at the end of the month at 9.67% Tax rate
 		#First, gross pay and withholding entry
-		entry_date = loan_date + timedelta(days = 30)
+		start_of_wage_period = loan_date
+		pay_day = loan_date + timedelta(days = 30)
 		tax_amount = Decimal('145.05')
 		net_payable_amt = Decimal('1354.95')
-		SingleEntry(account = payroll_expense_acc, action = 'D',
-			value = 1500, details = 'Month Wages')
-		SingleEntry(account = payroll_tax_payable, action = 'C',
-			value = tax_amount, details = 'Month Wages')
-		SingleEntry(account = payroll_payable, action = 'C',
-			value = net_payable_amt, details = 'Month Wages')
-
-		#Check that account balances are correct
-		self.assertEqual(bank_acc.balance, Decimal(4000.00))
-		self.assertEqual(bank_acc_2.balance, Decimal(2000.00))
-		self.assertEqual(petty_cash_acc.balance, Decimal(0.00))
-		self.assertEqual(loans_acc.balance, Decimal(5000.00))
-		self.assertEqual(equipment_acc.balance, Decimal(1000.00))
+		SingleEntry.objects.create(account = payroll_expense_acc, action = 'D',
+			value = 1500, details = 'First Month Wages', date = start_of_wage_period)
+		SingleEntry.objects.create(account = payroll_tax_payable, action = 'C',
+			value = tax_amount, details = 'First Month Wages', date = start_of_wage_period)
+		SingleEntry.objects.create(account = payroll_payable, action = 'C',
+			value = net_payable_amt, details = 'First Month Wages', date = start_of_wage_period)
 
 
+		#Net Pay on Payday
+		SingleEntry.objects.create(account = payroll_payable, action = 'D',
+			value = net_payable_amt, details = 'First Month Payday',
+			date = pay_day)
+		SingleEntry.objects.create(account = bank_acc_2, action = 'C',
+			value = net_payable_amt, details = 'First Month Payday',
+			date = pay_day)
 
-	def test_account_totals(self):
-		pass
+		#Tax payment on Payday
+		SingleEntry.objects.create(account = payroll_tax_payable, action = 'D',
+			value = tax_amount, details = 'First Month Wages TAX',
+			date = pay_day)
+		SingleEntry.objects.create(account = bank_acc_2, action = 'C',
+			value = tax_amount, details = 'First Month Wages TAX',
+			date = pay_day)
+
+	def test_account_balances(self):
+		"""
+		The system needs to be able to correctly total accounts, including their child accounts, and here
+		is where we set that up.
+		"""
+		bank_acc = Account.objects.get(code = 1000)
+		bank_acc_2 = Account.objects.get(code = 1001)
+		petty_cash_acc = Account.objects.get(code = 1030)
+		loans_acc = Account.objects.get(code = 2600)
+		equipment_acc = Account.objects.get(code = 1840)
+		payroll_payable = Account.objects.get(code = 2200)
+		payroll_expense_acc = Account.objects.get(code = 5220)
+		payroll_tax_payable = Account.objects.get(code =2260)
+		self.assertEqual(bank_acc.balance(), Decimal(2500.00))
+		self.assertEqual(bank_acc_2.balance(), Decimal(500.00))
+		self.assertEqual(petty_cash_acc.balance(), Decimal(0.00))
+		self.assertEqual(loans_acc.balance(), Decimal(5000.00))
+		self.assertEqual(equipment_acc.balance(), Decimal(1000.00))
+		self.assertEqual(payroll_payable.balance(), Decimal('0.00'))
+		self.assertEqual(payroll_expense_acc.balance(), Decimal(1500))
+		self.assertEqual(payroll_tax_payable.balance(), Decimal('0.00'))
+
