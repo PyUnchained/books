@@ -9,11 +9,8 @@ from django.db.models import Q
 from books.signals.api_signals import double_entry_sig,create_account_sig
 from books.tasks import create_account
 
-from .models import SingleEntry, Journal, Account, AccountGroup
+from .models import SingleEntry, Account, AccountGroup
 
-
-["debit_acc", 'credit_acc', 'value', 'journal', 'date',
-	'debit_details', 'credit_details']
 
 def create_standard_accs(name_list):
 	from django.conf import settings

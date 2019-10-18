@@ -9,10 +9,7 @@ from django.forms import formset_factory
 from django.contrib.contenttypes.models import ContentType
 from django.forms.formsets import formset_factory
 
-from books.models import JournalEntry, SingleEntry
-from books.virtual.journal_entry_rules import initialize_form
-from books.templatetags.forms import (SingleEntryForm, SingleEntryFormSetHelper,
-    DebitSingleEntryForm, CreditSingleEntryForm)
+from books.models import SingleEntry
 from books.admin_forms import NewExpenseForm
 
 register = template.Library()
@@ -21,9 +18,9 @@ register = template.Library()
 def account_history(account):
 
     debit_entries = SingleEntry.objects.filter(account = account,
-        action = 'D').order_by('journal_entry__date')
+        action = 'D').order_by('-date')
     credit_entries = SingleEntry.objects.filter(account = account,
-        action = 'C').order_by('journal_entry__date')
+        action = 'C').order_by('-date')
     return {'debit_entries':debit_entries, 'credit_entries':credit_entries}
 
 @register.inclusion_tag('books/admin/record_expense.html')
