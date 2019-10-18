@@ -1,0 +1,89 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static book_tags %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}">{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+<div id = "index-overlay">
+    <h1> This will be the overlay!</h1>
+</div>
+
+{% if app_list %}
+    {% for app in app_list %}
+        <div class="app-{{ app.app_label }} module">
+        <table>
+        <caption>
+            <a href="{{ app.app_url }}" class="section" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">{{ app.name }}</a>
+        </caption>
+        {% for model in app.models %}
+            <tr class="model-{{ model.object_name|lower }}">
+            {% if model.admin_url %}
+                <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+            {% else %}
+                <th scope="row">{{ model.name }}</th>
+            {% endif %}
+
+            {% if model.add_url %}
+                <td><a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a></td>
+            {% else %}
+                <td>&nbsp;</td>
+            {% endif %}
+
+            {% if model.admin_url %}
+                {% if model.view_only %}
+                <td><a href="{{ model.admin_url }}" class="viewlink">{% trans 'View' %}</a></td>
+                {% else %}
+                <td><a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a></td>
+                {% endif %}
+            {% else %}
+                <td>&nbsp;</td>
+            {% endif %}
+            </tr>
+        {% endfor %}
+        </table>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>{% trans "You don't have permission to view or edit anything." %}</p>
+{% endif %}
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+    <div class = 'module'>
+        <h2>Common Actions</h2>
+        <ul class = 'simple-list'>
+            <li id = 'record-expense-action-btn'>Record expense</li>
+            <li>Record bill</li>
+            <li>Record cost of sales</li>
+        </ul>
+    </div>
+    
+</div>
+
+<div id = 'record-expense-popup' class = 'admin-popup'>
+    <h2>Record an Expense</h2>
+    {% expense_form %}
+    <script type="text/javascript">
+        (function($) {
+            $(function() {
+                $('#record-expense-action-btn').on('click', function(e) {
+                    // Prevents the default action to be triggered. 
+                    e.preventDefault();
+                    // Triggering bPopup when click event is fired
+                    $('#record-expense-popup').bPopup();
+                });
+            });
+        })(jQuery);
+    </script>
+</div>
+{% endblock %}

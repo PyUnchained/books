@@ -7,7 +7,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, MultiField
 
-
 from books.models import JournalEntry, JournalEntryRule
 
 class JournalEntryRuleForm(forms.ModelForm):

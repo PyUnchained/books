@@ -1,2 +1,2 @@
 default_app_config = 'books.apps.BooksConfig'
-from .styles import*
+import books.styles as styles

@@ -4,12 +4,12 @@ from decimal import Decimal
 from django.utils import timezone
 from django.test import TestCase
 
-from books.models import Account, AccountGroup, SingleEntry
+from books.models import Account, AccountGroup, SingleEntry, Transaction
 
 from books.conf.app_conf import chart_of_accounts_setup
 
 # Create your tests here.
-class AccountModelTestCase(TestCase):
+class TransactionTestCase(TestCase):
 
 	def setUp(self):
 		chart_of_accounts_setup()
@@ -75,12 +75,5 @@ class AccountModelTestCase(TestCase):
 			value = tax_amount, details = 'First Month Wages TAX',
 			date = pay_day)
 
-	def test_chart_of_accounts_setup(self):
-		self.assertEqual(Account.objects.all().count(), 81)
-		self.assertEqual(AccountGroup.objects.all().count(), 27)
-
-	def test_account_output(self):
-		bank_acc = Account.objects.get(code = 1000)
-		bank_acc.as_dict()
-		bank_acc.as_t()
-		bank_acc.as_pdf('t_account')
+	def test_transaction(self):
+		pass

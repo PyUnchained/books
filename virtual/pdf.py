@@ -4,6 +4,8 @@ except ImportError:
     from io import BytesIO as StringIO
 
 from importlib import import_module
+import datetime
+from decimal import Decimal
 
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, TableStyle, SimpleDocTemplate, Paragraph, Spacer, Image,ListFlowable, ListItem, PageBreak
@@ -17,6 +19,10 @@ from reportlab.lib import utils
 
 from django.core.files.base import ContentFile
 from django.conf import settings
+
+from books.conf.settings import PDF_PAGE_WIDTH
+
+
 
 
 heading_style = ParagraphStyle('Heading')
@@ -45,8 +51,76 @@ class PDFBuilder():
         styles_module = import_module(module_path)
         self.styles = getattr(styles_module, func)()
 
-    def build(self, table, style = None):
-        pass
+    def build(self, style, elements):
+        prebuild = getattr(self, '_prebuild_' + style)(elements)
+        self.doc.build(prebuild)
+        pdf = self.file_buffer.getvalue()
+        with open('/tmp/{}.pdf'.format(style), 'wb') as f:
+            f.write(pdf)
+        return ContentFile(pdf)
+
+    def unpack_list_data(self, line):
+        new_line = []
+        for data_point in line:
+            if isinstance(data_point, list):
+                new_line.append(self.unpack_list_data(data_point))
+            else:
+                new_line.append(self.clean_data_point(data_point))
+        return new_line
+
+    def clean_data_point(self, data_point):
+
+        if isinstance(data_point, datetime.date):
+            return Paragraph(data_point.strftime(settings.BOOKS_SHORT_DATE_FORMAT),
+                self.styles['paragraph']['default'])
+
+        if isinstance(data_point, Decimal):
+            return Paragraph(str(data_point),
+                self.styles['paragraph']['default'])
+
+        if isinstance(data_point, str):
+            return Paragraph(data_point,
+                self.styles['paragraph']['default'])
+        return data_point
+
+
+
+    def _prebuild_t_account(self, elements):
+        #Replace heading text with formatted Paragraph object
+        new_heading = Paragraph(elements[0][0],
+            self.styles['paragraph']['heading'])
+
+        #First section, the account heading, a space and then the headings for the debit and
+        #credit sides of the account
+        pre_built_elements = [new_heading]
+        pre_built_elements.append(Spacer(1,25))
+
+        debit_credit_table = [[Paragraph('Debit',
+                        self.styles['paragraph']['sub_heading']),
+                    Paragraph('Credit',
+                        self.styles['paragraph']['sub_heading'])]]
+        t=Table(debit_credit_table,colWidths=[PDF_PAGE_WIDTH/2, PDF_PAGE_WIDTH/2])
+        pre_built_elements.append(t)
+        pre_built_elements.append(Spacer(1,5))
+
+        #Take out the section representing all of the single entry details and convert
+        # them into a table
+        table_data = elements[1:]
+        unpacked_table_data = self.unpack_list_data(table_data)
+
+        half_page_width = PDF_PAGE_WIDTH/2
+        date_column_width = 60
+        value_column_width = 80
+        other_columns_width = (half_page_width - date_column_width - value_column_width)
+        col_widths = [date_column_width, other_columns_width, value_column_width, date_column_width,
+            other_columns_width, value_column_width]
+        t=Table(unpacked_table_data, colWidths=col_widths)
+        t.setStyle(self.styles['t_account'].table_style)
+
+        #Insert the new table back in the elements list
+        pre_built_elements.append(t)
+        return pre_built_elements
+
 
 
 def pdf_from_preset(virtual_joural):

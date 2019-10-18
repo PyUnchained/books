@@ -27,3 +27,5 @@ JOURNAL_PRESETS = (
 	('PL', 'Trading, Profit & Loss'),
 	('T', 'Generic T-Account')
 )
+
+PDF_PAGE_WIDTH = 550

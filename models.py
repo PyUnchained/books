@@ -110,11 +110,15 @@ class Account(MPTTModel):
             include_descendants = include_descendants)
         table = []
         table.append([table_dict['heading']])
+
+        table.append(['Date', 'Details', 'Amt']*2)
         max_entries_on_side = max([len(table_dict['credit']), len(table_dict['debit'])])
 
         sides = ['debit', 'credit']
         #Build the T-Account line by line, taking into account the fact that one side will likely
         #have more entries on one side than it does on the other side.
+        debit_total = Decimal('0.00')
+        credit_total = Decimal('0.00')
         for line_num in range(max_entries_on_side):
             printed_line = []
 
@@ -125,19 +129,19 @@ class Account(MPTTModel):
                 try:
                     entry = table_dict[s][line_num]
                     entry_as_list = [entry.date, entry.details, entry.value]
-                    printed_line.append(entry_as_list)
+                    printed_line.extend(entry_as_list)
                 except IndexError:
                     entry_as_list = ['', '', '']
-                    printed_line.append(entry_as_list)
+                    printed_line.extend(entry_as_list)
             table.append(printed_line)
 
         return table
 
-    def as_pdf(self, as_at = None, include_descendants = False):
+    def as_pdf(self, style,  as_at = None, include_descendants = False):
         table = self.as_t(as_at = as_at,
             include_descendants = include_descendants)
         builder = PDFBuilder()
-        builder.build(table)
+        return builder.build(style, table)
 
     def all_entries(self, include_descendants = False):
         if include_descendants:
@@ -283,6 +287,21 @@ class SingleEntry(models.Model):
     class Meta():
         verbose_name_plural = 'Single Entries'
         ordering = ['-date']
+
+class TransactionDefinition(models.Model):
+    description = models.CharField(max_length = 150)
+    debit_account = models.ForeignKey('Account', on_delete = models.CASCADE,
+        related_name = 'debit_transaction_definitions')
+    credit_account = models.ForeignKey('Account', on_delete = models.CASCADE,
+        related_name = 'credi_transaction_definitions')
+
+class Transaction(models.Model):
+    definition = models.ForeignKey('TransactionDefinition', null = True, blank = True,
+        on_delete = models.CASCADE)
+    debit_entry = models.ForeignKey('SingleEntry', on_delete = models.CASCADE,
+        related_name = 'debit_transaction')
+    credit_entry = models.ForeignKey('SingleEntry', on_delete = models.CASCADE,
+        related_name = 'credit_transaction')
 
 class Branch(models.Model):
     name = models.CharField(max_length = 120)

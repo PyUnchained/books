@@ -341,7 +341,6 @@ def trial_balance_table_preset(virtual_journal):
             record += ['0.00', '0.00']
 
         if use_record:
-            print (a, balance)
             table.append(record)
 
     table.append(['', db_tot, cr_tot])

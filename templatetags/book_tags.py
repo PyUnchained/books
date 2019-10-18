@@ -13,6 +13,7 @@ from books.models import JournalEntry, SingleEntry
 from books.virtual.journal_entry_rules import initialize_form
 from books.templatetags.forms import (SingleEntryForm, SingleEntryFormSetHelper,
     DebitSingleEntryForm, CreditSingleEntryForm)
+from books.admin_forms import NewExpenseForm
 
 register = template.Library()
 
@@ -24,6 +25,11 @@ def account_history(account):
     credit_entries = SingleEntry.objects.filter(account = account,
         action = 'C').order_by('journal_entry__date')
     return {'debit_entries':debit_entries, 'credit_entries':credit_entries}
+
+@register.inclusion_tag('books/admin/record_expense.html')
+def expense_form():
+    return {'form':NewExpenseForm()}
+
 
 @register.inclusion_tag('books/popup_base.html')
 def pop_up(instance = None):

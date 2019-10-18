@@ -1,0 +1,51 @@
+#index-overlay {
+	background-color: black;
+}
+
+.admin-popup {
+	width: 80%;
+	height: 400px;
+	background-color: white;
+	border-radius: 5px;
+	padding: 20px;
+}
+
+.simple-list {
+	list-style: none;
+}
+
+.simple-list li {
+	height: 35px;
+	list-style-type: none;
+	cursor: pointer;
+}
+
+.simple-list li:hover {
+	color: #79aec8 ;
+}	
+
+.simple-list h2 {
+	font-size: 14px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	padding: 5px 15px;
+	margin-bottom: 12px;
+	border-bottom: none;
+}
+
+#content-related .module h2 {
+	font-size: 14px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	padding: 5px 15px;
+	margin-bottom: 12px;
+	border-bottom: none;
+	text-align: left;
+	background: #79aec8;
+	color: #fff;
+}
+
+#record-expense-popup {
+	display: none;
+}
+
