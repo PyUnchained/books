@@ -1,0 +1,32 @@
+{% extends 'books/books_admin_base.html' %}
+{% load static crispy_forms_tags %}
+
+{% block page-content %}
+<div class = 'row'>
+	<div class='col'>
+		<a id='toggle-new-source-form' href="#" class = 'btn btn-primary'>Add {{root_account_group|capfirst}} Account</a>
+		<br><br>
+		<p class = 'text-muted help-text' style="max-width: 50%;"><em>The system already generates an extensive chart of accounts to cover most sources of {{root_account_group}}, but you can click the button above to add more detailed accounts.</em></p>
+		
+		
+		<div id = 'new-source-form' style="display: none;">
+			<h3>New {{root_account_group|capfirst}} Account</h3>
+			{% crispy new_source_form %}
+		</div>
+		
+
+
+		<h2>Declare {{root_account_group|capfirst}} Sources</h2>
+		<p>Use the pre-existing chart of accounts, or use the form below to add your own sources.</p>
+		{% crispy source_declaration_form %}
+	</div>
+</div>
+
+<script type="text/javascript">
+	$("#toggle-new-source-form").click(function() {
+	    $("#new-source-form").toggle();
+	});
+</script>
+{% endblock %}
+
+

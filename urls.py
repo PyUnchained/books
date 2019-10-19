@@ -14,42 +14,48 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
+from django.urls import path
 from django.contrib import admin
 
 from books.views import*
 
-app_name = 'open_books'
+app_name = 'opexa_books'
 urlpatterns = [
     
-    url(r'^new_transaction/$',
-        NewJournalEntryRule.as_view(),
-        name = 'new_transaction'),
-    url(r'^enter_transaction/(\w+)/$',
-        EnterTransactionView.as_view(),
-        name = 'enter_transaction'),
-    url(r'^enter_any_transaction/$',
-        EnterAnyTransactionView.as_view(),
-        name = 'enter_any_transaction'),
+    # url(r'^new_transaction/$',
+    #     NewJournalEntryRule.as_view(),
+    #     name = 'new_transaction'),
+    # url(r'^enter_transaction/(\w+)/$',
+    #     EnterTransactionView.as_view(),
+    #     name = 'enter_transaction'),
+    # url(r'^enter_any_transaction/$',
+    #     EnterAnyTransactionView.as_view(),
+    #     name = 'enter_any_transaction'),
 
-    url(r'^all_journals/$',
-        JournalListView.as_view(),
-        name = 'all_journals_list'),
-    url(r'^view_journal/(.*)/$',
-        JournalView.as_view(),
-        name = 'view_journal'),
-    url(r'^new_journal_entry/$',
-        NewJournalEntry.as_view(),
-        name = 'new_journal_entry'),
+    # url(r'^all_journals/$',
+    #     JournalListView.as_view(),
+    #     name = 'all_journals_list'),
+    # url(r'^view_journal/(.*)/$',
+    #     JournalView.as_view(),
+    #     name = 'view_journal'),
+    # url(r'^new_journal_entry/$',
+    #     NewJournalEntry.as_view(),
+    #     name = 'new_journal_entry'),
 
-    #Stand Alone Site
-    url(r'^$', landing, name = 'demo_landing'),
+    # #Stand Alone Site
+    # url(r'^$', landing, name = 'demo_landing'),
 
-    #Admin URLS
-    url(r'^single_entries/([a-zA-Z0-9-]*)/$',
-        DoubleEntryWidget.as_view(),
-        name = 'admin_single_entries'),
-    # url(r'^admin_forms/(\w+)/$',
-    #     AdminForms.as_view(), name = 'admin_forms'),
+    # #Admin URLS
+    # url(r'^single_entries/([a-zA-Z0-9-]*)/$',
+    #     DoubleEntryWidget.as_view(),
+    #     name = 'admin_single_entries'),
+    # # url(r'^admin_forms/(\w+)/$',
+    # #     AdminForms.as_view(), name = 'admin_forms'),
+
+
+    # Account initialization views
+    path('account_start/capital_sources', CapitalSourcesView.as_view(),
+        name = 'capital_sources')
 
 
     

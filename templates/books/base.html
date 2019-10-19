@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" integrity="sha256-zs9cWf98KIv5DMYiF1a9lhJGQwhVe5LKVPJ9HNEI880=" crossorigin="anonymous" />
+	<link rel="stylesheet" href="{% static 'books/css/books.css' %}">
+	<script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+	<title>{% block title %}OPEXA Books{% endblock %}</title>
+</head>
+<body>
+
+{% if messages %}
+<div id='message-window' style="display: none;">
+    {% for message in messages %}
+    <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+    	<p>{{ message }}</p>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% block body %}
+{% endblock %}
+</body>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js" integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{% static 'books/js/jquery.bpopup.min.js' %}"></script>
+<script type="text/javascript">
+	$( ".dateinput" ).datepicker({
+	  dateFormat: "dd-mm-yy"
+	});
+	
+</script>
+{% block message_window_js %}
+<script type="text/javascript">
+	$( "#message-window" ).bPopup({
+		// autoClose: 10000
+	});
+</script>
+{% endblock %}
+</html>
+

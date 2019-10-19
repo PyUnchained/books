@@ -1,0 +1,31 @@
+.help-text {
+	background-color: #fafbcc;
+	padding: 10px;
+	border-radius: 5px;
+	box-shadow: 2px 2px 2px 1px rgba(0, 0, 255, .2);
+}
+
+.books_form {
+	padding-left: 20px;
+	padding-right: 20px;
+}
+
+#message-window {
+	background-color: white;
+	padding: 20px;
+	border-radius: 5px;
+	width: 60%;
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.message {
+	border-radius: 2px;
+	padding: 5px;
+	text-align: center;
+}
+
+.message p {
+	margin-top: auto;
+	margin-bottom: auto;
+}

@@ -12,8 +12,8 @@ class SingleEntryInline(admin.TabularInline):
     can_delete = False
 
 class AccountAdmin(admin.ModelAdmin):
-    list_display = ('name', 'account_type', 'balance')
-    search_fields = ['name','account_type__name']
+    list_display = ('name', 'account_group', 'balance')
+    search_fields = ['name','account_group__name']
 
     def balance(self, obj):
         return obj.balance

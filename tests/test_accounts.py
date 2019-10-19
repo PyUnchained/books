@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from django.utils import timezone
 from django.test import TestCase
+from django.db.models import Q
 
 from books.models import Account, AccountGroup, SingleEntry
 
@@ -76,8 +77,9 @@ class AccountModelTestCase(TestCase):
 			date = pay_day)
 
 	def test_chart_of_accounts_setup(self):
-		self.assertEqual(Account.objects.all().count(), 81)
+		self.assertEqual(Account.objects.all().count(), 79)
 		self.assertEqual(AccountGroup.objects.all().count(), 27)
+		self.assertEqual(AccountGroup.objects.filter(~Q(parent = None)).count(), 19)
 
 	def test_account_output(self):
 		bank_acc = Account.objects.get(code = 1000)
