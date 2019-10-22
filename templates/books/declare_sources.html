@@ -4,21 +4,62 @@
 {% block page-content %}
 <div class = 'row'>
 	<div class='col'>
-		<a id='toggle-new-source-form' href="#" class = 'btn btn-primary'>Add {{root_account_group|capfirst}} Account</a>
-		<br><br>
-		<p class = 'text-muted help-text' style="max-width: 50%;"><em>The system already generates an extensive chart of accounts to cover most sources of {{root_account_group}}, but you can click the button above to add more detailed accounts.</em></p>
-		
-		
+		<div class = 'row'>
+			<div class="col-sm-2">
+				<button id='toggle-new-source-form' href="#" class = 'btn btn-primary'><i class = 'fas fa-plus-circle'></i> Account</button>
+			</div>
+			<div class="col-sm-7">
+				<div class = 'help-text' style="max-width: 60%;">
+					<p class = 'text-muted' ><em>The system already generates an extensive chart of accounts to cover most sources of {{root_account_group}}, but you can click "Add {{root_account_group|capfirst}} Account" for more detailed accounts.</em></p>
+				</div>
+			</div>
+			<div class = 'col-sm-3'>
+				{% if prev_url %}
+				<a class = 'btn btn-lg btn-warning' href="{{prev_url}}"><i class='fas fa-chevron-left'></i> Prev</a>
+				{% endif %}
+
+				{% if next_url %}
+				<a class = 'btn btn-lg btn-success' href="{{next_url}}">Next <i class='fas fa-chevron-right'></i></a>
+				{% endif %}
+
+				{% if end_url %}
+				<a class = 'btn btn-lg btn-success' href="{{end_url}}">Done <i class='fas fa-check'></i></a>
+				{% endif %}
+			</div>
+		</div>
+
 		<div id = 'new-source-form' style="display: none;">
-			<h3>New {{root_account_group|capfirst}} Account</h3>
+			<h3>New Account</h3>
 			{% crispy new_source_form %}
 		</div>
+		<hr>
 		
-
-
-		<h2>Declare {{root_account_group|capfirst}} Sources</h2>
+		<h2>Declare Sources of {{root_account_group|capfirst}}</h2>
 		<p>Use the pre-existing chart of accounts, or use the form below to add your own sources.</p>
 		{% crispy source_declaration_form %}
+
+
+
+		{% if existing_declarations %}
+		<hr>
+		<h2 class='text-center'>Summary</h2>
+		<table class ='table table-striped' style="width:100%">
+		  <tr>
+		    <th>Date</th>
+		    <th>Account</th>
+		    <th>Debit</th>
+		    <th>Credit</th>
+		  </tr>
+		  {% for declaration in existing_declarations %}
+		  <tr>
+		    <td>{{declaration.0}}</td>
+		    <td>{{declaration.1}}</td>
+		    <td>{% if forloop.last %}<strong>{{declaration.2}}</strong>{% else%}{{declaration.2}}{% endif %}</td>
+		    <td>{% if forloop.last %}<strong>{{declaration.3}}</strong>{% else%}{{declaration.3}}{% endif %}</td>
+		  </tr>
+		  {% endfor %}
+		</table> 
+		{% endif %}
 	</div>
 </div>
 

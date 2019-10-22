@@ -1,8 +1,15 @@
 .help-text {
 	background-color: #fafbcc;
-	padding: 10px;
 	border-radius: 5px;
 	box-shadow: 2px 2px 2px 1px rgba(0, 0, 255, .2);
+	display: inline-block;
+
+}
+
+.help-text p {
+	line-height: 12px;
+	font-size: 13px;
+	margin: 10px;
 }
 
 .books_form {
@@ -28,4 +35,9 @@
 .message p {
 	margin-top: auto;
 	margin-bottom: auto;
+}
+
+.toggle-new-source-form {
+	display: inline-block;
+	vertical-align: top;
 }

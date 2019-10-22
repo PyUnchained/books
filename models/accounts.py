@@ -2,23 +2,26 @@ import uuid
 from datetime import timedelta
 from decimal import Decimal
 
-from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Sum
 from django.utils import timezone
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
 
 from mptt.models import MPTTModel, TreeForeignKey
 
 from books.virtual.pdf import PDFBuilder
 from books.conf.settings import ACTIONS
 
+from .config import SystemAccount
+
 class AccountGroup(MPTTModel):
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True,
         related_name='children')
     name = models.CharField(max_length = 100, primary_key = True)
     description = models.CharField(max_length = 300, blank = True, null = True)
+    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
 
     def __str__(self):
         if self.parent:
@@ -37,6 +40,7 @@ class Account(MPTTModel):
     name = models.CharField(max_length = 120,
         verbose_name = 'account name')
     account_group = models.ForeignKey('AccountGroup', models.CASCADE, blank = True)
+    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
 
     def save(self, *args, **kwargs):
         try:
@@ -193,6 +197,7 @@ class SingleEntry(models.Model):
         max_digits = 15, null = True, blank = True)
     details = models.CharField(max_length = 300)
     date = models.DateField()
+    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
 
     def __str__(self):
         if self.action == 'D':
@@ -219,6 +224,7 @@ class TransactionDefinition(models.Model):
         related_name = 'debit_transaction_definitions')
     credit_account = models.ForeignKey('Account', on_delete = models.CASCADE,
         related_name = 'credi_transaction_definitions')
+    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
 
 class Transaction(models.Model):
     definition = models.ForeignKey('TransactionDefinition', null = True, blank = True,
@@ -227,12 +233,30 @@ class Transaction(models.Model):
         related_name = 'debit_transaction')
     credit_entry = models.ForeignKey('SingleEntry', on_delete = models.CASCADE,
         related_name = 'credit_transaction')
+    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
 
 class DeclaredSource(models.Model):
-    user = models.ForeignKey(User, on_delete = models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete = models.CASCADE)
     account = models.ForeignKey('Account', on_delete = models.CASCADE)
     debit = models.DecimalField(max_digits = 15, decimal_places = 2,
         blank = True, null = True)
     credit = models.DecimalField(max_digits = 15, decimal_places = 2,
         blank = True, null = True)
+    details = models.CharField(max_length = 140)
     date = models.DateField()
+    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
+
+    @property
+    def is_debit(self):
+        if self.debit:
+            return True
+        return False
+
+    @property
+    def value(self):
+        if self.debit:
+            val = self.debit
+        else:
+            val = self.credit
+        return val
+    
