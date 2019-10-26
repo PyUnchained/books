@@ -12,10 +12,25 @@
 	margin: 10px;
 }
 
+/*General Form Styling*/
+
 .books_form {
 	padding-left: 20px;
 	padding-right: 20px;
 }
+
+.books_form input[type="submit"] {
+	margin-left: 15px;
+}
+
+.bad-password-input {
+	box-shadow: 2px 1px 5px 1px red;
+}
+
+.good-password-input {
+	box-shadow: 2px 1px 5px 1px green;
+}
+/*End of General Form Styling*/
 
 #message-window {
 	background-color: white;

@@ -15,19 +15,22 @@ from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, Mul
 
 from books.models import Account, AccountGroup, DeclaredSource
 
-def related_acc_groups(root_account_group):
+def related_acc_groups(root_account_group, system_account):
     if root_account_group == 'liability':
         root_groups = AccountGroup.objects.filter(
-            name__in = ['current liabilities', 'long-term liabilities', 'liability'])
+            name__in = ['current liabilities', 'long-term liabilities', 'liability'],
+            system_account = system_account)
         related_groups = AccountGroup.objects.get_queryset_descendants(
             root_groups, include_self = True)
     elif root_account_group == 'assets':
         root_groups = AccountGroup.objects.filter(
-            name__in = ['current assets', 'long-term assets'])
+            name__in = ['current assets', 'long-term assets'],
+            system_account = system_account)
         related_groups = AccountGroup.objects.get_queryset_descendants(
             root_groups, include_self = True)
     else:
-        root_group_obj = AccountGroup.objects.get(name = root_account_group)
+        root_group_obj = AccountGroup.objects.get(name = root_account_group,
+            system_account = system_account)
         related_groups = root_group_obj.get_descendants(include_self = True)
 
     return related_groups
@@ -36,7 +39,7 @@ def related_acc_groups(root_account_group):
 
 
 class NewSourceForm(forms.ModelForm):
-    def __init__(self, root_account_group, *args, **kwargs):
+    def __init__(self, root_account_group = None, system_account = None, *args, **kwargs):
         self.helper = FormHelper()
         self.helper.form_class = 'books_form'
         self.helper.layout = Layout(
@@ -55,10 +58,11 @@ class NewSourceForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # root_group_obj = AccountGroup.objects.get(name = root_account_group)
-        related_groups = related_acc_groups(root_account_group)
+        related_groups = related_acc_groups(root_account_group, system_account)
         self.fields['account_group'].queryset = related_groups
         self.fields['parent'].queryset = Account.objects.filter(
-            account_group__in = related_groups)
+            account_group__in = related_groups,
+            system_account = system_account)
 
 
     class Meta:
@@ -68,12 +72,13 @@ class NewSourceForm(forms.ModelForm):
     def clean(self, *args, **kwargs):
         cleaned_data = super().clean(*args, **kwargs)
         if not cleaned_data['parent'] and cleaned_data['account_group'] == None:
-            raise ValidationError('No parent account selected, so please select an account group.')
+            raise ValidationError('''No parent account selected. Please choose an account group 
+                or parent account.''')
         return cleaned_data
 
 class SourceDeclarationForm(forms.ModelForm):
 
-    def __init__(self, root_account_group, *args, **kwargs):
+    def __init__(self, root_account_group, system_account, *args, **kwargs):
         self.helper = FormHelper()
         self.helper.form_class = 'books_form'
         self.helper.layout = Layout(
@@ -94,9 +99,10 @@ class SourceDeclarationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # root_group_obj = AccountGroup.objects.get(name = root_account_group)
-        related_groups = related_acc_groups(root_account_group)
+        related_groups = related_acc_groups(root_account_group, system_account)
         self.fields['account'].queryset = Account.objects.filter(
-            account_group__in = related_groups)
+            account_group__in = related_groups,
+            system_account = system_account)
 
     class Meta:
         model = DeclaredSource

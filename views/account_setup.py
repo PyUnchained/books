@@ -7,6 +7,8 @@ from django.conf import settings
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.db import transaction
+from django.forms import formset_factory
+
 
 from books.models import Account, AccountGroup, DeclaredSource, SingleEntry
 from books.forms import NewSourceForm, SourceDeclarationForm
@@ -21,27 +23,32 @@ class DeclareSourcesView(View):
     end_url = ''
     template_name = 'books/declare_sources.html'
 
-    def _existing_delarations(self, user):
+    def _existing_delarations(self, system_account):
         table = []
         debit_total = Decimal('0.00')
         credit_total = Decimal('0.00')
-        for source in  DeclaredSource.objects.filter(user = user).order_by('date'):
-            row_cells = [source.date, "{} ({})".format(source.account,source.account.account_group)]
+        for source in  DeclaredSource.objects.filter(
+            system_account = system_account).order_by('date'):
+
+            row_cells = [source.date, "{} ({})".format(source.account.short_name,source.account.account_group.short_name),
+                source.details]
             if source.debit:
                 debit_total += source.debit
-                value_cells = [source.debit, '']
+                value_cells = [source.debit, '-']
             else:
                 credit_total += source.credit
-                value_cells = ['', source.credit]
+                value_cells = ['-', source.credit]
             row_cells.extend(value_cells)
             table.append(row_cells)
-        table.append(['', '', debit_total, credit_total])
+        table.append(['', '', '', debit_total, credit_total])
         return table
 
     def get(self, request, *args, **kwargs):
-        new_source_form = NewSourceForm(self.root_account_group)
-        source_declaration_form = SourceDeclarationForm(self.root_account_group)
-        existing_declarations = self._existing_delarations(request.user)
+        new_source_form = NewSourceForm(self.root_account_group,
+            request.user.account)
+        source_declaration_form = SourceDeclarationForm(self.root_account_group,
+            request.user.account)
+        existing_declarations = self._existing_delarations(request.user.account)
         if self.next_url:
             next_url = reverse_lazy(self.next_url)
         else:
@@ -62,14 +69,17 @@ class DeclareSourcesView(View):
             'source_declaration_form':source_declaration_form,
             'existing_declarations':existing_declarations,
             'next_url': next_url, 'prev_url':prev_url,
-            'end_url':end_url}
+            'end_url':end_url, 'show_new_source_form':False}
         return render(request, self.template_name, ctx)
 
     def post(self, request, *args, **kwargs):
         #Setup both forms in their default state
-        new_source_form = NewSourceForm(self.root_account_group)
-        source_declaration_form = SourceDeclarationForm(self.root_account_group)
-        existing_declarations = self._existing_delarations(request.user)
+        ctx = {'show_new_source_form':False}
+        new_source_form = NewSourceForm(self.root_account_group,
+            request.user.account)
+        source_declaration_form = SourceDeclarationForm(self.root_account_group,
+            request.user.account)
+        existing_declarations = self._existing_delarations(request.user.account)
         if self.next_url:
             next_url = reverse_lazy(self.next_url)
         else:
@@ -88,33 +98,41 @@ class DeclareSourcesView(View):
         #Determine what to do based on which submit button on the page was clicked
         if 'new_declaration' in request.POST:
             source_declaration_form = SourceDeclarationForm(self.root_account_group,
-                request.POST)
+                request.user.account, request.POST)
+
             if source_declaration_form.is_valid():
                 declaration = source_declaration_form.save(commit = False)
-                declaration.user = request.user
+                declaration.system_account = request.user.account
                 declaration.save()
                 messages.add_message(request, messages.SUCCESS, "Success")
                 return HttpResponseRedirect(reverse_lazy(self.this_url))
 
         if 'new_source' in request.POST:
             new_source_form = NewSourceForm(self.root_account_group,
-                request.POST)
+                request.user.account, request.POST)
+
             if new_source_form.is_valid():
                 source = new_source_form.save(commit = False)
-                if source.parent and not hasattr(source, 'account_group'):
+        
+                if source.parent:
                     source.account_group = source.parent.account_group
+
+                source.system_account = request.user.account
                 source.save()
                 messages.add_message(request, messages.SUCCESS, "Success")
                 return HttpResponseRedirect(reverse_lazy(self.this_url))
 
+            ctx.update({'show_new_source_form':True})
+
+
         
 
-        ctx = {'new_source_form':new_source_form,
+        ctx.update({'new_source_form':new_source_form,
             'root_account_group':self.root_account_group,
             'source_declaration_form':source_declaration_form,
             'existing_declarations':existing_declarations,
             'next_url': next_url, 'prev_url':prev_url,
-            'end_url':end_url}
+            'end_url':end_url})
         return render(request, self.template_name, ctx)
 
 

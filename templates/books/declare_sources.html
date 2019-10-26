@@ -28,7 +28,7 @@
 			</div>
 		</div>
 
-		<div id = 'new-source-form' style="display: none;">
+		<div id = 'new-source-form' {% if not show_new_source_form %} style="display: none;" {% endif%}>
 			<h3>New Account</h3>
 			{% crispy new_source_form %}
 		</div>
@@ -38,8 +38,6 @@
 		<p>Use the pre-existing chart of accounts, or use the form below to add your own sources.</p>
 		{% crispy source_declaration_form %}
 
-
-
 		{% if existing_declarations %}
 		<hr>
 		<h2 class='text-center'>Summary</h2>
@@ -47,6 +45,7 @@
 		  <tr>
 		    <th>Date</th>
 		    <th>Account</th>
+		    <th>Details</th>
 		    <th>Debit</th>
 		    <th>Credit</th>
 		  </tr>
@@ -54,8 +53,9 @@
 		  <tr>
 		    <td>{{declaration.0}}</td>
 		    <td>{{declaration.1}}</td>
-		    <td>{% if forloop.last %}<strong>{{declaration.2}}</strong>{% else%}{{declaration.2}}{% endif %}</td>
+		    <td>{{declaration.2}}</td>
 		    <td>{% if forloop.last %}<strong>{{declaration.3}}</strong>{% else%}{{declaration.3}}{% endif %}</td>
+		    <td>{% if forloop.last %}<strong>{{declaration.4}}</strong>{% else%}{{declaration.4}}{% endif %}</td>
 		  </tr>
 		  {% endfor %}
 		</table> 

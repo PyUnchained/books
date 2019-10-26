@@ -1,0 +1,15 @@
+{% extends 'books/books_admin_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page-content %}
+<div class = 'row'>
+	<div class = 'col-sm-2'>
+	</div>
+	<div class = 'col-sm-8'>
+		<h2 class = 'text-center'>Create Account</h2>
+		{% crispy form %}
+	</div>
+	<div class = 'col-sm-2'>
+	</div>
+</div>
+{% endblock %}

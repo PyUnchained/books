@@ -28,4 +28,7 @@ JOURNAL_PRESETS = (
 	('T', 'Generic T-Account')
 )
 
+STANDARD_USER_GROUP_NAME = 'Standard Users'
+ADMIN_USER_GROUP_NAME = 'Admin Users'
+
 PDF_PAGE_WIDTH = 550

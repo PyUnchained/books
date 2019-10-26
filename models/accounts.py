@@ -14,14 +14,22 @@ from mptt.models import MPTTModel, TreeForeignKey
 from books.virtual.pdf import PDFBuilder
 from books.conf.settings import ACTIONS
 
-from .config import SystemAccount
+from .auth import SystemAccount
 
 class AccountGroup(MPTTModel):
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True,
         related_name='children')
-    name = models.CharField(max_length = 100, primary_key = True)
+    name = models.CharField(max_length = 100)
     description = models.CharField(max_length = 300, blank = True, null = True)
     system_account = models.ForeignKey(SystemAccount, models.CASCADE)
+
+    @property
+    def short_name(self):
+        return self.name.title()
+
+    @property
+    def root_name(self):
+        return self.get_root().name.title()
 
     def __str__(self):
         if self.parent:
@@ -31,16 +39,24 @@ class AccountGroup(MPTTModel):
 
     class Meta():
         ordering = ['name']
+        unique_together = ['name', 'system_account']
 
 class Account(MPTTModel):
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True,
         related_name='children', verbose_name = 'parent account')
     code = models.CharField(max_length = 100,
-        primary_key = True)
+        blank = True, null = True)
     name = models.CharField(max_length = 120,
         verbose_name = 'account name')
-    account_group = models.ForeignKey('AccountGroup', models.CASCADE, blank = True)
-    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
+    account_group = models.ForeignKey('AccountGroup', models.CASCADE, blank = True,
+        null = True)
+    system_account = models.ForeignKey(SystemAccount, models.CASCADE, blank = True,
+        null = True)
+
+    @property
+    def short_name(self):
+        return self.name
+
 
     def save(self, *args, **kwargs):
         try:
@@ -236,7 +252,7 @@ class Transaction(models.Model):
     system_account = models.ForeignKey(SystemAccount, models.CASCADE)
 
 class DeclaredSource(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete = models.CASCADE)
+    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
     account = models.ForeignKey('Account', on_delete = models.CASCADE)
     debit = models.DecimalField(max_digits = 15, decimal_places = 2,
         blank = True, null = True)

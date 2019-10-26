@@ -30,11 +30,12 @@ def chart_of_accounts_setup(system_account):
             acc_group_name = rec[4].value.lower().strip()
 
             parent_group, created = AccountGroup.objects.get_or_create(
-                name = parent_name)
+                name = parent_name, system_account = system_account)
 
             try:
                 acc_group, acc_created = AccountGroup.objects.get_or_create(
-                    name =acc_group_name, parent = parent_group)
+                    name =acc_group_name, parent = parent_group,
+                    system_account = system_account)
                 
             #If the Sub-group is the same as one of the root parent account groups,
             #an error gets thrown, since an account with that name already exists, so we don't
@@ -45,7 +46,8 @@ def chart_of_accounts_setup(system_account):
     for n, rec in enumerate(coa_wb['book_keeping']):
         if n > 0:
             acc_group_name = rec[4].value.lower().strip()
-            acc_group = AccountGroup.objects.get(name =acc_group_name)
+            acc_group = AccountGroup.objects.get(name =acc_group_name,
+                system_account = system_account)
 
             account_data = {'name' : rec[0].value.title(),
             'code' : rec[1].value,
