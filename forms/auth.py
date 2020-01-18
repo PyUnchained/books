@@ -10,6 +10,31 @@ from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, Mul
 
 from books.models.auth import SystemAccount
 
+class LoginForm(forms.Form):
+    email = forms.EmailField()
+    password = forms.CharField(max_length = 200,
+        widget = forms.PasswordInput())
+
+    def __init__(self, *args, **kwargs):
+        self.helper = FormHelper()
+        self.helper.form_class = 'books_form'
+        self.helper.layout = Layout(
+
+            Div(
+                Div('email', css_class='col-sm-12'),
+                css_class='row'),
+
+            Div(
+                Div('password', css_class='col-sm-12'),
+                css_class='row'),
+
+            Div(
+                Submit('login', 'Login'),
+                css_class='row',
+            )
+        )
+        super().__init__(*args, **kwargs)
+
 class AccountRegistrationForm(forms.ModelForm):
     confirm_password = forms.CharField(max_length = 200,
         widget = forms.PasswordInput())

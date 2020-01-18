@@ -14,4 +14,5 @@ class SystemAccount(models.Model):
         as administrator.''')
     settings = models.OneToOneField(AccountSettings,
     	models.CASCADE)
+    initial_setup_done = models.BooleanField(default = False)
     created = models.DateTimeField(auto_now_add = True)

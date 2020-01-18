@@ -161,8 +161,8 @@ class AssetsSourcesView(DeclareSourcesView):
 
 def end_declarations_view(request):
     declarations = DeclaredSource.objects.filter(user = request.user)
-    for d in declarations:
-        with transaction.atomic():
+    with transaction.atomic():
+        for d in declarations:
             if d.is_debit:
                 action = 'D'
             else:
@@ -171,6 +171,8 @@ def end_declarations_view(request):
             'value':d.value, 'details':d.details, 'date':d.date}
             SingleEntry.objects.create(**s_entry_dict)
             d.delete()
+
+        request.user.account.initial_setup_done = True
 
     messages.add_message(request, messages.SUCCESS, "Opening Financial Position Declared")
     return HttpResponseRedirect(reverse_lazy('opexa_books:dashboard'))

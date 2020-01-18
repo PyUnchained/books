@@ -22,5 +22,5 @@ def bootstrap_system():
         # Create all the system user groups
         Group.objects.get_or_create(name = ADMIN_USER_GROUP_NAME)
         Group.objects.get_or_create(name = STANDARD_USER_GROUP_NAME)
-    except ProgrammingError:
+    except :
         pass

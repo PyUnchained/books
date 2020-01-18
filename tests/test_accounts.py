@@ -21,7 +21,7 @@ class AccountModelTestCase(TestCase):
 
         bank_acc = Account.objects.get(code = 1000)
         bank_acc_2 = Account.objects.create(name = 'Secondary Bank Account',
-            parent = bank_acc, code = 1001)
+            parent = bank_acc, code = 1001, system_account = bank_acc.system_account)
         petty_cash_acc = Account.objects.get(code = 1030)
         loans_acc = Account.objects.get(code = 2600)
         equipment_acc = Account.objects.get(code = 1840)
@@ -94,4 +94,4 @@ class AccountModelTestCase(TestCase):
         bank_acc = Account.objects.get(code = 1000)
         bank_acc.as_dict()
         bank_acc.as_t()
-        bank_acc.as_pdf('t_account')
+        bank_acc.as_pdf()

@@ -23,14 +23,20 @@ app_name = 'opexa_books'
 
 urlpatterns = [
 
+
+
     path('', DashboardView.as_view(),
         name = 'home'),
+
+    #Authentication Views
+    path('login/', LoginView.as_view(),
+        name = 'login'),
+    path('new_account/login/<pk>/', AccountLoginShortCutView.as_view(),
+        name = 'new_account_login'),
 
     # Account initialization views
     path('new_account/', AccountRegistrationView.as_view(),
         name = 'new_account'),
-    path('new_account/login/<pk>/', AccountLoginShortCutView.as_view(),
-        name = 'new_account_login'),
     path('account_start/capital_sources/', CapitalSourcesView.as_view(),
         name = 'capital_sources'),
     path('account_start/liability_sources/', LiabilitySourcesView.as_view(),

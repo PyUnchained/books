@@ -19,6 +19,7 @@ from reportlab.lib import utils
 
 from django.core.files.base import ContentFile
 from django.conf import settings
+from django.db import models
 
 from books.conf.settings import PDF_PAGE_WIDTH
 
@@ -36,6 +37,7 @@ sub_heading_style.fontSize = 13
 sub_heading_style.alignment = TA_CENTER
 
 class PDFBuilder():
+    pdf_type = 'general_pdf'
 
     def __init__(self):
         self.file_buffer = StringIO()
@@ -51,41 +53,78 @@ class PDFBuilder():
         styles_module = import_module(module_path)
         self.styles = getattr(styles_module, func)()
 
-    def build(self, style, elements):
-        prebuild = getattr(self, '_prebuild_' + style)(elements)
+    def get_filename(self, file_name = None):
+        if file_name:
+            return file_name
+        return '{}.pdf'.format(self.pdf_type)
+
+    def build(self, elements, file_name = None):
+        prebuild = getattr(self, 'build_instructions')(elements)
         self.doc.build(prebuild)
         pdf = self.file_buffer.getvalue()
-        with open('/tmp/{}.pdf'.format(style), 'wb') as f:
+        with open('/tmp/{}'.format(self.get_filename(file_name = file_name)), 'wb') as f:
             f.write(pdf)
         return ContentFile(pdf)
 
     def unpack_list_data(self, line):
+
         new_line = []
         for data_point in line:
             if isinstance(data_point, list):
                 new_line.append(self.unpack_list_data(data_point))
             else:
+                # print ('Cleaning: {}'.format(data_point))
                 new_line.append(self.clean_data_point(data_point))
         return new_line
 
     def clean_data_point(self, data_point):
 
-        if isinstance(data_point, datetime.date):
-            return Paragraph(data_point.strftime(settings.BOOKS_SHORT_DATE_FORMAT),
-                self.styles['paragraph']['default'])
+        if isinstance(data_point, datetime.date) or isinstance(data_point, datetime.datetime):
+            return data_point.strftime(settings.BOOKS_SHORT_DATE_FORMAT)
 
-        if isinstance(data_point, Decimal):
-            return Paragraph(str(data_point),
-                self.styles['paragraph']['default'])
+        return str(data_point)
 
-        if isinstance(data_point, str):
-            return Paragraph(data_point,
-                self.styles['paragraph']['default'])
-        return data_point
+class TrialBalancePDFBuilder(PDFBuilder):
+
+    pdf_type = 'trial_balance'
+
+    def build_instructions(self, tb_dict):
+        #Trial balances supply their build elements as a Dict object
+        elements = [] 
+
+        #Add heading
+        elements.append(Paragraph(tb_dict['heading'],
+            self.styles['paragraph']['heading']))
+        elements.append(Spacer(1,25))
+
+        #Work out column widths
+        detail_colum_width = PDF_PAGE_WIDTH/2
+        other_columns_width = (PDF_PAGE_WIDTH - detail_colum_width)/2
+        col_widths=[detail_colum_width, other_columns_width, other_columns_width]
+
+        debit_credit_table = [
+            ['', Paragraph('Debit',self.styles['paragraph']['centered_sub_heading']),
+            Paragraph('Credit',self.styles['paragraph']['centered_sub_heading'])]
+        ]
+        t=Table(debit_credit_table,colWidths=col_widths)
+        elements.append(t)
+        elements.append(Spacer(1,5))
+
+        tb_entries = tb_dict['entries']
+        tb_entries.append(['', '', ''])
+        tb_entries.append(['', tb_dict['debit_total'], tb_dict['credit_total']])
+        t=Table(self.unpack_list_data(tb_entries), colWidths = col_widths)
+        t.setStyle(self.styles['trial_balance'].table_style)
+        elements.append(t)
 
 
+        return elements
 
-    def _prebuild_t_account(self, elements):
+
+class TAccountPDFBuilder(PDFBuilder):
+    pdf_type = 't_account'
+
+    def build_instructions(self, elements):
         #Replace heading text with formatted Paragraph object
         new_heading = Paragraph(elements[0][0],
             self.styles['paragraph']['heading'])

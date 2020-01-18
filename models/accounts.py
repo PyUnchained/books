@@ -11,7 +11,7 @@ from django.conf import settings
 
 from mptt.models import MPTTModel, TreeForeignKey
 
-from books.virtual.pdf import PDFBuilder
+from books.virtual.pdf import TAccountPDFBuilder
 from books.conf.settings import ACTIONS
 
 from .auth import SystemAccount
@@ -50,8 +50,7 @@ class Account(MPTTModel):
         verbose_name = 'account name')
     account_group = models.ForeignKey('AccountGroup', models.CASCADE, blank = True,
         null = True)
-    system_account = models.ForeignKey(SystemAccount, models.CASCADE, blank = True,
-        null = True)
+    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
 
     @property
     def short_name(self):
@@ -67,12 +66,6 @@ class Account(MPTTModel):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        if self.parent:
-            names = []
-            for p in self.parents:
-                names.append(p.name)
-            names.append(self.name)
-            return ' - '.join(names)
         return self.name
 
     @property
@@ -138,11 +131,11 @@ class Account(MPTTModel):
 
         return table
 
-    def as_pdf(self, style,  as_at = None, include_descendants = False):
+    def as_pdf(self,  as_at = None, include_descendants = False, file_name = None):
         table = self.as_t(as_at = as_at,
             include_descendants = include_descendants)
-        builder = PDFBuilder()
-        return builder.build(style, table)
+        builder = TAccountPDFBuilder()
+        return builder.build(table, file_name = file_name)
 
     def all_entries(self, include_descendants = False):
         if include_descendants:
@@ -152,34 +145,37 @@ class Account(MPTTModel):
         return SingleEntry.objects.filter(account__in = all_accs)
 
     
-    def balance(self, as_at = None):
+    def balance(self, as_at = None, from_date = None, include_descendants = False, full = False):
         if as_at == None:
             as_at = timezone.now().date()
+        
+        if include_descendants:
+            all_accs = self._get_descendants(include_self  = True)
+        else:
+            all_accs = [self]
 
-        all_accs = self._get_descendants(include_self  = True)
+        query_kwargs = {'account__in' : all_accs, 'date__lte' : as_at}
+        if from_date:
+            query_kwargs.update({'date__gte':from_date})
 
-        debit_entries = SingleEntry.objects.filter(account__in = all_accs,
-            action = 'D', date__lte = as_at)
-        credit_entries = SingleEntry.objects.filter(account__in = all_accs,
-            action = 'C', date__lte = as_at)
+        debit_entries = SingleEntry.objects.filter(action = 'D',
+            **query_kwargs)
+        credit_entries = SingleEntry.objects.filter(action = 'C',
+            **query_kwargs)
         debit = debit_entries.aggregate(Sum('value'))['value__sum'] or Decimal('0.00')
         credit = credit_entries.aggregate(Sum('value'))['value__sum'] or Decimal('0.00')
-        return abs(debit - credit)
+        absolute_balance = abs(debit - credit)
 
-    def balance_as_at(self, from_date = None):
-        if from_date == None:
-            from_date = timezone.now().date()-timedelta(days = 365*10)
+        if not full:
+            return absolute_balance
 
-        debit_entries = SingleEntry.objects.filter(account = self,
-            journal_entry__date__gte = from_date,
-            action = 'D').order_by('date')
-        credit_entries = SingleEntry.objects.filter(account = self,
-            journal_entry__date__gte = from_date,
-            action = 'C').order_by('date')
+        else:
+            if debit > credit:
+                balance_type = 'D'
+            else:
+                balance_type = 'C'
 
-        debit = debit_entries.aggregate(Sum('value'))['value__sum'] or Decimal('0.00')
-        credit = credit_entries.aggregate(Sum('value'))['value__sum'] or Decimal('0.00')
-        return abs(debit - credit)
+            return (balance_type, absolute_balance)
 
 
     def extra_data(self):
