@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from books.models import (Account, AccountGroup, SingleEntry, Transaction, TransactionDefinition,
-	SystemAccount, SystemUser)
+	SystemAccount)
 
 # Register your models here.
 
@@ -25,4 +25,3 @@ admin.site.register(Account, AccountAdmin)
 admin.site.register(Transaction)
 admin.site.register(TransactionDefinition)
 admin.site.register(SystemAccount)
-admin.site.register(SystemUser)

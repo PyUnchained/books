@@ -13,9 +13,10 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
 from django.utils import timezone
 from django.contrib.auth import authenticate, login
+from django.apps import apps
 
 from books.utils.auth import register_new_account
-from books.models import SystemAccount, SystemUser
+from books.models import SystemAccount
 from books.forms.auth import AccountRegistrationForm, LoginForm
 
 class AccountRegistrationView(CreateView):
@@ -37,7 +38,9 @@ class AccountLoginShortCutView(View):
 
         if 'HTTP_REFERER' in request.META:
             if reverse('opexa_books:new_account') in request.META['HTTP_REFERER']:
-                user = SystemUser.objects.get(account__pk = kwargs['pk'])
+                app_label, model_name = settings.AUTH_USER_MODEL.split('.')
+                UserModel = apps.get_model(app_label=app_label, model_name=model_name)
+                user = UserModel.objects.get(account__pk = kwargs['pk'])
                 login(request, user)
                 return HttpResponseRedirect(reverse('opexa_books:capital_sources'))
         

@@ -1,12 +1,10 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.conf import settings
 from .config import AccountSettings 
 
-class SystemUser(AbstractUser):
-	account = models.ForeignKey('SystemAccount', models.CASCADE, null = True)
-	is_admin = models.BooleanField(default = False)
-
 class SystemAccount(models.Model):
+    users = models.ManyToManyField(settings.AUTH_USER_MODEL)
     name = models.CharField(max_length = 200,
         help_text = 'Name of business')
     password = models.CharField(max_length = 300)

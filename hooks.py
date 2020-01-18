@@ -9,11 +9,4 @@ from django.db.models import Q
 from books.signals.api_signals import double_entry_sig,create_account_sig
 from books.tasks import create_account
 
-from .models import SingleEntry, Account, AccountGroup, SystemAccount, SystemUser
-
-
-@receiver(post_delete, sender=SystemAccount)
-def delete_associated_users_hook(sender, instance, using, **kwargs):
-    #Make sure any users without accounts are also deleted
-    SystemUser.objects.filter(account = None,
-        is_superuser = False).delete()
+from .models import SingleEntry, Account, AccountGroup, SystemAccount
