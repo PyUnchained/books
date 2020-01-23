@@ -160,7 +160,8 @@ class AssetsSourcesView(DeclareSourcesView):
     end_url = 'opexa_books:end_declarations'
 
 def end_declarations_view(request):
-    declarations = DeclaredSource.objects.filter(user = request.user)
+    system_account = request.user.account
+    declarations = DeclaredSource.objects.filter(system_account = system_account)
     with transaction.atomic():
         for d in declarations:
             if d.is_debit:
@@ -168,7 +169,8 @@ def end_declarations_view(request):
             else:
                 action = 'C'
             s_entry_dict = {'account':d.account, 'action':action,
-            'value':d.value, 'details':d.details, 'date':d.date}
+            'value':d.value, 'details':d.details, 'date':d.date,
+            'system_account':system_account}
             SingleEntry.objects.create(**s_entry_dict)
             d.delete()
 

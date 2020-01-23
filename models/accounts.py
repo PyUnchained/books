@@ -256,7 +256,7 @@ class DeclaredSource(models.Model):
         blank = True, null = True)
     details = models.CharField(max_length = 140)
     date = models.DateField()
-    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
+    # system_account = models.ForeignKey(SystemAccount, models.CASCADE)
 
     @property
     def is_debit(self):

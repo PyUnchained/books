@@ -7,8 +7,7 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db.models import Q 
-
+from django.db.models import Q
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, MultiField, HTML
@@ -97,12 +96,11 @@ class SourceDeclarationForm(forms.ModelForm):
             )
         )
         super().__init__(*args, **kwargs)
-
-        # root_group_obj = AccountGroup.objects.get(name = root_account_group)
         related_groups = related_acc_groups(root_account_group, system_account)
         self.fields['account'].queryset = Account.objects.filter(
             account_group__in = related_groups,
             system_account = system_account)
+        self.fields['date'].input_formats=settings.DATE_INPUT_FORMATS
 
     class Meta:
         model = DeclaredSource

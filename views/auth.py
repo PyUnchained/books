@@ -39,9 +39,11 @@ class AccountLoginShortCutView(View):
         if 'HTTP_REFERER' in request.META:
             if reverse('opexa_books:new_account') in request.META['HTTP_REFERER']:
                 app_label, model_name = settings.AUTH_USER_MODEL.split('.')
-                UserModel = apps.get_model(app_label=app_label, model_name=model_name)
-                user = UserModel.objects.get(account__pk = kwargs['pk'])
-                login(request, user)
+                UserModel = apps.get_model(app_label=app_label,
+                    model_name=model_name)
+                acc = SystemAccount.objects.get(pk = kwargs['pk'])
+                user = acc.users.all()[0]
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 return HttpResponseRedirect(reverse('opexa_books:capital_sources'))
         
         html = "<html><body><h1>Access Denied</h1></body></html>"
