@@ -3,6 +3,14 @@
 
 {% block page-content %}
 <div class = 'row'>
-	<h1>Dashboard</h1>
+<h1>Dashboard</h1>
+</div> 
+<div class = 'row'>
+<div style="display: block">
+    <p>Latest Financial Statements</p>
+    <a class = 'btn btn-primary' href="{% url 'opexa_books:download_trial_balance' %}" target="_blank">Trial Balance</a>
+    <a class = 'btn btn-primary' href="{% url 'opexa_books:download_profit_and_loss' %}" target="_blank">P&L</a>
+    
 </div>
+</div> 
 {% endblock %}

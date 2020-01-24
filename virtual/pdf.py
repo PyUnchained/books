@@ -3,6 +3,7 @@ try:
 except ImportError:
     from io import BytesIO as StringIO
 
+from os.path import expanduser
 from importlib import import_module
 import datetime
 from decimal import Decimal
@@ -20,11 +21,6 @@ from reportlab.lib import utils
 from django.core.files.base import ContentFile
 from django.conf import settings
 from django.db import models
-
-from books.conf.settings import PDF_PAGE_WIDTH
-
-
-
 
 heading_style = ParagraphStyle('Heading')
 heading_style.textColor = 'black'
@@ -47,7 +43,8 @@ class PDFBuilder():
         #The styles avilable for the PDF builder are defined in the settings.py, as the BOOKS_PDF_STYLES
         # setting. This represents a function we need to import and call in order to
         # get the styles that should be available to the PDFBuilder objects.
-        module_path_split = settings.BOOKS_PDF_STYLES.split('.')
+
+        module_path_split = settings.OPEXA_BOOKS_PDF_STYLES.split('.')
         module_path = ".".join(module_path_split[:-1])
         func = module_path_split[-1]
         styles_module = import_module(module_path)
@@ -62,7 +59,8 @@ class PDFBuilder():
         prebuild = getattr(self, 'build_instructions')(elements)
         self.doc.build(prebuild)
         pdf = self.file_buffer.getvalue()
-        with open('/tmp/{}'.format(self.get_filename(file_name = file_name)), 'wb') as f:
+        fp = expanduser('~/tmp/{}'.format(self.get_filename(file_name = file_name)))
+        with open(fp, 'wb') as f:
             f.write(pdf)
         return ContentFile(pdf)
 
@@ -84,6 +82,68 @@ class PDFBuilder():
 
         return str(data_point)
 
+class ProfitAndLossPDFBuilder(PDFBuilder):
+
+    pdf_type = 'trial_balance'
+
+    def build_instructions(self, pl_dict):
+        #Trial balances supply their build elements as a Dict object
+        elements = [] 
+
+        #Add heading
+        elements.append(Paragraph(pl_dict['heading'],
+            self.styles['paragraph']['heading']))
+        elements.append(Spacer(1,25))
+
+        #Work out column widths
+        detail_colum_width = settings.OPEXA_BOOKS_PDF_PAGE_WIDTH/2
+        other_columns_width = (settings.OPEXA_BOOKS_PDF_PAGE_WIDTH - detail_colum_width)/2
+        col_widths=[detail_colum_width, other_columns_width, other_columns_width]
+
+        pl_table = []
+
+        sub_section_ident = 8
+        #Add section to calculate gross profit
+        pl_table.append(['Sales', '', pl_dict['income_section']['sum_tot']])
+
+        pl_table.append(['Less cost of goods sold:', '', ''])
+        for cost_entry in pl_dict['cost_of_goods_sold_section']['entry_list']:
+            pl_table.append([' '*sub_section_ident + str(cost_entry[0]), cost_entry[1], ''])
+        pl_table.append(['', '', '({})'.format(pl_dict['cost_of_goods_sold_section']['sum_tot'])])
+        pl_table.append(['Gross Profit', '', pl_dict['gross_profit']])
+        gross_profit_line_index = len(pl_table) - 1
+
+        #Add section to calculate Net Profit
+        pl_table.append(['Less expenses:', '', ''])
+        for cost_entry in pl_dict['expenses_section']['entry_list']:
+            pl_table.append([' '*sub_section_ident + str(cost_entry[0]), cost_entry[1], ''])
+        pl_table.append(['', '', '({})'.format(pl_dict['expenses_section']['sum_tot'])])
+        pl_table.append(['Net Profit', '', pl_dict['net_profit']])
+        net_profit_line_index = len(pl_table) - 1
+
+        t=Table(pl_table,colWidths=col_widths)
+        elements.append(t)
+        elements.append(Spacer(1,5))
+
+        #Update the default style to underline the totals in the document
+        basic_pl_style = self.styles['profit_and_loss'].table_style
+        basic_pl_style.append_command(
+            ('FONTSIZE', (0, gross_profit_line_index), (-1, gross_profit_line_index), self.styles['subheadingFontSize']))
+        basic_pl_style.append_command(
+            ('LINEABOVE', (-1, gross_profit_line_index), (-1, gross_profit_line_index), 0.3, self.styles['color_swatch'].black))
+        basic_pl_style.append_command(
+            ('LINEBELOW', (-1, gross_profit_line_index), (-1, gross_profit_line_index), 0.3, self.styles['color_swatch'].black))
+        basic_pl_style.append_command(
+            ('TEXTCOLOR', (0, gross_profit_line_index-1), (-1, gross_profit_line_index-1), self.styles['color_swatch'].red))
+        basic_pl_style.append_command(
+            ('FONTSIZE', (0, net_profit_line_index), (-1, net_profit_line_index), self.styles['subheadingFontSize']))
+        basic_pl_style.append_command(
+            ('TEXTCOLOR', (0, net_profit_line_index-1), (-1, net_profit_line_index-1), self.styles['color_swatch'].red))
+        basic_pl_style.append_command(
+            ('LINEABOVE', (-1, net_profit_line_index), (-1, net_profit_line_index), 0.3, self.styles['color_swatch'].black))
+        t.setStyle(basic_pl_style)
+        return elements
+
 class TrialBalancePDFBuilder(PDFBuilder):
 
     pdf_type = 'trial_balance'
@@ -98,8 +158,8 @@ class TrialBalancePDFBuilder(PDFBuilder):
         elements.append(Spacer(1,25))
 
         #Work out column widths
-        detail_colum_width = PDF_PAGE_WIDTH/2
-        other_columns_width = (PDF_PAGE_WIDTH - detail_colum_width)/2
+        detail_colum_width = settings.OPEXA_BOOKS_PDF_PAGE_WIDTH/2
+        other_columns_width = (settings.OPEXA_BOOKS_PDF_PAGE_WIDTH - detail_colum_width)/2
         col_widths=[detail_colum_width, other_columns_width, other_columns_width]
 
         debit_credit_table = [
@@ -138,7 +198,7 @@ class TAccountPDFBuilder(PDFBuilder):
                         self.styles['paragraph']['sub_heading']),
                     Paragraph('Credit',
                         self.styles['paragraph']['sub_heading'])]]
-        t=Table(debit_credit_table,colWidths=[PDF_PAGE_WIDTH/2, PDF_PAGE_WIDTH/2])
+        t=Table(debit_credit_table,colWidths=[settings.OPEXA_BOOKS_PDF_PAGE_WIDTH/2, settings.OPEXA_BOOKS_PDF_PAGE_WIDTH/2])
         pre_built_elements.append(t)
         pre_built_elements.append(Spacer(1,5))
 
@@ -147,7 +207,7 @@ class TAccountPDFBuilder(PDFBuilder):
         table_data = elements[1:]
         unpacked_table_data = self.unpack_list_data(table_data)
 
-        half_page_width = PDF_PAGE_WIDTH/2
+        half_page_width = settings.OPEXA_BOOKS_PDF_PAGE_WIDTH/2
         date_column_width = 60
         value_column_width = 80
         other_columns_width = (half_page_width - date_column_width - value_column_width)

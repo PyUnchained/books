@@ -56,3 +56,12 @@
 	display: inline-block;
 	vertical-align: top;
 }
+
+.opexa_books_link {
+	border-radius: 2px;
+	background-color: blue;
+	padding: 5px;
+	color: white;
+	text-decoration: none;
+
+}

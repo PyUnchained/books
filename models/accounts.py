@@ -8,13 +8,23 @@ from django.utils import timezone
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+
+
 
 from mptt.models import MPTTModel, TreeForeignKey
 
 from books.virtual.pdf import TAccountPDFBuilder
-from books.conf.settings import ACTIONS
 
 from .auth import SystemAccount
+
+class SingleEntryCreatorMixin():
+
+    @property
+    def single_entry_ref_code(self):
+        ct = ContentType.objects.get_for_model(self)
+        return '{}-{}-{}'.format(ct.app_label, ct.model, self.pk)
+
 
 class AccountGroup(MPTTModel):
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True,
@@ -203,13 +213,16 @@ class Account(MPTTModel):
         ordering = ['name']
 
 class SingleEntry(models.Model):
-    account = models.ForeignKey('Account', models.CASCADE, blank = True)
-    action = models.CharField(max_length = 1, choices = ACTIONS, blank = True)
+    account = models.ForeignKey('Account', models.CASCADE)
+    action = models.CharField(max_length = 1, choices = settings.OPEXA_BOOKS_ACTIONS)
     value = models.DecimalField(decimal_places = 2,
-        max_digits = 15, null = True, blank = True)
+        max_digits = 15, null = True)
     details = models.CharField(max_length = 300)
     date = models.DateField()
     system_account = models.ForeignKey(SystemAccount, models.CASCADE)
+    double_entry = models.ForeignKey('DoubleEntry', models.CASCADE,
+        null = True, blank = True,editable = False)
+    creator_ref = models.CharField(max_length = 200, blank = True, null = True) 
 
     def __str__(self):
         if self.action == 'D':
@@ -227,8 +240,21 @@ class SingleEntry(models.Model):
                 self.value)
 
     class Meta():
-        verbose_name_plural = 'Single Entries'
+        verbose_name_plural = 'Single entries'
         ordering = ['-date']
+
+class DoubleEntry(models.Model):
+    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
+    date = models.DateField()
+    details = models.CharField(max_length = 300)
+    
+    class Meta():
+        verbose_name_plural = 'Double entries'
+        ordering = ['-date']
+
+    def __str__(self):
+        return self.details
+    
 
 class TransactionDefinition(models.Model):
     description = models.CharField(max_length = 150)
@@ -238,13 +264,14 @@ class TransactionDefinition(models.Model):
         related_name = 'credi_transaction_definitions')
     system_account = models.ForeignKey(SystemAccount, models.CASCADE)
 
+    def __str__(self):
+        return self.description
+
 class Transaction(models.Model):
     definition = models.ForeignKey('TransactionDefinition', null = True, blank = True,
         on_delete = models.CASCADE)
-    debit_entry = models.ForeignKey('SingleEntry', on_delete = models.CASCADE,
-        related_name = 'debit_transaction')
-    credit_entry = models.ForeignKey('SingleEntry', on_delete = models.CASCADE,
-        related_name = 'credit_transaction')
+    value = models.DecimalField(max_digits = 15, decimal_places = 2, null = True)
+    details = models.TextField(max_length = 2000, null = True, blank = True)
     system_account = models.ForeignKey(SystemAccount, models.CASCADE)
 
 class DeclaredSource(models.Model):

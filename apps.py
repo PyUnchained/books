@@ -10,17 +10,20 @@ class BooksConfig(AppConfig):
     verbose_name = 'OPEXA Accounting'
 
     def ready(self, *args, **kwargs):
-        from books import hooks
+        from books import listeners
+        from django.conf import settings
         bootstrap_system()
+
+
         
 
 def bootstrap_system():
-    from books.conf.settings import ADMIN_USER_GROUP_NAME, STANDARD_USER_GROUP_NAME
+    from django.conf import settings
     from django.contrib.auth.models import Group
 
     try:
         # Create all the system user groups
-        Group.objects.get_or_create(name = ADMIN_USER_GROUP_NAME)
-        Group.objects.get_or_create(name = STANDARD_USER_GROUP_NAME)
+        Group.objects.get_or_create(name = settings.OPEXA_BOOKS_ADMIN_USER_GROUP_NAME)
+        Group.objects.get_or_create(name = settings.OPEXA_BOOKS_STANDARD_USER_GROUP_NAME)
     except :
         pass

@@ -9,4 +9,4 @@ from django.db.models import Q
 from books.signals.api_signals import double_entry_sig,create_account_sig
 from books.tasks import create_account
 
-from .models import SingleEntry, Account, AccountGroup, SystemAccount
+from .models import SingleEntry, Account, AccountGroup, SystemAccount, Transaction

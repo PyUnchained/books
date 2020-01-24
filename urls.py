@@ -23,11 +23,6 @@ app_name = 'opexa_books'
 
 urlpatterns = [
 
-
-
-    path('', DashboardView.as_view(),
-        name = 'home'),
-
     #Authentication Views
     path('login/', LoginView.as_view(),
         name = 'login'),
@@ -35,6 +30,8 @@ urlpatterns = [
         name = 'new_account_login'),
 
     # Account initialization views
+    path('initialize_integrated_package/', InitializeIntegratedAccountView.as_view(),
+        name = 'initialize_integrated_package'),
     path('new_account/', AccountRegistrationView.as_view(),
         name = 'new_account'),
     path('account_start/capital_sources/', CapitalSourcesView.as_view(),
@@ -47,10 +44,15 @@ urlpatterns = [
         name = 'end_declarations'),
 
 
-    # Books Accounting Interface #
+    # Books Accounting Dashboard #
     ##############################
-    path('dashboard/', DashboardView.as_view(),
-        name = 'dashboard')
+    path('', DashboardView.as_view(),
+        name = 'home'),
+    path('download_trial_balance/', DownloadTrialBalanceView.as_view(),
+        name = 'download_trial_balance'),
+    path('download_profit_and_loss/', DownloadProfitAndLossView.as_view(),
+        name = 'download_profit_and_loss')
+    
     
 ]
 

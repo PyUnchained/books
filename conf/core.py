@@ -6,8 +6,6 @@ from django.conf import settings
 
 from openpyxl import load_workbook
 
-from books.conf.settings import ACC_CHOICES, CURRENCIES, ACTIONS
-
 def chart_of_accounts_setup(system_account):
 
     from django.conf import settings

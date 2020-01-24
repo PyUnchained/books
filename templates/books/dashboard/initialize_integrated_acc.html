@@ -1,0 +1,7 @@
+{% extends 'books/books_admin_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page-content %}
+<p>You are about to initialize the accounting books for <strong>{{username}}</strong>. Are you sure you would like to contimue?</p>
+{% crispy form %}
+{% endblock %}

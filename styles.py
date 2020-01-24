@@ -4,11 +4,24 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
 from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER, TA_JUSTIFY
 
-from books.conf.settings import PDF_PAGE_WIDTH
+from django.conf import settings
 
-black = '#000000'
-dark_blue = '#01429a'
-grey = '#e8e8e8'
+# black = '#000000'
+# dark_blue = '#01429a'
+# grey = '#e8e8e8'
+# red = '#c11e2e'
+
+class OPEXATableStyle(TableStyle):
+
+    def append_command(self, cmd):
+        self._cmds.append(cmd)
+
+class ColorSwatch():
+
+    def __init__(self, **colors):
+        for color, v in colors.items():
+            setattr(self, color, v)
+
 
 class PDFTableStyle():
 
@@ -16,50 +29,70 @@ class PDFTableStyle():
         self.name = name
         self.table_style = style
 
+    def append_command(self, cmd):
+        self.table_style.append_command(cmd)
+
 
 
 def style_options():
     styles = getSampleStyleSheet()
     options = {'paragraph': {}}
 
+    colors = {'black':'#000000', 'dark_blue':'#01429a', 'grey':'#e8e8e8',
+        'red':'#c11e2e'}
+
     normalFontSize = 8
     subheadingFontSize = 13
     headingFontSize = 20
+    options.update({'normalFontSize':normalFontSize,
+        'subheadingFontSize':subheadingFontSize,
+        'headingFontSize':headingFontSize,
+        'color_swatch':ColorSwatch(**colors)})
 
 
     #Add T-Account style
     style_config = [
-        # ('ALIGN',(2,0),(2,-1),'CENTER'),
-        # ('ALIGN',(-1,0),(-1,-1),'CENTER'),
         ('ALIGN',(0,0),(-1,-1),'CENTER'),
-        ('BACKGROUND', (2,0),(2,-1), grey),
-        ('BACKGROUND', (-1,0),(-1,-1), grey),    
+        ('BACKGROUND', (2,0),(2,-1), colors['grey']),
+        ('BACKGROUND', (-1,0),(-1,-1), colors['grey']),    
 
         ('FONTSIZE', (0, 0), (-1, -1), normalFontSize),
 
-        ('LINEBELOW', (0, 0), (-1, 0), 1, black),
-        ('LINEABOVE', (0, 0), (-1, 0), 1, black),
-        ('LINEAFTER', (2, 0), (2, -1), 1, black)]
+        ('LINEBELOW', (0, 0), (-1, 0), 1, colors['black']),
+        ('LINEABOVE', (0, 0), (-1, 0), 1, colors['black']),
+        ('LINEAFTER', (2, 0), (2, -1), 1, colors['black'])
+    ]
 
-    t_acc_option = PDFTableStyle('t_account',TableStyle(style_config))
+    t_acc_option = PDFTableStyle('t_account',OPEXATableStyle(style_config))
     options.update({t_acc_option.name:t_acc_option})
 
-    #Add T-Account style
+    #Add Trial Balance style
     trial_bal_config = [
-        ('ALIGN',(1,0),(-1,-1),'CENTER'),
+        ('ALIGN',(1,0),(-1,-1),'RIGHT'),
 
         # Grid
-        ('LINEAFTER', (0, 0), (-1, -1), 1, black),
-        ('LINEBEFORE', (0, 0), (-1, -1), 1, black),
-        ('LINEABOVE', (0, 0), (-1, 0), 1, black),
-        ('LINEBELOW', (0, -1), (-1, -1), 1, black),
-
-        ('FONTSIZE', (0, -1), (-1, -1), subheadingFontSize),
+        ('LINEAFTER', (0, 0), (-1, -1), 1, colors['black']),
+        ('LINEBEFORE', (0, 0), (-1, -1), 1, colors['black']),
+        ('LINEABOVE', (0, 0), (-1, 0), 1, colors['black']),
+        ('LINEBELOW', (0, -1), (-1, -1), 1, colors['black']),
 
     ]
 
-    trial_bal_option = PDFTableStyle('trial_balance',TableStyle(trial_bal_config))
+    trial_bal_option = PDFTableStyle('trial_balance',OPEXATableStyle(trial_bal_config))
     options.update({trial_bal_option.name:trial_bal_option})
+
+    #Add Trial Balance style
+    pl_option = [
+        ('ALIGN',(1,0),(-1,-1),'CENTER'),
+        # Grid
+        ('LINEAFTER', (0, 0), (-1, -1), 1, colors['black']),
+        ('LINEBEFORE', (0, 0), (-1, -1), 1, colors['black']),
+        ('LINEABOVE', (0, 0), (-1, 0), 1, colors['black']),
+        ('LINEBELOW', (0, -1), (-1, -1), 1, colors['black'])
+    ]
+
+    pl_option = PDFTableStyle('profit_and_loss',OPEXATableStyle(trial_bal_config))
+    options.update({pl_option.name:pl_option})
 
 
     #Paragraph Styles

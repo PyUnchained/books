@@ -11,7 +11,29 @@ from django.forms import formset_factory
 
 
 from books.models import Account, AccountGroup, DeclaredSource, SingleEntry
-from books.forms import NewSourceForm, SourceDeclarationForm
+from books.forms import NewSourceForm, SourceDeclarationForm, InitializeIntegratedAccountForm
+from books.conf import chart_of_accounts_setup
+from books.utils import register_new_account
+
+class InitializeIntegratedAccountView(View):
+    template_name = 'books/dashboard/initialize_integrated_acc.html'
+    def get(self, request, *args, **kwargs):
+        form = InitializeIntegratedAccountForm()
+        ctx = {'username':request.user.username,'form':form}
+        return render(request, self.template_name, ctx)
+
+    def post(self, request, *args, **kwargs):
+        ctx = {}
+        with transaction.atomic():
+            acc = register_new_account(user = request.user,
+                name = request.user.username)
+
+        messages.add_message(request, messages.SUCCESS, "Accounts initialized.")
+        return HttpResponseRedirect(reverse_lazy('admin:index'))
+
+
+
+
 
 class DeclareSourcesView(View):
 

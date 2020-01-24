@@ -6,10 +6,14 @@ from django.utils import timezone
 from django.apps import apps
 
 from books.conf import chart_of_accounts_setup
-from books.conf.settings import ADMIN_USER_GROUP_NAME
 from books.models import SystemAccount, AccountSettings
 
-def register_new_account(form = None, **kwargs):
+def register_new_account(user = None, form = None, **kwargs):
+
+    other_accs = user.systemaccount_set.all()
+    account_already_registered = other_accs.count() > 0
+    if account_already_registered:
+        return other_accs[0]
 
     if form:
         account = form.save(commit = False)
@@ -17,14 +21,10 @@ def register_new_account(form = None, **kwargs):
         account = SystemAccount(**kwargs)
 
     with transaction.atomic():
-
-        password_str = account.password
-        account.password = make_password(password_str) # Hash the account password string
         account.settings = AccountSettings.objects.create(
             financial_year_start = timezone.now().date())
-        account.save() 
-
-        register_new_admin_user(account, account.email, password_str)
+        account.save()
+        account.users.add(user)
 
         #Setup initial Chart of Accounts
         chart_of_accounts_setup(account)
@@ -41,7 +41,13 @@ def register_new_admin_user(account, username, password):
         account.users.add(admin_user)
 
         #Add them to the admin user group
-        g = Group.objects.get(name = ADMIN_USER_GROUP_NAME)
+        g = Group.objects.get(name = settings.OPEXA_BOOKS_ADMIN_USER_GROUP_NAME)
         admin_user.groups.add(g)
 
         return admin_user
+
+def get_account_for_user(user):
+    try:
+        return user.systemaccount_set.all()[0]
+    except SystemAccount.DoesNotExist:
+        return None

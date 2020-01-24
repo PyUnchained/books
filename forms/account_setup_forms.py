@@ -8,11 +8,15 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.apps import apps
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, MultiField, HTML
 
 from books.models import Account, AccountGroup, DeclaredSource
+
+app_label, model_name = settings.AUTH_USER_MODEL.split('.')
+UserModel = apps.get_model(app_label=app_label, model_name=model_name)
 
 def related_acc_groups(root_account_group, system_account):
     if root_account_group == 'liability':
@@ -34,7 +38,23 @@ def related_acc_groups(root_account_group, system_account):
 
     return related_groups
 
+class InitializeIntegratedAccountForm(forms.Form):
 
+    def __init__(self, request_user = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'books_form'
+        self.helper.form_action = reverse_lazy('opexa_books:initialize_integrated_package')
+        self.helper.layout = Layout(
+
+         
+
+            Div(
+                Submit('initalize', 'Initialize'),
+                css_class='row',
+            )
+        )
+        
 
 
 class NewSourceForm(forms.ModelForm):
