@@ -48,6 +48,14 @@ class DownloadProfitAndLossView(DownloadFinancialStatementView):
     def create_file(self, request):
         acc = get_account_for_user(request.user)
         pl = financial_statements.ProfitAndLoss(acc)
-        pl.as_dict()
         return pl.as_pdf(file_name = 'pl_out.pdf')
+
+class DownloadBalanceSheetView(DownloadFinancialStatementView):
+    document_name = 'balance_sheet.pdf'
+
+    def create_file(self, request):
+        acc = get_account_for_user(request.user)
+        bs = financial_statements.BalanceSheet(acc)
+        bs.as_dict()
+        return bs.as_pdf(file_name = 'bs_out.pdf')
     

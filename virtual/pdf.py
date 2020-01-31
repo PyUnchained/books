@@ -82,9 +82,52 @@ class PDFBuilder():
 
         return str(data_point)
 
+class BalanceSheetPDFBuilder(PDFBuilder):
+
+    def build_instructions(self, bs_dict):
+        #Trial balances supply their build elements as a Dict object
+        elements = [] 
+
+        #Add heading
+        elements.append(Paragraph(bs_dict['heading'],
+            self.styles['paragraph']['heading']))
+        elements.append(Spacer(1,25))
+
+        #Work out column widths
+        detail_colum_width = settings.OPEXA_BOOKS_PDF_PAGE_WIDTH/2
+        other_columns_width = (settings.OPEXA_BOOKS_PDF_PAGE_WIDTH - detail_colum_width)/2
+        col_widths=[detail_colum_width, other_columns_width, other_columns_width]
+
+        bs_table = []
+
+        sub_section_ident = 8
+        #Add section to calculate gross profit
+        bs_table.append(['Assets', '', ''])
+        for entry in bs_dict['assets_section']['entry_list']:
+            bs_table.append([' '*sub_section_ident + str(entry[0]), '', entry[1]])
+        bs_table.append(['', '', bs_dict['assets_section']['sum_tot']])
+        asset_total_line = len(bs_table) - 1
+
+        bs_table.append(['Liabilities', '', ''])
+        for entry in bs_dict['liabilities_section']['entry_list']:
+            bs_table.append([' '*sub_section_ident + str(entry[0]), '', entry[1]])
+        bs_table.append(['', '', bs_dict['liabilities_section']['sum_tot']])
+        liabilities_total_line = len(bs_table) - 1
+
+        bs_table.append(['Capital', '', ''])
+        for entry in bs_dict['capital_section']['entry_list']:
+            bs_table.append([' '*sub_section_ident + str(entry[0]), '', entry[1]])
+        bs_table.append(['', '', bs_dict['capital_section']['sum_tot']])
+        capital_total_line = len(bs_table) - 1
+
+        t=Table(bs_table,colWidths=col_widths)
+        elements.append(t)
+        elements.append(Spacer(1,5))
+        return elements
+
 class ProfitAndLossPDFBuilder(PDFBuilder):
 
-    pdf_type = 'trial_balance'
+    pdf_type = 'profit_and_loss'
 
     def build_instructions(self, pl_dict):
         #Trial balances supply their build elements as a Dict object
@@ -106,10 +149,10 @@ class ProfitAndLossPDFBuilder(PDFBuilder):
         #Add section to calculate gross profit
         pl_table.append(['Sales', '', pl_dict['income_section']['sum_tot']])
 
-        pl_table.append(['Less cost of goods sold:', '', ''])
-        for cost_entry in pl_dict['cost_of_goods_sold_section']['entry_list']:
+        pl_table.append(['Less production cost of goods sold:', '', ''])
+        for cost_entry in pl_dict['cost_of_production_section']['entry_list']:
             pl_table.append([' '*sub_section_ident + str(cost_entry[0]), cost_entry[1], ''])
-        pl_table.append(['', '', '({})'.format(pl_dict['cost_of_goods_sold_section']['sum_tot'])])
+        pl_table.append(['', '', '({})'.format(pl_dict['cost_of_production_section']['sum_tot'])])
         pl_table.append(['Gross Profit', '', pl_dict['gross_profit']])
         gross_profit_line_index = len(pl_table) - 1
 

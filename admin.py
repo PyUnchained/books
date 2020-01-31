@@ -8,16 +8,21 @@ from books.models import (Account, AccountGroup, SingleEntry, Transaction, Trans
 	SystemAccount, DoubleEntry)
 import books.forms.admin as admin_forms
 
-# Register your models here.
+def save_all(modeladmin, request, queryset):
+    for item in queryset:
+        item.save()
+
+class SaveAllActionMixin():
+    actions = [save_all]
 
 class InitializedSystemAccountMixin(admin.ModelAdmin):
     def get_changeform_initial_data(self, request):
         return {'system_account': get_account_for_user(request.user)}
 
     def get_form(self, request, obj=None, **kwargs):
-        print ('GETTTYYY FORM')
         form = super().get_form(request, obj, **kwargs)
-        return types.new_class('FormClass',(admin_forms.RequestUserSystemAccountAdminFormMixin, form))
+        return types.new_class('FormClass',
+            (admin_forms.RequestUserSystemAccountAdminFormMixin, form))
 
 class DoubleEntryInlineFormset(forms.models.BaseInlineFormSet):
     def clean(self):
@@ -45,10 +50,10 @@ class SingleEntryInline(admin.TabularInline):
     extra = 2
     formset = DoubleEntryInlineFormset
 
-class TransactionAdmin(InitializedSystemAccountMixin):
+class TransactionAdmin(SaveAllActionMixin, InitializedSystemAccountMixin):
     pass
 
-class TransactionDefinitionAdmin(InitializedSystemAccountMixin):
+class TransactionDefinitionAdmin(SaveAllActionMixin, InitializedSystemAccountMixin):
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "debit_account" or db_field.name == "credit_account":
@@ -56,9 +61,15 @@ class TransactionDefinitionAdmin(InitializedSystemAccountMixin):
                 system_account__in = request.user.systemaccount_set.all()).order_by('name')
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-class AccountAdmin(InitializedSystemAccountMixin):
+class AccountGroupAdmin(SaveAllActionMixin, InitializedSystemAccountMixin):
+    search_fields = ['name', 'parent__name']
+    autocomplete_fields = ['parent']
+    list_display = ['name', 'parent']
+
+class AccountAdmin(SaveAllActionMixin, InitializedSystemAccountMixin):
     list_display = ('name', 'account_group','code', 'balance')
-    search_fields = ['name','account_group__name']
+    search_fields = ['name','account_group__name', 'parent__name']
+    autocomplete_fields = ['parent', 'account_group']
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "system_account":
@@ -71,11 +82,11 @@ class AccountAdmin(InitializedSystemAccountMixin):
     def balance(self, obj):
         return obj.balance()
 
-class SingleEntryModelAdmin(InitializedSystemAccountMixin):
+class SingleEntryModelAdmin(SaveAllActionMixin, InitializedSystemAccountMixin):
     autocomplete_fields = ['account']
-    list_display = ['date', 'action', 'account', 'value', 'details']
+    list_display = ['date', 'action', 'account', 'value', 'details', 'double_entry']
 
-class DoubleEntryModelAdmin(InitializedSystemAccountMixin):
+class DoubleEntryModelAdmin(SaveAllActionMixin, InitializedSystemAccountMixin):
     inlines = [SingleEntryInline]
     list_display = ['date', 'details']
 
@@ -94,10 +105,8 @@ class DoubleEntryModelAdmin(InitializedSystemAccountMixin):
         formset.save_m2m()
 
 
-admin.site.register(AccountGroup)
+admin.site.register(AccountGroup, AccountGroupAdmin)
 admin.site.register(Account, AccountAdmin)
-admin.site.register(Transaction, TransactionAdmin)
-admin.site.register(TransactionDefinition, TransactionDefinitionAdmin)
 admin.site.register(SystemAccount)
 admin.site.register(SingleEntry, SingleEntryModelAdmin)
 admin.site.register(DoubleEntry, DoubleEntryModelAdmin)

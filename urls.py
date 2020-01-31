@@ -51,7 +51,11 @@ urlpatterns = [
     path('download_trial_balance/', DownloadTrialBalanceView.as_view(),
         name = 'download_trial_balance'),
     path('download_profit_and_loss/', DownloadProfitAndLossView.as_view(),
-        name = 'download_profit_and_loss')
+        name = 'download_profit_and_loss'),
+    path('download_balance_sheet/', DownloadBalanceSheetView.as_view(),
+        name = 'download_balance_sheet')
+
+    
     
     
 ]

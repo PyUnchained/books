@@ -28,7 +28,7 @@ class SingleEntryCreatorMixin():
 
 class AccountGroup(MPTTModel):
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True,
-        related_name='children')
+        related_name='children', verbose_name = 'parent account group')
     name = models.CharField(max_length = 100)
     description = models.CharField(max_length = 300, blank = True, null = True)
     system_account = models.ForeignKey(SystemAccount, models.CASCADE)
@@ -68,11 +68,8 @@ class Account(MPTTModel):
 
 
     def save(self, *args, **kwargs):
-        try:
-            self.account_group
-        except ObjectDoesNotExist:
-            if self.parent:
-                self.account_group = self.parent.account_group
+        if self.parent:
+            self.account_group = self.parent.account_group
         super().save(*args, **kwargs)
     
     def __str__(self):
@@ -221,8 +218,9 @@ class SingleEntry(models.Model):
     date = models.DateField()
     system_account = models.ForeignKey(SystemAccount, models.CASCADE)
     double_entry = models.ForeignKey('DoubleEntry', models.CASCADE,
-        null = True, blank = True,editable = False)
-    creator_ref = models.CharField(max_length = 200, blank = True, null = True) 
+        null = True, blank = True, editable = False)
+    creator_ref = models.CharField(max_length = 200, blank = True, null = True,
+        editable = False) 
 
     def __str__(self):
         if self.action == 'D':
@@ -247,6 +245,10 @@ class DoubleEntry(models.Model):
     system_account = models.ForeignKey(SystemAccount, models.CASCADE)
     date = models.DateField()
     details = models.CharField(max_length = 300)
+    related_document = models.FileField(upload_to = 'double_entry_files',
+        blank = True, null = True)
+    creator_ref = models.CharField(max_length = 200, blank = True, null = True,
+        editable = False) 
     
     class Meta():
         verbose_name_plural = 'Double entries'
