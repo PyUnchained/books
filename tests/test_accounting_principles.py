@@ -3,9 +3,11 @@ from decimal import Decimal
 
 from django.utils import timezone
 from django.test import TestCase
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
-from books.models import Account, AccountGroup, SingleEntry, SystemAccount, SystemUser
-from books.utils.auth import register_new_account
+from books.models import Account, AccountGroup, SingleEntry, SystemAccount
+from books.utils.auth import get_default_account
 from books.apps import bootstrap_system
 from books.financial_statements.trial_balance import TrialBalance
 
@@ -14,20 +16,16 @@ class AccountingPrinciplesTestCase(TestCase):
 
 	def setUp(self):
 	    bootstrap_system()
-	    account_dict = {'name':'Flimox', 'password':'pandas',
-	    'email':'n4g8jgt@mail.com'}
-	    self.new_account = register_new_account(**account_dict)
+	    self.new_account = get_default_account()
 
 	    bank_acc = Account.objects.get(code = 1000)
-	    bank_acc_2 = Account.objects.create(name = 'Secondary Bank Account',
-	        parent = bank_acc, code = 1001, system_account = bank_acc.system_account)
+	    bank_acc_2 = Account.objects.get(code = 1001)
 	    petty_cash_acc = Account.objects.get(code = 1030)
 	    loans_acc = Account.objects.get(code = 2600)
 	    equipment_acc = Account.objects.get(code = 1840)
 	    payroll_payable = Account.objects.get(code = 2200)
 	    payroll_expense_acc = Account.objects.get(code = 5220)
 	    payroll_tax_payable = Account.objects.get(code =2260)
-	    # test_accs = [bank_acc, bank_acc_2, petty_cash_acc, loans_acc, equipment_acc]
 
 	    # Take out 5000 dollar loan 1 month prior
 	    loan_date = timezone.now().date()-timedelta(days = 30)

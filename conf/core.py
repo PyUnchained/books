@@ -6,7 +6,14 @@ from django.conf import settings
 
 from openpyxl import load_workbook
 
+from books.utils.runtime import is_celery, is_test
+
 def chart_of_accounts_setup(system_account):
+
+    # None of this matters to the celery worker, since the web app will create
+    # all this in the db
+    if is_celery():
+        return 
 
     from django.conf import settings
     from books.models import Account, AccountGroup
@@ -40,6 +47,11 @@ def chart_of_accounts_setup(system_account):
             # need to do anythin else
             except IntegrityError:
                 pass
+
+
+    # If this is inside a test, we won't need the full chart of accounts
+    if is_test():
+        return
 
     for n, rec in enumerate(coa_wb['book_keeping']):
         if n > 0:

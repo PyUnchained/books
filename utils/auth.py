@@ -4,9 +4,25 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
 from django.utils import timezone
 from django.apps import apps
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 from books.conf import chart_of_accounts_setup
 from books.models import SystemAccount, AccountSettings
+
+def create_default_account():
+    with transaction.atomic():
+        system_acc_settings = AccountSettings.objects.create(financial_year_start = timezone.now().date())
+        system_acc, created = SystemAccount.objects.get_or_create(name = "opexa_books",
+            settings = system_acc_settings)
+        chart_of_accounts_setup(system_acc)
+    return system_acc
+
+def get_default_account():
+    try:
+        return SystemAccount.objects.get(name = "opexa_books")
+    except SystemAccount.DoesNotExist:
+        return create_default_account()
 
 def register_new_account(user = None, form = None, **kwargs):
 

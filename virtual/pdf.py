@@ -3,10 +3,10 @@ try:
 except ImportError:
     from io import BytesIO as StringIO
 
-from os.path import expanduser
 from importlib import import_module
 import datetime
 from decimal import Decimal
+from pathlib import Path
 
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, TableStyle, SimpleDocTemplate, Paragraph, Spacer, Image,ListFlowable, ListItem, PageBreak
@@ -59,10 +59,13 @@ class PDFBuilder():
         prebuild = getattr(self, 'build_instructions')(elements)
         self.doc.build(prebuild)
         pdf = self.file_buffer.getvalue()
-        fp = expanduser('~/tmp/{}'.format(self.get_filename(file_name = file_name)))
-        with open(fp, 'wb') as f:
-            f.write(pdf)
+        self.write_to_file(file_name, pdf)
         return ContentFile(pdf)
+
+    def write_to_file(self, file_name, contents):
+        out_path = Path(settings.BASE_DIR).joinpath('tmp',
+            self.get_filename(file_name = file_name))
+        out_path.write_bytes(contents)
 
     def unpack_list_data(self, line):
 

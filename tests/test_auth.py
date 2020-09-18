@@ -3,7 +3,10 @@ from django.test import TestCase, Client
 from django.urls import reverse_lazy, reverse
 from django.forms.widgets import PasswordInput
 
-from books.models import Account, AccountGroup, SystemAccount, SystemUser
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+from books.models import Account, AccountGroup, SystemAccount
 from books.forms.auth import AccountRegistrationForm, LoginForm
 from books.apps import bootstrap_system
 from books.utils.auth import register_new_account

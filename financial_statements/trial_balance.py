@@ -36,8 +36,6 @@ class TrialBalance(FinancialStatement):
             if acc_balance[1] > Decimal('0.00'):
                 balance_entry = [acc]
                 trial_balance_dict['account_list'].append(acc)
-
-                print (acc, acc_balance)
                 if acc_balance[0] == 'D':
                     balance_entry.extend([acc_balance[1], ''])
                     debit_total += acc_balance[1]

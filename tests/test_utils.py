@@ -3,8 +3,10 @@ from decimal import Decimal
 
 from django.utils import timezone
 from django.test import TestCase
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
-from books.models import SystemAccount, SystemUser, AccountSettings, Account
+from books.models import SystemAccount, AccountSettings, Account
 from books.utils.auth import register_new_account
 from books.forms.auth import AccountRegistrationForm
 from books.apps import bootstrap_system
@@ -21,7 +23,7 @@ class UtilsTestCase(TestCase):
         'email':'nat@mail.com'}
         new_account = register_new_account(**account_dict)
 
-        created_user = SystemUser.objects.get(username = 'nat@mail.com')
+        created_user = User.objects.get(username = 'nat@mail.com')
         self.assertEqual(created_user.username, account_dict['email'])
 
         #make sure account password was correctly hashed
@@ -35,7 +37,7 @@ class UtilsTestCase(TestCase):
         form = AccountRegistrationForm(data = account_dict)
         new_account = register_new_account(form = form)
 
-        created_user = SystemUser.objects.get(username = 'lot@mail.com')
+        created_user = User.objects.get(username = 'lot@mail.com')
         self.assertEqual(created_user.username, account_dict['email'])
 
         #make sure account password was correctly hashed

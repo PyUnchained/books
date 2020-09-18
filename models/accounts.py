@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
+from django.db import transaction
 from django.contrib.contenttypes.models import ContentType
 
 
@@ -15,8 +16,15 @@ from django.contrib.contenttypes.models import ContentType
 from mptt.models import MPTTModel, TreeForeignKey
 
 from books.virtual.pdf import TAccountPDFBuilder
+from books.blockchain import BlockchainMixin
 
 from .auth import SystemAccount
+
+INCREASE_BALANCE_OPTIONS = (
+    ('', 'None'),
+    ('D', 'Debit'),
+    ('C', 'Credit'),
+    )
 
 class SingleEntryCreatorMixin():
 
@@ -51,26 +59,49 @@ class AccountGroup(MPTTModel):
         ordering = ['name']
         unique_together = ['name', 'system_account']
 
-class Account(MPTTModel):
+class Account(MPTTModel, BlockchainMixin):
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True,
         related_name='children', verbose_name = 'parent account')
-    code = models.CharField(max_length = 100,
-        blank = True, null = True)
-    name = models.CharField(max_length = 120,
-        verbose_name = 'account name')
-    account_group = models.ForeignKey('AccountGroup', models.CASCADE, blank = True,
-        null = True)
+    code = models.CharField(max_length = 100, blank = True, null = True)
+    name = models.CharField(max_length = 120, verbose_name = 'account name')
+    account_group = models.ForeignKey('AccountGroup', models.CASCADE, blank = True, null = True)
     system_account = models.ForeignKey(SystemAccount, models.CASCADE)
+    increase_balance = models.CharField(max_length =1, choices = INCREASE_BALANCE_OPTIONS, default = '')
+    address_id = models.CharField(max_length = 120, blank = True, null = True, editable = False)
 
     @property
     def short_name(self):
         return self.name
-
-
+        
     def save(self, *args, **kwargs):
         if self.parent:
             self.account_group = self.parent.account_group
+
+        if self.increase_balance == '' and self.account_group:
+            self.increase_balance = self._guess_increase_method()
+
+        try:
+            self.system_account
+        except SystemAccount.DoesNotExist:
+            self.system_account = SystemAccount.objects.get(name = "opexa_books")
+
         super().save(*args, **kwargs)
+
+    def _guess_increase_method(self):
+        """
+        When not explicitly stated, guesses whether the balance of the account should
+        increase/decrease when a debit entry is recorded based on the account group.
+        """
+
+        increase_on_debit = ['current assets', 'long-term assets', 'cost of sales', 'expense']
+        root_account_groups = AccountGroup.objects.filter(name__in = increase_on_debit)
+        debit_increase_groups = AccountGroup.objects.get_queryset_descendants(root_account_groups,
+            include_self = True)
+
+        if self.account_group in debit_increase_groups:
+            return 'D'
+        else:
+            return 'C'
     
     def __str__(self):
         return self.name
@@ -208,8 +239,9 @@ class Account(MPTTModel):
 
     class Meta():
         ordering = ['name']
+        unique_together = ('system_account', 'code')
 
-class SingleEntry(models.Model):
+class SingleEntry(models.Model, BlockchainMixin):
     account = models.ForeignKey('Account', models.CASCADE)
     action = models.CharField(max_length = 1, choices = settings.OPEXA_BOOKS_ACTIONS)
     value = models.DecimalField(decimal_places = 2,
@@ -253,6 +285,35 @@ class DoubleEntry(models.Model):
     class Meta():
         verbose_name_plural = 'Double entries'
         ordering = ['-date']
+
+    @classmethod
+    def record(cls, debits = [], credits = [], **record_kwargs):
+
+        entry_dict = {'D':debits, 'C':credits}
+        balance_sum = {'D':Decimal('0.00'), 'C':Decimal('0.00')}
+        all_entries = []
+
+        def inflate_single_entry_dict(entry_dict, **kwargs):
+            entry_dict.update(kwargs)
+            return entry_dict
+
+        for action, entries in entry_dict.items():
+            for e in entries:
+                e = inflate_single_entry_dict(e, action = action, **record_kwargs)
+                all_entries.append(e)
+                balance_sum[action] += e['value']
+
+        if balance_sum['D'] != balance_sum['C']:
+            raise AccountingPrincipleError('''Invalid double entry: Debit and Credit values did not 
+                match!''')
+
+        with transaction.atomic():
+            double_entry = cls.objects.create(**record_kwargs)
+            for entry_dict in all_entries:
+                SingleEntry.objects.create(double_entry = double_entry, **entry_dict)
+
+        return double_entry
+
 
     def __str__(self):
         return self.details
