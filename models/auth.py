@@ -8,7 +8,8 @@ class SystemAccount(models.Model):
     name = models.CharField(max_length = 200)
     email = models.EmailField(help_text = '''Used for reporting 
         and data recovery.''', blank = True, null = True)
-    settings = models.OneToOneField(AccountSettings, models.CASCADE)
+    settings = models.OneToOneField(AccountSettings, models.CASCADE, null = True,
+        blank = True)
     initial_setup_done = models.BooleanField(default = False)
     created = models.DateTimeField(auto_now_add = True)
 

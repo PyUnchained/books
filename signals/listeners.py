@@ -8,12 +8,13 @@ from django.dispatch import receiver
 from books.models import Account, DoubleEntry
 from books.blockchain import Blockchain
 
-@receiver(pre_save, sender=Account)
-def new_address(sender, instance, raw, **kwargs):
+@receiver(post_save, sender=Account)
+def new_address(sender, instance, created, raw, **kwargs):
     
     if not raw:
-        if not instance.pk:
+        if created:
             instance.address_id = Blockchain.getnewaddress()
+            instance.save()
 
 @receiver(post_save, sender=DoubleEntry)
 def write_to_blockchain(sender, instance, raw, **kwargs):

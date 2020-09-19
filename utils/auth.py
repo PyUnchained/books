@@ -12,10 +12,12 @@ from books.models import SystemAccount, AccountSettings
 
 def create_default_account():
     with transaction.atomic():
-        system_acc_settings = AccountSettings.objects.create(financial_year_start = timezone.now().date())
-        system_acc, created = SystemAccount.objects.get_or_create(name = "opexa_books",
-            settings = system_acc_settings)
-        chart_of_accounts_setup(system_acc)
+        system_acc, created = SystemAccount.objects.get_or_create(name = "opexa_books")
+        if created:
+            system_acc_settings = AccountSettings.objects.create(financial_year_start = timezone.now().date())
+            system_acc.settings = system_acc_settings
+            system_acc.save()
+            chart_of_accounts_setup(system_acc)
     return system_acc
 
 def get_default_account():
