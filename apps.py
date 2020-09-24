@@ -23,13 +23,16 @@ def bootstrap_system():
     # print (Account.objects.all().count() <=0, 'tytyty'*20)
 
     #Only run all this if there aren't any accounts already in the db.
-    if Account.objects.all().count() <= 0:
-        try:
-            # Create all the system user groups
-            Group.objects.get_or_create(name = books_settings.OPEXA_BOOKS_ADMIN_USER_GROUP_NAME)
-            Group.objects.get_or_create(name = books_settings.OPEXA_BOOKS_STANDARD_USER_GROUP_NAME)
+    try:
+        if Account.objects.all().count() <= 0:
+            try:
+                # Create all the system user groups
+                Group.objects.get_or_create(name = books_settings.OPEXA_BOOKS_ADMIN_USER_GROUP_NAME)
+                Group.objects.get_or_create(name = books_settings.OPEXA_BOOKS_STANDARD_USER_GROUP_NAME)
 
-            #Create default accounting package account
-            create_default_account()
-        except :
-            pass
+                #Create default accounting package account
+                create_default_account()
+            except :
+                pass
+    except ProgrammingError:
+        pass

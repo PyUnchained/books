@@ -67,7 +67,7 @@ class Account(MPTTModel, BlockchainMixin):
     account_group = models.ForeignKey('AccountGroup', models.CASCADE, blank = True, null = True)
     system_account = models.ForeignKey(SystemAccount, models.CASCADE)
     increase_balance = models.CharField(max_length =1, choices = INCREASE_BALANCE_OPTIONS, default = '')
-    address_id = models.CharField(max_length = 120, blank = True, null = True, editable = False)
+    address_id = models.CharField(max_length = 120, blank = True, null = True)
 
     @property
     def short_name(self):

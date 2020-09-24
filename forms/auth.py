@@ -50,7 +50,6 @@ class AccountRegistrationForm(forms.ModelForm):
                 css_class='row'),
 
             Div(
-                Div('password', css_class='col-sm-6'),
                 Div('confirm_password', css_class='col-sm-6'),
                 css_class='row'),
 
@@ -63,18 +62,12 @@ class AccountRegistrationForm(forms.ModelForm):
 
     class Meta():
         model = SystemAccount
-        fields = ['name', 'password', 'confirm_password', 'email']
-        widgets = {
-            'password': forms.PasswordInput()
-        }
+        fields = ['name', 'email']
 
     class Media:
         js = ['books/js/forms/new_account.js']
 
     def clean(self, *args, **kwargs):
-        cleaned_data = super().clean(*args, **kwargs)
-        if cleaned_data['confirm_password'] != cleaned_data['password']:
-            raise ValidationError('Passwords did not match!')
 
         #Check no-one else has used the same email address already
         same_email_accounts = SystemAccount.objects.filter(
