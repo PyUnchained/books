@@ -7,7 +7,7 @@ from multichaincli import Multichain
 ACTIVE = 'makemigrations' not in sys.argv
 
 if ACTIVE:
-    rpchost = '172.20.0.4'
+    rpchost = 'blockchain'
     chainname = settings.BLOCKCHAIN_NAME
 
     multichain_kwargs = {}
