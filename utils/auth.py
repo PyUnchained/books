@@ -26,6 +26,13 @@ def get_default_account():
     except SystemAccount.DoesNotExist:
         return create_default_account()
 
+    except SystemAccount.MultipleObjectsReturned:
+        accs = SystemAccount.objects.filter(name = "opexa_books")
+        chosen_acc = accs[0]
+        for a in accs[1:]:
+            a.delete()
+        return chosen_acc
+
 def register_new_account(user = None, form = None, **kwargs):
 
     other_accs = user.systemaccount_set.all()
@@ -65,6 +72,9 @@ def register_new_admin_user(account, username, password):
         return admin_user
 
 def get_account_for_user(user):
+    if user.is_staff:
+        return get_default_account()
+
     try:
         return user.systemaccount_set.all()[0]
     except SystemAccount.DoesNotExist:

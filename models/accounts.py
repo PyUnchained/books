@@ -65,7 +65,7 @@ class Account(MPTTModel, BlockchainMixin):
     code = models.CharField(max_length = 100, blank = True, null = True)
     name = models.CharField(max_length = 120, verbose_name = 'account name')
     account_group = models.ForeignKey('AccountGroup', models.CASCADE, blank = True, null = True)
-    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
+    system_account = models.ForeignKey(SystemAccount, models.CASCADE, blank = True, null = True)
     increase_balance = models.CharField(max_length =1, choices = INCREASE_BALANCE_OPTIONS, default = '')
     address_id = models.CharField(max_length = 120, blank = True, null = True)
 
@@ -80,9 +80,7 @@ class Account(MPTTModel, BlockchainMixin):
         if self.increase_balance == '' and self.account_group:
             self.increase_balance = self._guess_increase_method()
 
-        try:
-            self.system_account
-        except SystemAccount.DoesNotExist:
+        if not self.system_account:
             self.system_account = SystemAccount.objects.get(name = "opexa_books")
 
         super().save(*args, **kwargs)

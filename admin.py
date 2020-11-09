@@ -56,9 +56,6 @@ class TransactionAdmin(SaveAllActionMixin, InitializedSystemAccountMixin):
 class TransactionDefinitionAdmin(SaveAllActionMixin, InitializedSystemAccountMixin):
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "debit_account" or db_field.name == "credit_account":
-            kwargs["queryset"] = Account.objects.filter(
-                system_account__in = request.user.systemaccount_set.all()).order_by('name')
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 class AccountGroupAdmin(SaveAllActionMixin, InitializedSystemAccountMixin):
@@ -72,8 +69,6 @@ class AccountAdmin(SaveAllActionMixin, InitializedSystemAccountMixin):
     autocomplete_fields = ['parent', 'account_group']
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "system_account":
-            kwargs["queryset"] = request.user.systemaccount_set.all()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def get_changeform_initial_data(self, request):
