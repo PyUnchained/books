@@ -2,9 +2,9 @@ import sys
 from pathlib import Path
 
 from django.conf import settings
-from multichaincli import Multichain
+from .multichaincli import Multichain
 
-ACTIVE = 'makemigrations' not in sys.argv
+ACTIVE = hasattr(settings, 'BLOCKCHAIN_NAME')
 
 if ACTIVE:
     rpchost = 'blockchain'

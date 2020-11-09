@@ -314,7 +314,7 @@ class DoubleEntry(models.Model):
 
 
     def __str__(self):
-        return self.details
+        return f"{self.details} - {self.date}"
     
 
 class TransactionDefinition(models.Model):
@@ -324,6 +324,7 @@ class TransactionDefinition(models.Model):
     credit_account = models.ForeignKey('Account', on_delete = models.CASCADE,
         related_name = 'credi_transaction_definitions')
     system_account = models.ForeignKey(SystemAccount, models.CASCADE)
+    short_code = models.CharField(max_length = 10, blank = True, null = True)
 
     def __str__(self):
         return self.description
@@ -331,9 +332,25 @@ class TransactionDefinition(models.Model):
 class Transaction(models.Model):
     definition = models.ForeignKey('TransactionDefinition', null = True, blank = True,
         on_delete = models.CASCADE)
+    date = models.DateField()
     value = models.DecimalField(max_digits = 15, decimal_places = 2, null = True)
-    details = models.TextField(max_length = 2000, null = True, blank = True)
+    details = models.TextField(max_length = 2000)
     system_account = models.ForeignKey(SystemAccount, models.CASCADE)
+    double_entry_record = models.ForeignKey('DoubleEntry', models.SET_NULL,
+        blank = True, null = True)
+
+    def __str__(self):
+        return f"{self.definition} - {self.date}"
+
+    def commit(self):
+        """ Generates the double entry record related to this transaction """
+        debits = [{"account" :self.definition.debit_account, "value": self.value}]
+        credits = [{"account" :self.definition.credit_account, "value": self.value}]
+        self.double_entry_record = DoubleEntry.record(debits = debits, credits = credits, system_account = self.system_account,
+            date = self.date, details = self.details)
+        self.save()
+
+
 
 class DeclaredSource(models.Model):
     system_account = models.ForeignKey(SystemAccount, models.CASCADE)

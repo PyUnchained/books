@@ -34,7 +34,6 @@ def get_default_account():
         return chosen_acc
 
 def register_new_account(user = None, form = None, **kwargs):
-
     other_accs = user.systemaccount_set.all()
     account_already_registered = other_accs.count() > 0
     if account_already_registered:
@@ -50,7 +49,7 @@ def register_new_account(user = None, form = None, **kwargs):
             financial_year_start = timezone.now().date())
         account.save()
         account.users.add(user)
-
+        
         #Setup initial Chart of Accounts
         chart_of_accounts_setup(account)
         return account
@@ -72,9 +71,6 @@ def register_new_admin_user(account, username, password):
         return admin_user
 
 def get_account_for_user(user):
-    if user.is_staff:
-        return get_default_account()
-
     try:
         return user.systemaccount_set.all()[0]
     except SystemAccount.DoesNotExist:
