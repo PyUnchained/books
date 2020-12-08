@@ -1,0 +1,26 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block bodyclass %}{{ block.super }} app-{{ app_label }}{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo;
+{% for app in app_list %}
+{{ app.name }}
+{% endfor %}
+</div>
+{% endblock %}
+{% endif %}
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+<a class ='admin_btn' href="{% url 'opexa_books:download_balance_sheet' %}">Balance Sheet</a>
+<a class ='admin_btn' href="{% url 'opexa_books:download_profit_and_loss' %}">Profit & Loss</a>
+<a class ='admin_btn' href="{% url 'opexa_books:download_trial_balance' %}">Trial Balance</a>
+<br><br>
+{{block.super}}
+{% endblock content%}

@@ -334,7 +334,7 @@ class Transaction(models.Model):
         on_delete = models.CASCADE)
     date = models.DateField()
     value = models.DecimalField(max_digits = 15, decimal_places = 2, null = True)
-    details = models.TextField(max_length = 2000)
+    details = models.TextField(max_length = 2000, blank = True, null = True)
     system_account = models.ForeignKey(SystemAccount, models.CASCADE)
     double_entry_record = models.ForeignKey('DoubleEntry', models.SET_NULL,
         blank = True, null = True)
