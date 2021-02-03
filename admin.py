@@ -63,7 +63,7 @@ class TransactionAdmin(SaveAllActionMixin, InitializedSystemAccountMixin):
     pass
 
 class TransactionDefinitionAdmin(SaveAllActionMixin, FilterBySystemAccountMixin, InitializedSystemAccountMixin):
-
+    list_display = ['description', 'system_account', 'short_code']
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
@@ -119,4 +119,4 @@ admin.site.register(SystemAccount)
 admin.site.register(SingleEntry, SingleEntryModelAdmin)
 admin.site.register(DoubleEntry, DoubleEntryModelAdmin)
 admin.site.register(Transaction, TransactionAdmin)
-admin.site.register(TransactionDefinition)
+admin.site.register(TransactionDefinition, TransactionDefinitionAdmin)
