@@ -9,9 +9,12 @@ class BooksConfig(AppConfig):
     verbose_name = 'OPEXA Accounting'
 
     def ready(self, *args, **kwargs):
-        from books import listeners
+        from books import listeners as books_listeners
+        from books.billing import listeners as billing_listeners
         from django.conf import settings
+        from books.billing.utils import init_billing_system
         bootstrap_system()
+        init_billing_system()
         out_path = Path(settings.BASE_DIR).joinpath('tmp')
         out_path.mkdir(exist_ok=True) #Create tmp directory
 
@@ -20,7 +23,6 @@ def bootstrap_system():
     import books.settings as books_settings
     from books.models import Account
     from books.utils.auth import create_default_account
-    # print (Account.objects.all().count() <=0, 'tytyty'*20)
 
     #Only run all this if there aren't any accounts already in the db.
     try:

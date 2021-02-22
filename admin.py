@@ -5,7 +5,7 @@ from django import forms
 
 from books.utils import get_account_for_user
 from books.models import (Account, AccountGroup, SingleEntry, Transaction, TransactionDefinition,
-	SystemAccount, DoubleEntry)
+	SystemAccount, DoubleEntry, BillingAccount, BillingMethod)
 import books.forms.admin as admin_forms
 from books.utils.auth import get_account_for_user
 
@@ -120,3 +120,5 @@ admin.site.register(SingleEntry, SingleEntryModelAdmin)
 admin.site.register(DoubleEntry, DoubleEntryModelAdmin)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(TransactionDefinition, TransactionDefinitionAdmin)
+admin.site.register(BillingAccount)
+admin.site.register(BillingMethod)
