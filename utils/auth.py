@@ -33,7 +33,25 @@ def get_default_account():
             a.delete()
         return chosen_acc
 
-def register_new_account(user = None, form = None, **kwargs):
+def register_new_account(user = None, form = None, **system_acc_kwargs):
+    """ Registers a new system account.
+
+    One of either 'form' or 'system_acc_kwargs' is required. If the user already
+    has an account, their existing account is returned
+
+    Parameters
+    ----------
+
+    user: User object
+    form: ModelForm, optional.
+    system_acc_kwargs : Kwargs dict, optional.
+
+    Returns
+    -------
+
+    The user's account in the bookkeeping system
+    """
+
     other_accs = user.systemaccount_set.all()
     account_already_registered = other_accs.count() > 0
     if account_already_registered:
@@ -42,16 +60,14 @@ def register_new_account(user = None, form = None, **kwargs):
     if form:
         account = form.save(commit = False)
     else:
-        account = SystemAccount(**kwargs)
+        account = SystemAccount(**system_acc_kwargs)
 
     with transaction.atomic():
         account.settings = AccountSettings.objects.create(
             financial_year_start = timezone.now().date())
         account.save()
         account.users.add(user)
-        
-        #Setup initial Chart of Accounts
-        chart_of_accounts_setup(account)
+        chart_of_accounts_setup(account, skip_is_test = True)
         return account
 
 def register_new_admin_user(account, username, password):

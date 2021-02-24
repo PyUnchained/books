@@ -8,7 +8,7 @@ from openpyxl import load_workbook
 
 from books.utils.runtime import is_celery, is_test
 
-def chart_of_accounts_setup(system_account):
+def chart_of_accounts_setup(system_account, skip_is_test = False):
 
     # None of this matters to the celery worker, since the web app will create
     # all this in the db
@@ -50,8 +50,9 @@ def chart_of_accounts_setup(system_account):
 
 
     # If this is inside a test, we won't need the full chart of accounts
-    if is_test():
-        return
+    if not skip_is_test:
+        if is_test():
+            return
 
     for n, rec in enumerate(coa_wb['book_keeping']):
         if n > 0:

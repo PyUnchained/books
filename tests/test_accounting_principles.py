@@ -17,6 +17,7 @@ class AccountingPrinciplesTestCase(TestCase):
 	def setUp(self):
 	    bootstrap_system()
 	    self.new_account = get_default_account()
+	    print (Account.objects.all().count())
 
 	    bank_acc = Account.objects.get(code = 1000)
 	    bank_acc_2 = Account.objects.get(code = 1001)
