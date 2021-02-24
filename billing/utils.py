@@ -1,5 +1,6 @@
 import copy
 
+from django.db.utils import ProgrammingError
 from celery import current_app
 from celery.schedules import crontab
 
@@ -8,23 +9,27 @@ from books.tasks.billing import update_billing_status
 
 def init_billing_system():
     """ Initialize the billing system when the server boots. """
-    
-    billing_methods = BillingMethod.objects.all()
+    try:
+        billing_methods = BillingMethod.objects.all()
 
-    # Make sure all the default BillingMethods are present
-    if len(billing_methods) == 0:
-        default_method_kwargs = {'time':'05:00', 'day_of_month':1, 'grace_period':14}
-        default_billing_periods = {'Monthly':1, 'Quarterly':3, 'Biannual':6, 'Annual':12}
+        # Make sure all the default BillingMethods are present
+        if len(billing_methods) == 0:
+            default_method_kwargs = {'time':'05:00', 'day_of_month':1, 'grace_period':14}
+            default_billing_periods = {'Monthly':1, 'Quarterly':3, 'Biannual':6, 'Annual':12}
 
-        # Create each of the default billing methods
-        for method_description, billing_period in  default_billing_periods.items():
-            method_kwargs = copy.copy(default_method_kwargs)
-            method_kwargs['description'] = method_description
-            method_kwargs['billing_period'] = billing_period
-            method_obj = BillingMethod.objects.create(**method_kwargs)    
-    else:
-        for method_obj in billing_methods:
-            bind_periodic_update_task(method_obj) # Add periodic task to celery
+            # Create each of the default billing methods
+            for method_description, billing_period in  default_billing_periods.items():
+                method_kwargs = copy.copy(default_method_kwargs)
+                method_kwargs['description'] = method_description
+                method_kwargs['billing_period'] = billing_period
+                method_obj = BillingMethod.objects.create(**method_kwargs)    
+        else:
+            for method_obj in billing_methods:
+                bind_periodic_update_task(method_obj) # Add periodic task to celery
+
+    # Means the DB probably hasn't been set up yet
+    except ProgrammingError:
+        pass
 
 def bind_periodic_update_task(billing_method):
     """ Add the periodic task to the currently running celery instance. """

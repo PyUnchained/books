@@ -55,7 +55,7 @@ class ProfitAndLoss(FinancialStatement):
             year = today.year
 
         current_month_range = monthrange(year, month)
-        first_day = make_aware(datetime.datetime(year, month, current_month_range[0]))
+        first_day = make_aware(datetime.datetime(year, month, 1))
         last_day = make_aware(datetime.datetime(year, month, current_month_range[1]))
 
         income_section = self.sum_section(sections['income'])

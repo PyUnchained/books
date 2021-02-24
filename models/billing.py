@@ -6,6 +6,7 @@ class BillingAccount(models.Model):
     billing_method = models.ForeignKey('books.BillingMethod', models.SET_NULL, null = True)
     charge = models.DecimalField(max_digits = 20, decimal_places = 2)
     created = models.DateTimeField(auto_now_add = True)
+    start_date = models.DateField()
     up_to_date = models.BooleanField(default = True)
     active = models.BooleanField(default = True)
 
