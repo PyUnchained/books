@@ -14,40 +14,26 @@ from books.apps import bootstrap_system
 # Create your tests here.
 class UtilsTestCase(TestCase):
 
-    def setUp(self):
-        bootstrap_system()
+    # def setUp(self):
+    #     bootstrap_system()
 
     def test_register_new_account(self):
         #Test creating an account from a dict...
-        account_dict = {'name':'TestyReggy', 'password':'pandas',
-        'email':'nat@mail.com'}
-        new_account = register_new_account(**account_dict)
-
-        created_user = User.objects.get(username = 'nat@mail.com')
-        self.assertEqual(created_user.username, account_dict['email'])
-
-        #make sure account password was correctly hashed
-        password_hashed = 'pbkdf2_sha256' in new_account.password
-        self.assertTrue(password_hashed)
-
+        created_user = User.objects.create_user('ot1', 'ou@mail.com', '1')
+        acc_kwargs = {'name':'TestyReggy', 'password':'pandas',
+            'email':'nat@mail.com'}
+        sys_acc_1 = register_new_account(user = created_user, **acc_kwargs)
 
         # Test that creating an account from a form works as well
+        created_user2 = User.objects.create_user('ot2', 'ou@mail.com', '1')
         account_dict = {'name':'Other Reg Testing', 'password':'pandas',
         'email':'lot@mail.com', 'confirm_password':'pandas'}
         form = AccountRegistrationForm(data = account_dict)
-        new_account = register_new_account(form = form)
-
-        created_user = User.objects.get(username = 'lot@mail.com')
-        self.assertEqual(created_user.username, account_dict['email'])
-
-        #make sure account password was correctly hashed
-        password_hashed = 'pbkdf2_sha256' in new_account.password
-        self.assertTrue(password_hashed)
+        sys_acc_2 = register_new_account(user = created_user2, form = form)
 
         #Test that there's a chart of accounts for both users
-        sys_acc_1 = SystemAccount.objects.get(email = 'nat@mail.com')
-        sys_acc_2 = SystemAccount.objects.get(email = 'lot@mail.com')
+        expected_account_number = 85
         self.assertEqual(Account.objects.filter(system_account = sys_acc_1).count(),
-            78)
-        self.assertEqual(Account.objects.filter(system_account = sys_acc_1).count(),
-            Account.objects.filter(system_account = sys_acc_2).count())
+            expected_account_number)
+        self.assertEqual(Account.objects.filter(system_account = sys_acc_2).count(),
+            expected_account_number)

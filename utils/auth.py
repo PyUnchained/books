@@ -31,7 +31,7 @@ def get_internal_system_account():
             a.delete()
         return chosen_acc
 
-def register_new_account(user = None, form = None, **system_acc_kwargs):
+def register_new_account(user = None, form = None, *args, **system_acc_kwargs):
     """ Registers a new system account.
 
     One of either 'form' or 'system_acc_kwargs' is required. If the user already
@@ -48,7 +48,16 @@ def register_new_account(user = None, form = None, **system_acc_kwargs):
     -------
 
     The user's account in the bookkeeping system
+
+    Raises
+    ------
+
+    ValueError - Raised when no user kwarg is supplied
+    
     """
+
+    if not user:
+        raise ValueError('User instance missing from kwargs.')
 
     other_accs = user.systemaccount_set.all()
     account_already_registered = other_accs.count() > 0

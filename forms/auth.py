@@ -68,9 +68,10 @@ class AccountRegistrationForm(forms.ModelForm):
         js = ['books/js/forms/new_account.js']
 
     def clean(self, *args, **kwargs):
-
+        cleaned_data = super().clean()
         #Check no-one else has used the same email address already
         same_email_accounts = SystemAccount.objects.filter(
             email = cleaned_data['email']).count()
+        
         if same_email_accounts > 0:
             raise ValidationError('Email address already taken (have you forgotten your password?)')
