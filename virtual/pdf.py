@@ -12,7 +12,7 @@ from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, TableStyle, SimpleDocTemplate, Paragraph, Spacer, Image,ListFlowable, ListItem, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
-from reportlab.lib.units import cm
+from reportlab.lib.pagesizes import A4
 from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER, TA_JUSTIFY
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -36,13 +36,13 @@ sub_heading_style.alignment = TA_CENTER
 
 class PDFBuilder():
     pdf_type = 'general_pdf'
-    OPEXA_BOOKS_PDF_PAGE_WIDTH = getattr(settings, 'OPEXA_BOOKS_PDF_PAGE_WIDTH',
-        app_settings.OPEXA_BOOKS_PDF_PAGE_WIDTH)
+    BOOKS_PDF_PAGE_WIDTH = getattr(settings, 'BOOKS_PDF_PAGE_WIDTH',
+        app_settings.BOOKS_PDF_PAGE_WIDTH)
 
     def __init__(self):
         self.file_buffer = StringIO()
         self.doc = SimpleDocTemplate(self.file_buffer,
-            topMargin=10, bottomMargin=10)
+            topMargin=10, bottomMargin=10, pagesize = A4)
 
         #The styles avilable for the PDF builder are defined in the settings.py, as the BOOKS_PDF_STYLES
         # setting. This represents a function we need to import and call in order to
@@ -102,8 +102,8 @@ class BalanceSheetPDFBuilder(PDFBuilder):
         elements.append(Spacer(1,25))
 
         #Work out column widths
-        detail_colum_width = self.OPEXA_BOOKS_PDF_PAGE_WIDTH/2
-        other_columns_width = (self.OPEXA_BOOKS_PDF_PAGE_WIDTH - detail_colum_width)/2
+        detail_colum_width = self.BOOKS_PDF_PAGE_WIDTH/2
+        other_columns_width = (self.BOOKS_PDF_PAGE_WIDTH - detail_colum_width)/2
         col_widths=[detail_colum_width, other_columns_width, other_columns_width]
 
         bs_table = []
@@ -147,8 +147,8 @@ class ProfitAndLossPDFBuilder(PDFBuilder):
         elements.append(Spacer(1,25))
 
         #Work out column widths
-        detail_colum_width = self.OPEXA_BOOKS_PDF_PAGE_WIDTH/2
-        other_columns_width = (self.OPEXA_BOOKS_PDF_PAGE_WIDTH - detail_colum_width)/2
+        detail_colum_width = self.BOOKS_PDF_PAGE_WIDTH/2
+        other_columns_width = (self.BOOKS_PDF_PAGE_WIDTH - detail_colum_width)/2
         col_widths=[detail_colum_width, other_columns_width, other_columns_width]
 
         pl_table = []
@@ -209,8 +209,8 @@ class TrialBalancePDFBuilder(PDFBuilder):
         elements.append(Spacer(1,25))
 
         #Work out column widths
-        detail_colum_width = self.OPEXA_BOOKS_PDF_PAGE_WIDTH/2
-        other_columns_width = (self.OPEXA_BOOKS_PDF_PAGE_WIDTH - detail_colum_width)/2
+        detail_colum_width = self.BOOKS_PDF_PAGE_WIDTH/2
+        other_columns_width = (self.BOOKS_PDF_PAGE_WIDTH - detail_colum_width)/2
         col_widths=[detail_colum_width, other_columns_width, other_columns_width]
 
         debit_credit_table = [
@@ -249,7 +249,7 @@ class TAccountPDFBuilder(PDFBuilder):
                         self.styles['paragraph']['sub_heading']),
                     Paragraph('Credit',
                         self.styles['paragraph']['sub_heading'])]]
-        t=Table(debit_credit_table,colWidths=[self.OPEXA_BOOKS_PDF_PAGE_WIDTH/2, self.OPEXA_BOOKS_PDF_PAGE_WIDTH/2])
+        t=Table(debit_credit_table,colWidths=[self.BOOKS_PDF_PAGE_WIDTH/2, self.BOOKS_PDF_PAGE_WIDTH/2])
         pre_built_elements.append(t)
         pre_built_elements.append(Spacer(1,5))
 
@@ -258,7 +258,7 @@ class TAccountPDFBuilder(PDFBuilder):
         table_data = elements[1:]
         unpacked_table_data = self.unpack_list_data(table_data)
 
-        half_page_width = self.OPEXA_BOOKS_PDF_PAGE_WIDTH/2
+        half_page_width = self.BOOKS_PDF_PAGE_WIDTH/2
         date_column_width = 60
         value_column_width = 80
         other_columns_width = (half_page_width - date_column_width - value_column_width)

@@ -4,10 +4,8 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
 from django.utils import timezone
 from django.apps import apps
-from django.contrib.auth import get_user_model
-User = get_user_model()
 
-from books.conf import chart_of_accounts_setup
+from .accounting import chart_of_accounts_setup
 from books.models import SystemAccount, AccountSettings
 
 def create_default_account():

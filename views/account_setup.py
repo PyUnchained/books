@@ -12,8 +12,7 @@ from django.forms import formset_factory
 
 from books.models import Account, AccountGroup, DeclaredSource, SingleEntry
 from books.forms import NewSourceForm, SourceDeclarationForm, InitializeIntegratedAccountForm
-from books.conf import chart_of_accounts_setup
-from books.utils import register_new_account
+from books.utils import register_new_account, chart_of_accounts_setup
 
 class InitializeIntegratedAccountView(View):
     template_name = 'books/dashboard/initialize_integrated_acc.html'
