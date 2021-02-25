@@ -7,7 +7,7 @@ from django.db.models import Q
 
 from books.models import Account, AccountGroup, SingleEntry, DoubleEntry
 
-from books.utils.auth import get_default_account
+from books.utils.auth import get_internal_system_account
 from books.apps import bootstrap_system
 
 # Create your tests here.
@@ -18,7 +18,7 @@ class AccountModelTestCase(TestCase):
 
 
     def test_account_output(self):
-        system_account = get_default_account()
+        system_account = get_internal_system_account()
 
         known_account_groups = {}
         for ag in AccountGroup.objects.filter(system_account = system_account):

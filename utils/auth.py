@@ -20,7 +20,7 @@ def create_default_account():
             chart_of_accounts_setup(system_acc)
     return system_acc
 
-def get_default_account():
+def get_internal_system_account():
     try:
         return SystemAccount.objects.get(name = "opexa_books")
     except SystemAccount.DoesNotExist:
