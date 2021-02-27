@@ -90,11 +90,10 @@ class PDFBuilder():
         return new_line
 
     def clean_data_point(self, data_point):
-
+        """ Convert data into a string to make them compatible with being added to 
+        a story. """
         if isinstance(data_point, datetime.date) or isinstance(data_point, datetime.datetime):
-            return data_point.strftime(getattr(settings, 'BOOKS_SHORT_DATE_FORMAT',
-                app_settings.BOOKS_SHORT_DATE_FORMAT))
-
+            return data_point.strftime(settings.BOOKS_SHORT_DATE_FORMAT)
         return str(data_point)
 
     @property
@@ -115,8 +114,8 @@ class BalanceSheetPDFBuilder(PDFBuilder):
         elements.append(Spacer(1,25))
 
         #Work out column widths
-        detail_colum_width = self.self.page_width/2
-        other_columns_width = (self.self.page_width - detail_colum_width)/2
+        detail_colum_width = self.page_width/2
+        other_columns_width = (self.page_width - detail_colum_width)/2
         col_widths=[detail_colum_width, other_columns_width, other_columns_width]
 
         bs_table = []
@@ -160,8 +159,8 @@ class ProfitAndLossPDFBuilder(PDFBuilder):
         elements.append(Spacer(1,25))
 
         #Work out column widths
-        detail_colum_width = self.self.page_width/2
-        other_columns_width = (self.self.page_width - detail_colum_width)/2
+        detail_colum_width = self.page_width/2
+        other_columns_width = (self.page_width - detail_colum_width)/2
         col_widths=[detail_colum_width, other_columns_width, other_columns_width]
 
         pl_table = []
@@ -222,8 +221,8 @@ class TrialBalancePDFBuilder(PDFBuilder):
         elements.append(Spacer(1,25))
 
         #Work out column widths
-        detail_colum_width = self.self.page_width/2
-        other_columns_width = (self.self.page_width - detail_colum_width)/2
+        detail_colum_width = self.page_width/2
+        other_columns_width = (self.page_width - detail_colum_width)/2
         col_widths=[detail_colum_width, other_columns_width, other_columns_width]
 
         debit_credit_table = [
@@ -262,7 +261,7 @@ class TAccountPDFBuilder(PDFBuilder):
                         self.styles['paragraph']['sub_heading']),
                     Paragraph('Credit',
                         self.styles['paragraph']['sub_heading'])]]
-        t=Table(debit_credit_table,colWidths=[self.self.page_width/2, self.self.page_width/2])
+        t=Table(debit_credit_table,colWidths=[self.page_width/2, self.page_width/2])
         pre_built_elements.append(t)
         pre_built_elements.append(Spacer(1,5))
 
@@ -271,7 +270,7 @@ class TAccountPDFBuilder(PDFBuilder):
         table_data = elements[1:]
         unpacked_table_data = self.unpack_list_data(table_data)
 
-        half_page_width = self.self.page_width/2
+        half_page_width = self.page_width/2
         date_column_width = 60
         value_column_width = 80
         other_columns_width = (half_page_width - date_column_width - value_column_width)

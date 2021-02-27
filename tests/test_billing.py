@@ -19,7 +19,7 @@ class BillingTasksTestCase(TestCase):
         # Create at least one billing method and one billing tier
         self.billing_method = BillingMethod.objects.create(description = 'Monthly')
         self.tier = BillingTier.objects.create(description = 'Entry Level',
-            charge = 20.00)
+            unit_price = 20.00)
         #Create a specific billing account
         self.billing_account = BillingAccount.objects.create(user = self.user,
             billing_method = self.billing_method, billing_tier = self.tier,
