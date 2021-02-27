@@ -34,9 +34,6 @@ def update_invoice_file(sender, instance, raw, *args, **kwargs):
 
     if raw:
         return
-        
-    if is_test:
-        generate_invoice_pdf(instance.pk)
-    else:
-        generate_invoice_pdf.delay(instance.pk)
+    generate_invoice_pdf(instance.pk)
+    generate_invoice_pdf.delay(instance.pk)
 

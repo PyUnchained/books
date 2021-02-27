@@ -36,20 +36,15 @@ class PDFBuilder():
     pdf_type = 'general_pdf'
     page_size = A4
 
-    def __init__(self, font = 'Roboto'):
+    def __init__(self, font_name = 'Roboto'):
         self.file_buffer = StringIO()
         self.doc = SimpleDocTemplate(self.file_buffer,
             topMargin=10, bottomMargin=10,
+            rightMargin = 10, leftMargin = 10, 
             pagesize = self.page_size)
 
-        #The styles avilable for the PDF builder are defined in the settings.py, as the BOOKS_PDF_STYLES
-        # setting. This represents a function we need to import and call in order to
-        # get the styles that should be available to the PDFBuilder objects.
-        module_path_split = settings.BOOKS_PDF_STYLES.split('.')
-        module_path = ".".join(module_path_split[:-1])
-        func = module_path_split[-1]
-        styles_module = import_module(module_path)
-        self.styles = getattr(styles_module, func)()
+        self.font_name = font_name
+        self.__set_styles()
 
     @property
     def page_width(self):
@@ -99,8 +94,17 @@ class PDFBuilder():
     @property
     def _base_table_style(self):
         style =  TableStyle([])
-        style.add('FONT', (0,0), (-1,-1), 'Roboto')
+        style.add('FONT', (0,0), (-1,-1), self.font_name)
         return style
+
+    def __set_styles(self):
+        """ Retrieves the user-defined set of styles that are avaiable. """
+
+        module_path_split = settings.BOOKS_PDF_STYLES.split('.')
+        module_path = ".".join(module_path_split[:-1])
+        func = module_path_split[-1]
+        styles_module = import_module(module_path)
+        self.styles = getattr(styles_module, func)()
 
 class BalanceSheetPDFBuilder(PDFBuilder):
 
@@ -295,7 +299,8 @@ class InvoiceBuilder(PDFBuilder):
         elements.append(Spacer(1,15))
 
         # Spacing to make subsequent tables line up
-        col_widths = [self.page_width/2, self.page_width/6,self.page_width/6,self.page_width/6]
+        page_width = self.page_width - 20
+        col_widths = [page_width/2, page_width/6,page_width/6,page_width/6]
 
         # Invoice details (No, date, due)
         invoice_details_table = []
@@ -308,18 +313,19 @@ class InvoiceBuilder(PDFBuilder):
         invoice_details_table.append(['','', 'Date:', invoice.date.strftime("%d-%m-%y")])
         invoice_details_table.append(['','', 'Due:', invoice.due.strftime("%d-%m-%y")])
         t=Table(invoice_details_table, colWidths = col_widths)
+        t.setStyle(self._invoice_details_table_style)
         elements.append(t)
         elements.append(Spacer(1,30))
 
         # Invoice entries (Description, QTY, Unit Price, Total)
-        balance_due = 0 
+        balance_due = 0
         invoice_entries_table = []
         invoice_entries_table.append(['Description', 'QTY', 'Unit Price', 'Total'])
         entries_present = 0
         for e in invoice.entries:
-            invoice_entries_table.append([Paragraph(e['description']),
+            invoice_entries_table.append([Paragraph(e['description']*10),
                 e['quantity'], f"{e['unit_price']:.2f}", f"{e['total']:.2f}"])
-            balance_due + e['total']
+            balance_due += e['total']
             entries_present += 1
 
         # Add blank spaces to the invoice, if any are required
@@ -331,9 +337,10 @@ class InvoiceBuilder(PDFBuilder):
         t=Table(invoice_entries_table, colWidths = col_widths)
         t.setStyle(self._entries_table_style)
         elements.append(t)
+        elements.append(Spacer(1,15))
 
         # Balance due line
-        balance_due_table = [[' ',' ', 'Amt Due', f'${balance_due}']]
+        balance_due_table = [[' ',' ', 'Amt Due', f'$ {balance_due:.2f}']]
         t=Table(balance_due_table, colWidths = col_widths)
         elements.append(t)
 
@@ -344,7 +351,17 @@ class InvoiceBuilder(PDFBuilder):
     @property
     def _entries_table_style(self):
         style =  self._base_table_style
+        style.add('BOX',(0,0),(-1,0),0.5,"#999999")
+        style.add('ALIGN',(0,0),(-1,0), "CENTER")
+        style.add('VALIGN',(0,0),(-1,-1), "TOP")
+        style.add('GRID',(0,1),(-1,-1),0.5,"#999999")
         style.add('ROWBACKGROUNDS', (0,0), (-1,-1), ["#ffffff", "#f3f3f3"])
+        return style
+
+    @property
+    def _invoice_details_table_style(self):
+        style =  self._base_table_style
+        style.add('ALIGN', (2,0), (2,-1),'RIGHT')
         return style
 
 
@@ -359,7 +376,7 @@ def pdf_from_preset(virtual_joural):
 
 def trial_balance_preset(virtual_joural):
     file_buffer = StringIO()
-    doc = SimpleDocTemplate(file_buffer, topMargin=10,bottomMargin=10)
+    doc = SimpleDocTemplate(file_buffer, topMargin=10, bottomMargin=10)
     styles=getSampleStyleSheet()
     elements = []
 

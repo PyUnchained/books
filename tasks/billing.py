@@ -9,6 +9,7 @@ from celery import shared_task
 
 from books.models.billing import BillingAccount, Invoice
 from books.virtual.pdf import InvoiceBuilder
+from books.utils.celery_task import TestAwareTask
 
 @shared_task
 def update_billing_status(billing_account_pk, current_date = None):
@@ -80,7 +81,8 @@ def update_billing_status(billing_account_pk, current_date = None):
 
     return True
 
-@shared_task
+
+@shared_task(base = TestAwareTask)
 def generate_invoice_pdf(invoice_pk):
     invoice = Invoice.objects.get(pk = invoice_pk)
     builder = InvoiceBuilder()
