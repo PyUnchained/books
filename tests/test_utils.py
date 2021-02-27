@@ -20,8 +20,7 @@ class UtilsTestCase(TestCase):
     def test_register_new_account(self):
         #Test creating an account from a dict...
         created_user = User.objects.create_user('ot1', 'ou@mail.com', '1')
-        acc_kwargs = {'name':'TestyReggy', 'password':'pandas',
-            'email':'nat@mail.com'}
+        acc_kwargs = {'name':'TestyReggy', 'email':'nat@mail.com'}
         sys_acc_1 = register_new_account(user = created_user, **acc_kwargs)
 
         # Test that creating an account from a form works as well

@@ -12,7 +12,7 @@ from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, TableStyle, SimpleDocTemplate, Paragraph, Spacer, Image,ListFlowable, ListItem, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, A5
 from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER, TA_JUSTIFY
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -38,29 +38,41 @@ class PDFBuilder():
     pdf_type = 'general_pdf'
     BOOKS_PDF_PAGE_WIDTH = getattr(settings, 'BOOKS_PDF_PAGE_WIDTH',
         app_settings.BOOKS_PDF_PAGE_WIDTH)
+    page_size = A4
 
-    def __init__(self):
+    def __init__(self, font = 'Roboto'):
         self.file_buffer = StringIO()
         self.doc = SimpleDocTemplate(self.file_buffer,
-            topMargin=10, bottomMargin=10, pagesize = A4)
+            topMargin=10, bottomMargin=10,
+            pagesize = self.page_size)
 
         #The styles avilable for the PDF builder are defined in the settings.py, as the BOOKS_PDF_STYLES
         # setting. This represents a function we need to import and call in order to
         # get the styles that should be available to the PDFBuilder objects.
-
         module_path_split = settings.OPEXA_BOOKS_PDF_STYLES.split('.')
+        print (settings.OPEXA_BOOKS_PDF_STYLES)
         module_path = ".".join(module_path_split[:-1])
         func = module_path_split[-1]
         styles_module = import_module(module_path)
         self.styles = getattr(styles_module, func)()
+
+    @property
+    def page_width(self):
+        return self.page_size[0]
+
+    @property
+    def page_height(self):
+        return self.page_size[1]
+    
+
 
     def get_filename(self, file_name = None):
         if file_name:
             return file_name
         return '{}.pdf'.format(self.pdf_type)
 
-    def build(self, elements, file_name = None):
-        prebuild = getattr(self, 'build_instructions')(elements)
+    def build(self, elements, file_name = None, **kwargs):
+        prebuild = getattr(self, 'build_instructions')(elements, **kwargs)
         self.doc.build(prebuild)
         pdf = self.file_buffer.getvalue()
         self.write_to_file(file_name, pdf)
@@ -90,9 +102,15 @@ class PDFBuilder():
 
         return str(data_point)
 
+    @property
+    def _base_table_style(self):
+        style =  TableStyle([])
+        style.add('FONT', (0,0), (-1,-1), 'Roboto')
+        return style
+
 class BalanceSheetPDFBuilder(PDFBuilder):
 
-    def build_instructions(self, bs_dict):
+    def build_instructions(self, bs_dict, **kwargs):
         #Trial balances supply their build elements as a Dict object
         elements = [] 
 
@@ -137,7 +155,7 @@ class ProfitAndLossPDFBuilder(PDFBuilder):
 
     pdf_type = 'profit_and_loss'
 
-    def build_instructions(self, pl_dict):
+    def build_instructions(self, pl_dict, **kwargs):
         #Trial balances supply their build elements as a Dict object
         elements = [] 
 
@@ -199,7 +217,7 @@ class TrialBalancePDFBuilder(PDFBuilder):
 
     pdf_type = 'trial_balance'
 
-    def build_instructions(self, tb_dict):
+    def build_instructions(self, tb_dict, **kwargs):
         #Trial balances supply their build elements as a Dict object
         elements = [] 
 
@@ -235,7 +253,7 @@ class TrialBalancePDFBuilder(PDFBuilder):
 class TAccountPDFBuilder(PDFBuilder):
     pdf_type = 't_account'
 
-    def build_instructions(self, elements):
+    def build_instructions(self, elements, **kwargs):
         #Replace heading text with formatted Paragraph object
         new_heading = Paragraph(elements[0][0],
             self.styles['paragraph']['heading'])
@@ -271,8 +289,75 @@ class TAccountPDFBuilder(PDFBuilder):
         pre_built_elements.append(t)
         return pre_built_elements
 
+class InvoiceBuilder(PDFBuilder):
+    pdf_type = 'invoice'
+    page_size = A5
+
+    def build_instructions(self, elements, invoice, **kwargs):
+
+        # Heading
+        elements.append(Paragraph('Invoice',
+            self.styles['paragraph']['heading']))
+        elements.append(Spacer(1,15))
+
+        # Spacing to make subsequent tables line up
+        col_widths = [self.page_width/2, self.page_width/6,self.page_width/6,self.page_width/6]
+
+        # Invoice details (No, date, due)
+        invoice_details_table = []
+        invoice_num = str(invoice.pk)
+        extra_zeros = 6-len(invoice_num)
+        if extra_zeros > 0:
+            invoice_num = '0'*extra_zeros + invoice_num
+
+        invoice_details_table.append(['','', 'No:', invoice_num])
+        invoice_details_table.append(['','', 'Date:', invoice.date.strftime("%d-%m-%y")])
+        invoice_details_table.append(['','', 'Due:', invoice.due.strftime("%d-%m-%y")])
+        t=Table(invoice_details_table, colWidths = col_widths)
+        elements.append(t)
+        elements.append(Spacer(1,30))
+
+        # Invoice entries (Description, QTY, Unit Price, Total)
+        balance_due = 0 
+        invoice_entries_table = []
+        invoice_entries_table.append(['Description', 'QTY', 'Unit Price', 'Total'])
+        entries_present = 0
+        for e in invoice.entries:
+            invoice_entries_table.append([Paragraph(e['description']),
+                e['quantity'], f"{e['unit_price']:.2f}", f"{e['total']:.2f}"])
+            balance_due + e['total']
+            entries_present += 1
+
+        # Add blank spaces to the invoice, if any are required
+        blank_spaces = 5-entries_present
+        if blank_spaces > 0:
+            for i in range(blank_spaces):
+                invoice_entries_table.append(['','','',''])
+
+        t=Table(invoice_entries_table, colWidths = col_widths)
+        t.setStyle(self._entries_table_style)
+        elements.append(t)
+
+        # Balance due line
+        balance_due_table = [[' ',' ', 'Amt Due', f'${balance_due}']]
+        t=Table(balance_due_table, colWidths = col_widths)
+        elements.append(t)
 
 
+        return elements
+
+
+    @property
+    def _entries_table_style(self):
+        style =  self._base_table_style
+        style.add('ROWBACKGROUNDS', (0,0), (-1,-1), ["#ffffff", "#f3f3f3"])
+        return style
+
+
+    
+    
+### TODO: This should be removed, since the journals and everything else wont
+### really be necessary going forward
 def pdf_from_preset(virtual_joural):
     if virtual_joural.rule.preset == 'TB':
         return trial_balance_preset(virtual_joural)

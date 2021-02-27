@@ -1,32 +1,42 @@
+from django.utils import timezone
 from django.db import models
 from django.conf import settings
 
 class BillingAccount(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE)
+    product_description = models.CharField(max_length = 100,
+        help_text = "What the user will be billed for (appears in description of invoice)")
     billing_method = models.ForeignKey('books.BillingMethod', models.SET_NULL, null = True)
-    charge = models.DecimalField(max_digits = 20, decimal_places = 2)
+    billing_tier = models.ForeignKey('books.BillingTier', models.SET_NULL, null = True)
     created = models.DateTimeField(auto_now_add = True)
     start_date = models.DateField()
     up_to_date = models.BooleanField(default = True)
+    last_billed = models.DateField(blank = True, null = True)
+    next_billed = models.DateField(blank = True, null = True)
     active = models.BooleanField(default = True)
 
 class BillingMethod(models.Model):
     description = models.CharField(max_length = 100)
-    time = models.TimeField()
-    day_of_month = models.IntegerField(default = 1)
     billing_period = models.IntegerField(default = 1)
+    days_till_due = models.IntegerField(default = 30)
     grace_period = models.IntegerField(default = 14)
 
     def __str__(self):
         return self.description
 
+class BillingTier(models.Model):
+    description = models.CharField(max_length = 100)
+    unit_price = models.DecimalField(max_digits = 20, decimal_places = 2)
+
 class Invoice(models.Model):
-    billing_account = models.ForeignKey('books.BillingAccount',
-        models.CASCADE)
-    due = models.DateTimeField()
-    value = models.DecimalField(max_digits = 20, decimal_places = 2)
-    paid = models.BooleanField()
-    file = models.FileField(upload_to = 'books/generated/invoices')
+    billing_account = models.ForeignKey('books.BillingAccount', models.CASCADE)
+    due = models.DateField()
+    date = models.DateField()
+    entries = models.JSONField(help_text = "A list of dictionaries with the following keys: "
+        "description, quantity, unit_price, total")
+    paid = models.BooleanField(default = False)
+    file = models.FileField(upload_to = 'books/generated/invoices', blank = True,
+        null = True)
     created = models.DateTimeField(auto_now_add = True)
 
 class Receipt(models.Model):
