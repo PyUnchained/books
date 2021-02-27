@@ -241,7 +241,7 @@ class Account(MPTTModel, BlockchainMixin):
 
 class SingleEntry(models.Model, BlockchainMixin):
     account = models.ForeignKey('Account', models.CASCADE)
-    action = models.CharField(max_length = 1, choices = settings.OPEXA_BOOKS_ACTIONS)
+    action = models.CharField(max_length = 1, choices = settings.BOOKS_ACTIONS)
     value = models.DecimalField(decimal_places = 2,
         max_digits = 15, null = True)
     details = models.CharField(max_length = 300)

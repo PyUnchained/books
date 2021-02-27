@@ -88,7 +88,7 @@ def register_new_admin_user(account, username, password):
         account.users.add(admin_user)
 
         #Add them to the admin user group
-        g = Group.objects.get(name = settings.OPEXA_BOOKS_ADMIN_USER_GROUP_NAME)
+        g = Group.objects.get(name = settings.BOOKS_ADMIN_USER_GROUP_NAME)
         admin_user.groups.add(g)
 
         return admin_user
