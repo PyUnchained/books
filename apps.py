@@ -43,6 +43,8 @@ class BooksAppConf(AppConf):
     DATE_FORMAT = '%d-%m-%Y'
     SHORT_DATE_FORMAT = '%d-%m'
 
+    LOGO_SMALL = None
+
     REGISTERED_FONTS = [
         ('Roboto', 'books/static/fonts/Roboto-Regular.ttf'),
         ('RobotoB', 'books/static/fonts/Roboto-Bold.ttf'),

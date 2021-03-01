@@ -8,7 +8,7 @@ from django.dispatch import receiver
 
 from books.models.billing import BillingAccount, Invoice
 from books.tasks.billing import generate_invoice_pdf
-from books.utils.runtime import is_test
+from books.utils import get_internal_system_account
 
 @receiver(pre_save, sender = BillingAccount)
 def next_billing_date_on_init(sender, instance, raw, *args, **kwargs):
@@ -29,11 +29,26 @@ def next_billing_date_on_init(sender, instance, raw, *args, **kwargs):
             months=instance.billing_method.billing_period)
         instance.next_billed = next_billed
 
+@receiver(post_save, sender = BillingAccount)
+def check_accounts_payable_exists(sender, instance, raw, *args, **kwargs):
+    """ Verifies that an Accounts Payable account has been created for this user. """
+
+    if raw:
+        return
+
+    central_account = get_internal_system_account()
+    accounts_payable = central_account.get_account(code = '2000')
+    central_account.create_subaccount(accounts_payable,
+        name = f'Accounts Payable - ({instance.user})',
+        code_suffix = instance.user.username )
+
+
 @receiver(post_save, sender = Invoice)
 def update_invoice_file(sender, instance, raw, *args, **kwargs):
 
     if raw:
         return
-    generate_invoice_pdf(instance.pk)
-    generate_invoice_pdf.delay(instance.pk)
 
+    if not instance.file:
+        generate_invoice_pdf.delay(invoice_entries = instance.entries,
+            due  = instance.due, date = instance.date, invoice_pk = instance.pk)

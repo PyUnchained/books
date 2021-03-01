@@ -29,14 +29,13 @@ class BillingTier(models.Model):
     unit_price = models.DecimalField(max_digits = 20, decimal_places = 2)
 
 class Invoice(models.Model):
-    billing_account = models.ForeignKey('books.BillingAccount', models.CASCADE)
+    billing_accounts = models.ManyToManyField('books.BillingAccount', blank = True)
     due = models.DateField()
     date = models.DateField()
     entries = models.JSONField(help_text = "A list of dictionaries with the following keys: "
-        "description, quantity, unit_price, total")
+        "description, quantity, unit_price, total, billing_account")
     paid = models.BooleanField(default = False)
-    file = models.FileField(upload_to = 'books/generated/invoices', blank = True,
-        null = True)
+    file = models.FileField(upload_to = 'books/generated/invoices', blank = True, null = True)
     created = models.DateTimeField(auto_now_add = True)
 
 class Receipt(models.Model):

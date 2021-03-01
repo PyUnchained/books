@@ -7,6 +7,7 @@ from importlib import import_module
 import datetime
 from decimal import Decimal
 from pathlib import Path
+import copy
 
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, TableStyle, SimpleDocTemplate, Paragraph, Spacer, Image,ListFlowable, ListItem, PageBreak
@@ -35,6 +36,7 @@ sub_heading_style.alignment = TA_CENTER
 class PDFBuilder():
     pdf_type = 'general_pdf'
     page_size = A4
+    sample_style_sheet = getSampleStyleSheet()
 
     def __init__(self, font_name = 'Roboto'):
         self.file_buffer = StringIO()
@@ -46,6 +48,22 @@ class PDFBuilder():
         self.font_name = font_name
         self.__set_styles()
 
+    def create_style(self, **style_options):
+        default_options = {'fontName':self.font_name}
+        for option_name, value in default_options.items():
+            if option_name not in style_options:
+                style_options[option_name] = value
+
+        style_sheet = copy.copy(self.sample_style_sheet['Normal'])
+        for option_name, value in style_options.items():
+            setattr(style_sheet, option_name, value)
+        return style_sheet
+
+    
+    def Paragraph(self, content, **style_options):
+        style = self.create_style(**style_options)
+        return Paragraph(content, style)
+
     @property
     def page_width(self):
         return self.page_size[0]
@@ -53,22 +71,26 @@ class PDFBuilder():
     @property
     def page_height(self):
         return self.page_size[1]
-    
-
 
     def get_filename(self, file_name = None):
         if file_name:
             return file_name
         return '{}.pdf'.format(self.pdf_type)
 
-    def build(self, elements, file_name = None, **kwargs):
+    def build(self, elements, file_name = None, write_to_file = False,
+        **kwargs):
         prebuild = getattr(self, 'build_instructions')(elements, **kwargs)
         self.doc.build(prebuild)
         pdf = self.file_buffer.getvalue()
-        self.write_to_file(file_name, pdf)
+
+        if write_to_file:
+            self.write_to_file(file_name, pdf)
+
         return ContentFile(pdf)
 
     def write_to_file(self, file_name, contents):
+        """ Write document to file. """
+
         out_path = Path(settings.BASE_DIR).joinpath('tmp',
             self.get_filename(file_name = file_name))
         out_path.write_bytes(contents)
@@ -291,27 +313,34 @@ class InvoiceBuilder(PDFBuilder):
     pdf_type = 'invoice'
     page_size = A5
 
-    def build_instructions(self, elements, invoice, **kwargs):
+    def build_instructions(self, elements = [], invoice_num = 0, invoice_entries = [],
+        date = None, due = None,  **kwargs):
 
         # Heading
-        elements.append(Paragraph('Invoice',
-            self.styles['paragraph']['heading']))
-        elements.append(Spacer(1,15))
+        elements.append(self.Paragraph('Invoice', fontName = 'RobotoBI', fontSize = 25,
+            alignment = TA_CENTER))
+        elements.append(Spacer(1,45))
 
         # Spacing to make subsequent tables line up
-        page_width = self.page_width - 20
-        col_widths = [page_width/2, page_width/6,page_width/6,page_width/6]
+        page_width = self.page_width
+        col_widths = [page_width/3, page_width/4*(1/3),page_width/4*(2/3),page_width/4]
 
         # Invoice details (No, date, due)
         invoice_details_table = []
-        invoice_num = str(invoice.pk)
-        extra_zeros = 6-len(invoice_num)
+        
+        extra_zeros = 6-invoice_num
         if extra_zeros > 0:
-            invoice_num = '0'*extra_zeros + invoice_num
+            invoice_num = '0'*extra_zeros + str(invoice_num)
 
-        invoice_details_table.append(['','', 'No:', invoice_num])
-        invoice_details_table.append(['','', 'Date:', invoice.date.strftime("%d-%m-%y")])
-        invoice_details_table.append(['','', 'Due:', invoice.due.strftime("%d-%m-%y")])
+        if settings.BOOKS_LOGO_SMALL:
+            logo =  Image(settings.BOOKS_LOGO_SMALL, width=40, height=50)
+            logo.hAlign = 'CENTER'
+        else:
+            logo = ''
+
+        invoice_details_table.append([logo,'', 'No:', invoice_num])
+        invoice_details_table.append(['','', 'Date:', date.strftime("%d-%m-%y")])
+        invoice_details_table.append(['','', 'Due:', due.strftime("%d-%m-%y")])
         t=Table(invoice_details_table, colWidths = col_widths)
         t.setStyle(self._invoice_details_table_style)
         elements.append(t)
@@ -320,16 +349,17 @@ class InvoiceBuilder(PDFBuilder):
         # Invoice entries (Description, QTY, Unit Price, Total)
         balance_due = 0
         invoice_entries_table = []
+        paragraph_kwargs = {'alignment':TA_CENTER}
         invoice_entries_table.append(['Description', 'QTY', 'Unit Price', 'Total'])
         entries_present = 0
-        for e in invoice.entries:
-            invoice_entries_table.append([Paragraph(e['description']*10),
+        for e in invoice_entries:
+            invoice_entries_table.append([self.Paragraph(e['description']),
                 e['quantity'], f"{e['unit_price']:.2f}", f"{e['total']:.2f}"])
             balance_due += e['total']
             entries_present += 1
 
         # Add blank spaces to the invoice, if any are required
-        blank_spaces = 5-entries_present
+        blank_spaces = 3-entries_present
         if blank_spaces > 0:
             for i in range(blank_spaces):
                 invoice_entries_table.append(['','','',''])
@@ -340,19 +370,40 @@ class InvoiceBuilder(PDFBuilder):
         elements.append(Spacer(1,15))
 
         # Balance due line
-        balance_due_table = [[' ',' ', 'Amt Due', f'$ {balance_due:.2f}']]
+        balance_due_table = [[' ', ' ', 'Amt Due', f'$ {balance_due:.2f}']]
         t=Table(balance_due_table, colWidths = col_widths)
+        t.setStyle(self._totals_table_style)
         elements.append(t)
+        elements.append(Spacer(1,45))
 
+        thank_you = self.Paragraph('Thank-you for you business!', alignment = TA_CENTER)
+        elements.append(thank_you)
+        elements.append(Spacer(1,35))
 
+        elements.append(self.Paragraph('Contact Us:',
+            alignment = TA_CENTER, fontSize = 11, fontName = 'RobotoB'))
+        elements.append(Spacer(1,7))
+        elements.append(self.Paragraph("Tatenda Tambo",
+            alignment = TA_CENTER))
+        elements.append(self.Paragraph("Cell: +263 782 201 884",
+            alignment = TA_CENTER))
+        elements.append(self.Paragraph("E-mail: tatendatambo@gmail.com",
+            alignment = TA_CENTER))
         return elements
 
+    @property
+    def _paragraph_style(self):
+        return self.__paragraph_style
+    
 
     @property
     def _entries_table_style(self):
         style =  self._base_table_style
+        style.add('FONT',(0,0),(-1,0), 'RobotoB')
         style.add('BOX',(0,0),(-1,0),0.5,"#999999")
         style.add('ALIGN',(0,0),(-1,0), "CENTER")
+        style.add('ALIGN',(1,1),(2,-1), "CENTER")
+        style.add('ALIGN',(2,1),(-1,-1), "RIGHT")
         style.add('VALIGN',(0,0),(-1,-1), "TOP")
         style.add('GRID',(0,1),(-1,-1),0.5,"#999999")
         style.add('ROWBACKGROUNDS', (0,0), (-1,-1), ["#ffffff", "#f3f3f3"])
@@ -362,7 +413,24 @@ class InvoiceBuilder(PDFBuilder):
     def _invoice_details_table_style(self):
         style =  self._base_table_style
         style.add('ALIGN', (2,0), (2,-1),'RIGHT')
+        style.add('ALIGN', (0,0), (1,-1),'LEFT')
+        style.add('ALIGN', (-1,0), (-1,-1),'RIGHT')
+        style.add('LINEBELOW', (-1,0), (-1,-1), 0.25, '#f3f3f3')
+        style.add('SPAN', (0,0), (1,-1))
         return style
+
+    @property
+    def _totals_table_style(self):
+        style =  self._base_table_style
+        style.add('ALIGN', (2,0), (2,-1),'CENTER')
+        style.add('ALIGN', (-1,0), (-1,-1),'RIGHT')
+        style.add('TEXTCOLOR', (2,0), (-1,-1),"#1f3864")
+        style.add('FONT',(1,0),(-1,1), 'RobotoB')
+        style.add('FONTSIZE',(1,0),(-1,1), 11)
+        style.add('LINEABOVE',(2,0),(-1,1),0.25, "#000000")
+        style.add('LINEBELOW',(2,0),(-1,1),0.25, "#000000")
+        return style
+    
 
 
     

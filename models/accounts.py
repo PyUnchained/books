@@ -18,7 +18,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from books.virtual.pdf import TAccountPDFBuilder
 from books.blockchain import BlockchainMixin
 
-from .auth import SystemAccount
+
 
 INCREASE_BALANCE_OPTIONS = (
     ('', 'None'),
@@ -39,7 +39,7 @@ class AccountGroup(MPTTModel):
         related_name='children', verbose_name = 'parent account group')
     name = models.CharField(max_length = 100)
     description = models.CharField(max_length = 300, blank = True, null = True)
-    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
+    system_account = models.ForeignKey("books.SystemAccount", models.CASCADE)
 
     @property
     def short_name(self):
@@ -65,7 +65,7 @@ class Account(MPTTModel, BlockchainMixin):
     code = models.CharField(max_length = 100, blank = True, null = True)
     name = models.CharField(max_length = 120, verbose_name = 'account name')
     account_group = models.ForeignKey('AccountGroup', models.CASCADE, blank = True, null = True)
-    system_account = models.ForeignKey(SystemAccount, models.CASCADE, blank = True, null = True)
+    system_account = models.ForeignKey("books.SystemAccount", models.CASCADE, blank = True, null = True)
     increase_balance = models.CharField(max_length =1, choices = INCREASE_BALANCE_OPTIONS, default = '')
     address_id = models.CharField(max_length = 120, blank = True, null = True)
 
@@ -81,7 +81,7 @@ class Account(MPTTModel, BlockchainMixin):
             self.increase_balance = self._guess_increase_method()
 
         if not self.system_account:
-            self.system_account = SystemAccount.objects.get(name = "opexa_books")
+            self.system_account = "books.SystemAccount".objects.get(name = "opexa_books")
 
         super().save(*args, **kwargs)
 
@@ -194,6 +194,8 @@ class Account(MPTTModel, BlockchainMixin):
         if from_date:
             query_kwargs.update({'date__gte':from_date})
 
+            
+
         debit_entries = SingleEntry.objects.filter(action = 'D',
             **query_kwargs)
         credit_entries = SingleEntry.objects.filter(action = 'C',
@@ -246,7 +248,7 @@ class SingleEntry(models.Model, BlockchainMixin):
         max_digits = 15, null = True)
     details = models.CharField(max_length = 300)
     date = models.DateField()
-    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
+    system_account = models.ForeignKey("books.SystemAccount", models.CASCADE)
     double_entry = models.ForeignKey('DoubleEntry', models.CASCADE,
         null = True, blank = True, editable = False)
     creator_ref = models.CharField(max_length = 200, blank = True, null = True,
@@ -272,7 +274,7 @@ class SingleEntry(models.Model, BlockchainMixin):
         ordering = ['-date']
 
 class DoubleEntry(models.Model):
-    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
+    system_account = models.ForeignKey("books.SystemAccount", models.CASCADE)
     date = models.DateField()
     details = models.CharField(max_length = 300)
     related_document = models.FileField(upload_to = 'double_entry_files',
@@ -323,7 +325,7 @@ class TransactionDefinition(models.Model):
         related_name = 'debit_transaction_definitions')
     credit_account = models.ForeignKey('Account', on_delete = models.CASCADE,
         related_name = 'credi_transaction_definitions')
-    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
+    system_account = models.ForeignKey("books.SystemAccount", models.CASCADE)
     short_code = models.CharField(max_length = 10, blank = True, null = True)
 
     def __str__(self):
@@ -335,7 +337,7 @@ class Transaction(models.Model):
     date = models.DateField()
     value = models.DecimalField(max_digits = 15, decimal_places = 2, null = True)
     details = models.TextField(max_length = 2000, blank = True, null = True)
-    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
+    system_account = models.ForeignKey("books.SystemAccount", models.CASCADE)
     double_entry_record = models.ForeignKey('DoubleEntry', models.SET_NULL,
         blank = True, null = True)
 
@@ -353,7 +355,7 @@ class Transaction(models.Model):
 
 
 class DeclaredSource(models.Model):
-    system_account = models.ForeignKey(SystemAccount, models.CASCADE)
+    system_account = models.ForeignKey("books.SystemAccount", models.CASCADE)
     account = models.ForeignKey('Account', on_delete = models.CASCADE)
     debit = models.DecimalField(max_digits = 15, decimal_places = 2,
         blank = True, null = True)
@@ -361,7 +363,7 @@ class DeclaredSource(models.Model):
         blank = True, null = True)
     details = models.CharField(max_length = 140)
     date = models.DateField()
-    # system_account = models.ForeignKey(SystemAccount, models.CASCADE)
+    # system_account = models.ForeignKey("books.SystemAccount", models.CASCADE)
 
     @property
     def is_debit(self):
