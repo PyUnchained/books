@@ -20,26 +20,24 @@ def next_billing_date_on_init(sender, instance, raw, *args, **kwargs):
     is_new = instance.pk == None
     if is_new:
 
-        if instance.last_billed:
-            last_billed_date = instance.last_billed
-        else:
-            last_billed_date = instance.start_date
+        if not instance.last_billed:
+            instance.last_billed = instance.start_date
 
-        next_billed = last_billed_date + relativedelta.relativedelta(
+        next_billed = instance.last_billed + relativedelta.relativedelta(
             months=instance.billing_method.billing_period)
         instance.next_billed = next_billed
 
 @receiver(post_save, sender = BillingAccount)
-def check_accounts_payable_exists(sender, instance, raw, *args, **kwargs):
+def check_accounts_receivable_exists(sender, instance, raw, *args, **kwargs):
     """ Verifies that an Accounts Payable account has been created for this user. """
 
     if raw:
         return
 
     central_account = get_internal_system_account()
-    accounts_payable = central_account.get_account(code = '2000')
-    central_account.create_subaccount(accounts_payable,
-        name = f'Accounts Payable - ({instance.user})',
+    accounts_receivable = central_account.get_account(code = '1200')
+    central_account.create_subaccount(accounts_receivable,
+        name = f'Accounts Receivable - ({instance.user})',
         code_suffix = instance.user.username )
 
 

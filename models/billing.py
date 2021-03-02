@@ -15,6 +15,9 @@ class BillingAccount(models.Model):
     next_billed = models.DateField(blank = True, null = True)
     active = models.BooleanField(default = True)
 
+    def __str__(self):
+        return f"{self.user.username} - {self.product_description}"
+
 class BillingMethod(models.Model):
     description = models.CharField(max_length = 100)
     billing_period = models.IntegerField(default = 1)

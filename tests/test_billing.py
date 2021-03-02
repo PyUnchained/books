@@ -1,11 +1,13 @@
 from dateutil import relativedelta
+from decimal import Decimal
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
-from books.models import BillingMethod, BillingTier, BillingAccount, Invoice, Account
+from books.models import BillingMethod, BillingTier, BillingAccount, Invoice, Account, DoubleEntry
 from books.tasks.billing import update_billing_status
+from books.utils import get_internal_system_account
 
 User = get_user_model()
 
@@ -19,7 +21,8 @@ class BillingTasksTestCase(TestCase):
         self.user = User.objects.get(username = 'test_user')
 
         # Create at least one billing method and one billing tier
-        self.billing_method = BillingMethod.objects.create(description = 'Monthly')
+        self.billing_method = BillingMethod.objects.create(description = 'Monthly',
+            grace_period = 14)
         self.tier = BillingTier.objects.create(description = 'Entry Level',
             unit_price = 20.00)
         #Create a specific billing account
@@ -41,13 +44,21 @@ class BillingCycleTestCase(TestCase):
 
     fixtures = ['books/tests/basic_test_fixtures.json']
 
+    def setUp(self):
+        self.central_account = get_internal_system_account()
+        self.sales_acc = self.central_account.get_account(code = "4000")
+        self.bank = self.central_account.get_account(code = "1000")
+
     def test_billing_cycle(self):
         today = timezone.now().date()
         long_time_ago = today + relativedelta.relativedelta(months = -3)
         user = User.objects.get(username = 'test_user')
 
         # Create at least one billing method and one billing tier
-        billing_method = BillingMethod.objects.create(description = 'Monthly')
+        billing_method = BillingMethod.objects.create(description = 'Monthly',
+            grace_period = 14)
+        billing_method2 = BillingMethod.objects.create(description = 'Quarterly',
+            grace_period = 30, billing_period = 3)
         tier1 = BillingTier.objects.create(description = 'Entry Level',
             unit_price = 20.00)
         tier2 = BillingTier.objects.create(description = 'More Expensive',
@@ -61,13 +72,14 @@ class BillingCycleTestCase(TestCase):
             product_description = 'Services rendered')
                 #Create a specific billing account
         acc2 = BillingAccount.objects.create(user = user,
-            billing_method = billing_method, billing_tier = tier2,
-            start_date = today, last_billed = long_time_ago,
-            product_description = 'Additional work')
+            billing_method = billing_method2, billing_tier = tier2,
+            start_date = long_time_ago, last_billed = long_time_ago,
+            product_description = 'Quarterly Work')
 
         # Verify that an Accounts Payable account has been created for the user
-        accounts_payable_acc = Account.objects.get(code = f"2000 - {user.username}")
-        self.assertEqual(accounts_payable_acc.name, 'Accounts Payable - (test_user)')
+        user_accounts_receivable = Account.objects.get(code = f"1200 - {user.username}")
+        self.assertEqual(user_accounts_receivable.name,
+            'Accounts Receivable - (test_user)')
 
         # First day the task runs...
         update_required = update_billing_status(user.pk,
@@ -76,18 +88,86 @@ class BillingCycleTestCase(TestCase):
 
 
         # When the task is run on the date specified by "next_billing"
+        current_date =  acc.next_billed
         update_required = update_billing_status(user.pk,
-            current_date = acc.next_billed.strftime("%d/%m/%Y"))
+            current_date = current_date)
         self.assertTrue(update_required)
 
-        accounts_payable_acc.refresh_from_db()
-        print(accounts_payable_acc.balance())
+        # Check that each billing account has the next billing date set correctly
+        for item in [acc, acc2]:
+            item.refresh_from_db()
+            self.assertEqual(item.last_billed, current_date)
+        self.assertEqual(acc.next_billed, current_date + relativedelta.relativedelta(
+            months = 1))
+        self.assertEqual(acc2.next_billed, current_date + relativedelta.relativedelta(
+            months = 3))
+
+
+
+        # Check that the accounting was done correctly in the background
+        self.assertEqual(('D', Decimal('150.00')), 
+            user_accounts_receivable.balance(as_at = current_date, full = True))
+        self.assertEqual(('C', Decimal('150.00')),
+            self.sales_acc.balance(as_at = current_date, full = True))
 
         # Check that a new invoice was generated for the user
         invoice = Invoice.objects.latest('created')
         self.assertTrue(invoice.file != None)
 
-        # Simulate a payment being made by the user
+        # Move forward past the expiry of the grace period
+        current_date = current_date + relativedelta.relativedelta(days = 15)
+        update_required = update_billing_status(user.pk,
+            current_date = current_date)
+        self.assertFalse(update_required)
+
+        # Monthly billing account should now be inactive due to the grace period,
+        # but the Quarterly billing account should still be active
+        for item in [acc, acc2]:
+            item.refresh_from_db()
+        self.assertFalse(acc.active)
+        self.assertTrue(acc2.active)
+
+        # Record a transaction representing the payment of the user's outstanding accounts.
+        # Include $50 extra
+        user_payment_value = Decimal('200.00')
+        debit_entry = {'account':self.bank, 'value':user_payment_value,
+            'details':"User Account Fees Received"}
+        credit_entry = {'account':user_accounts_receivable, 'value':user_payment_value,
+            'details':"User Account Fees Paid"}
+        double_entry_dict = {'debits':[debit_entry], 'credits': [credit_entry],
+            'details': f"Settlement of {user}'s account.",
+            'date':current_date, 'system_account':self.central_account}
+        DoubleEntry.record(**double_entry_dict)
+
+        # Updating the billing status on the same day should result in all the user's
+        # inactive Billing accounts being reactivated
+        update_required = update_billing_status(user.pk,
+            current_date = current_date)
+        self.assertFalse(update_required)
+
+        for item in [acc, acc2]:
+            item.refresh_from_db()
+            self.assertTrue(item.active)
+
+        # Move forward month since last billing
+        current_date = current_date + relativedelta.relativedelta(days = 15)
+        update_required = update_billing_status(user.pk,
+            current_date = current_date)
+
+        # Reflects the payment being deducted from an existing balance
+        self.assertEqual(user_accounts_receivable.balance(as_at = current_date),
+            Decimal("-30.00"))
+
+        # Move forward till next quarterly bill also due
+        current_date = current_date + relativedelta.relativedelta(months = 2)
+        update_required = update_billing_status(user.pk,
+            current_date = current_date)
+        self.assertEqual(user_accounts_receivable.balance(as_at = current_date),
+            Decimal('140.00'))
+        for item in [acc, acc2]:
+            item.refresh_from_db()
+            self.assertTrue(item.active)
+
         
 
         

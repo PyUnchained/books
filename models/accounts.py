@@ -68,6 +68,10 @@ class Account(MPTTModel, BlockchainMixin):
     system_account = models.ForeignKey("books.SystemAccount", models.CASCADE, blank = True, null = True)
     increase_balance = models.CharField(max_length =1, choices = INCREASE_BALANCE_OPTIONS, default = '')
     address_id = models.CharField(max_length = 120, blank = True, null = True)
+    adeler_groups = {
+        'ADE':['current_assets', 'cost_of_sales', 'expense', 'long-term assets'],
+        'LER':['current_liabilities', 'equity','income', 'long-term liabilities']
+    }
 
     @property
     def short_name(self):
@@ -182,6 +186,7 @@ class Account(MPTTModel, BlockchainMixin):
 
     
     def balance(self, as_at = None, from_date = None, include_descendants = False, full = False):
+
         if as_at == None:
             as_at = timezone.now().date()
         
@@ -194,26 +199,24 @@ class Account(MPTTModel, BlockchainMixin):
         if from_date:
             query_kwargs.update({'date__gte':from_date})
 
-            
 
-        debit_entries = SingleEntry.objects.filter(action = 'D',
-            **query_kwargs)
-        credit_entries = SingleEntry.objects.filter(action = 'C',
-            **query_kwargs)
-        debit = debit_entries.aggregate(Sum('value'))['value__sum'] or Decimal('0.00')
-        credit = credit_entries.aggregate(Sum('value'))['value__sum'] or Decimal('0.00')
-        absolute_balance = abs(debit - credit)
 
-        if not full:
-            return absolute_balance
+        single_entries = SingleEntry.objects.filter(**query_kwargs)
+        total = Decimal('0.00')
+        for entry in single_entries:
+            if entry.action == self.increase_balance:
 
-        else:
-            if debit > credit:
-                balance_type = 'D'
+                total += entry.value
             else:
-                balance_type = 'C'
+                total -= entry.value
+        if full:
+            return (self.increase_balance, total)
+        else:
+            return total
 
-            return (balance_type, absolute_balance)
+
+    def positive_action(self):
+        pass
 
 
     def extra_data(self):
@@ -301,7 +304,7 @@ class DoubleEntry(models.Model):
             for e in entries:
                 e = inflate_single_entry_dict(e, action = action, **record_kwargs)
                 all_entries.append(e)
-                balance_sum[action] += e['value']
+                balance_sum[action] += Decimal(e['value'])
 
         if balance_sum['D'] != balance_sum['C']:
             raise AccountingPrincipleError('''Invalid double entry: Debit and Credit values did not 
