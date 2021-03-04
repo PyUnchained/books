@@ -1,5 +1,6 @@
 from dateutil import relativedelta
 from decimal import Decimal
+import datetime
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
@@ -32,11 +33,15 @@ class BillingTasksTestCase(TestCase):
 
     def test_update_task(self):
         # When called with valid date string
-        update_billing_status(self.billing_account.pk, current_date = '12/2/2000')
+        update_billing_status(current_date = '12/2/2000')
 
         # When called with an invalid date string
         with self.assertRaises(ValueError):
-            update_billing_status(self.billing_account.pk, current_date = '234kmdfg')
+            update_billing_status(current_date = '234kmdfg')
+
+        # When called with valid date object
+        update_billing_status(current_date = datetime.datetime.strptime(
+            '12/2/2000','%m/%d/%Y'))
         
 
 
@@ -82,15 +87,13 @@ class BillingCycleTestCase(TestCase):
             'Accounts Receivable - (test_user)')
 
         # First day the task runs...
-        update_required = update_billing_status(user.pk,
-            current_date = long_time_ago.strftime("%d/%m/%Y"))
+        update_required = update_billing_status(current_date = long_time_ago.strftime("%d/%m/%Y"))
         self.assertFalse(update_required)
 
 
         # When the task is run on the date specified by "next_billing"
         current_date =  acc.next_billed
-        update_required = update_billing_status(user.pk,
-            current_date = current_date)
+        update_required = update_billing_status(current_date = current_date)
         self.assertTrue(update_required)
 
         # Check that each billing account has the next billing date set correctly
@@ -116,8 +119,7 @@ class BillingCycleTestCase(TestCase):
 
         # Move forward past the expiry of the grace period
         current_date = current_date + relativedelta.relativedelta(days = 15)
-        update_required = update_billing_status(user.pk,
-            current_date = current_date)
+        update_required = update_billing_status(current_date = current_date)
         self.assertFalse(update_required)
 
         # Monthly billing account should now be inactive due to the grace period,
@@ -141,8 +143,7 @@ class BillingCycleTestCase(TestCase):
 
         # Updating the billing status on the same day should result in all the user's
         # inactive Billing accounts being reactivated
-        update_required = update_billing_status(user.pk,
-            current_date = current_date)
+        update_required = update_billing_status(current_date = current_date)
         self.assertFalse(update_required)
 
         for item in [acc, acc2]:
@@ -151,8 +152,7 @@ class BillingCycleTestCase(TestCase):
 
         # Move forward month since last billing
         current_date = current_date + relativedelta.relativedelta(days = 15)
-        update_required = update_billing_status(user.pk,
-            current_date = current_date)
+        update_required = update_billing_status(current_date = current_date)
 
         # Reflects the payment being deducted from an existing balance
         self.assertEqual(user_accounts_receivable.balance(as_at = current_date),
@@ -160,10 +160,10 @@ class BillingCycleTestCase(TestCase):
 
         # Move forward till next quarterly bill also due
         current_date = current_date + relativedelta.relativedelta(months = 2)
-        update_required = update_billing_status(user.pk,
-            current_date = current_date)
+        update_required = update_billing_status(current_date = current_date)
         self.assertEqual(user_accounts_receivable.balance(as_at = current_date),
             Decimal('140.00'))
+
         for item in [acc, acc2]:
             item.refresh_from_db()
             self.assertTrue(item.active)

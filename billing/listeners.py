@@ -19,7 +19,6 @@ def next_billing_date_on_init(sender, instance, raw, *args, **kwargs):
 
     is_new = instance.pk == None
     if is_new:
-
         if not instance.last_billed:
             instance.last_billed = instance.start_date
 

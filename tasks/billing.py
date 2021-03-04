@@ -18,20 +18,20 @@ from books.utils import get_internal_system_account
 User = get_user_model()
 
 @shared_task
-def update_billing_status(user_pk, current_date = None):
+def update_billing_status(current_date = None, account_pks = []):
     """ Updates the current billing status of an account
     
     Parameters
     ----------
 
-    billing_account_pk: Str, required
-    current_date: Str, optional
+    account_pks: List, optional
+    current_date: Str, Date or Datetime, optional
         - Any format in settings.DATE_INPUT_FORMATS
         - Sets the current date to use. Defaults to today
 
     Returns
     -------
-    A Boolean representing whether or not the billing status needed updating
+    A Boolean representing whether or not any billing accounts were updated
 
     Raises
     ------
@@ -39,6 +39,8 @@ def update_billing_status(user_pk, current_date = None):
     ValueError - Raised when the current date's format does not match any in 
         settings.DATE_INPUT_FORMATS
     """
+    all_billing_data = {}
+    updates_required = False # Whether or not any account was updated
     
     if not current_date:
         current_date = timezone.now().date()
@@ -52,29 +54,39 @@ def update_billing_status(user_pk, current_date = None):
                 except:
                     pass
 
-            if current_date == None:
+            if isinstance(current_date, str):
                 raise ValueError(f'Failed to convert current_date string {current_date} '
                     'to date object. Is the given format defined in settings.DATE_INPUT_FORMATS?')
         else:
-            pass
+            if isinstance(current_date, datetime.datetime): # Make sure it's a date, not datetime
+                current_date = current_date.date()
             
-    # Iterate through all the user's active accounts
-    user = User.objects.get(pk = user_pk)
-    invoice_entries = []
-    double_entries = []
-    updated_billing_accounts = []
     central_account = get_internal_system_account()
-    earliest_due_date = timezone.now().date() + relativedelta.relativedelta(years = 2)
-    active_billing_accounts = BillingAccount.objects.filter(user = user)
-
-    user_accounts_receivable = central_account.get_account(code = f'1200 - {user.username}')
-    user_current_balance = user_accounts_receivable.balance(as_at = current_date)
     sales_account = central_account.get_account(code = '4000')
 
-    for billing_account in active_billing_accounts:
+    if account_pks:
+        account_qs = {'pk__in':account_pks}
+    else:
+        account_qs = {}
+    target_billing_accounts = BillingAccount.objects.filter(**account_qs)
+
+    def get_user_billing_info(user):
+        """ Retrieves the accounts receivable account and as well as its current balance. """
+
+        if user not in all_billing_data:
+            account = central_account.get_account(code = f'1200 - {user.username}')
+            balance = account.balance(as_at = current_date)
+            all_billing_data[user] = {'account' : (account, balance),
+                'invoice_entries' : [], 'double_entries' : [],
+                'due' : None, 'updated_billing_accounts' : []}
+        return all_billing_data[user]
+
+    for billing_account in target_billing_accounts:
 
         # Determine if the account needs to be billed again or the grace period has
         # expired
+        user_billing_data = get_user_billing_info(billing_account.user)
+        user_accounts_receivable, user_current_balance = user_billing_data['account']
         billing_required = False
         grace_period_expired = False
 
@@ -85,30 +97,31 @@ def update_billing_status(user_pk, current_date = None):
             days = billing_account.billing_method.grace_period):
             grace_period_expired = True
 
-        # If the account's grace period has expired, make sure it's marked as inactive
-        
-
+        # Accounts with a remaining balance should remain active. Only those
+        # that are in areas and have exceeded the grace period are deactivated
         if user_current_balance <= Decimal("0.00"):
             billing_account.active = True
         elif grace_period_expired:
             billing_account.active = False
 
-        # If this account doesn't need an update, end here
         if not billing_required:
-            billing_account.save()
+            billing_account.save() # Active state might have changed
             continue
-
-        # Determine how much to charge for the elapsed time
+        
+        # Work out details for the invoice to be generated over this billing period
         periods_to_bill = relativedelta.relativedelta(current_date,
             billing_account.last_billed).months/billing_account.billing_method.billing_period
         periods_to_bill = Decimal(str(math.floor(periods_to_bill)))
         total = billing_account.billing_tier.unit_price*periods_to_bill
+        print (periods_to_bill)
 
-        # Determine due date
+        # Select the earliest due date if more than one billing account included in invoice
         due = current_date + datetime.timedelta(
             days = billing_account.billing_method.days_till_due)
-        if due < earliest_due_date:
-            earliest_due_date = due
+        if not user_billing_data['due']:
+            user_billing_data['due'] = due
+        elif due < user_billing_data['due']:
+            user_billing_data['due'] = due
 
 
         # Create the entry as it will appear on the invoice. Convert Decimals
@@ -117,7 +130,7 @@ def update_billing_status(user_pk, current_date = None):
             'quantity':int(periods_to_bill), 'total': float(total),
             'unit_price':float(billing_account.billing_tier.unit_price),
             'billing_account':billing_account.pk}
-        invoice_entries.append(entry_details)
+        user_billing_data['invoice_entries'].append(entry_details)
 
         # Create double entry for accounting system
         debit_entry = {'account':user_accounts_receivable, 'value':float(total),
@@ -128,31 +141,31 @@ def update_billing_status(user_pk, current_date = None):
         double_entry_dict = {'debits':[debit_entry], 'credits': [credit_entry],
             'details': f"Billing for {billing_account.product_description}",
             'date':current_date, 'system_account':central_account}
-        double_entries.append(double_entry_dict)
+        user_billing_data['double_entries'].append(double_entry_dict)
 
         # Determine the next time the account will have to billed
         billing_account.next_billed = current_date + relativedelta.relativedelta(
             months = billing_account.billing_method.billing_period)
         billing_account.last_billed = current_date
-        updated_billing_accounts.append(billing_account)
+        user_billing_data['updated_billing_accounts'].append(billing_account)
+        updates_required = True
 
-    # Happens when there is nothing to invoice in this run
-    if not invoice_entries:
+    if not updates_required:
         return False
 
-    with transaction.atomic():
+    for user, user_billing_data in all_billing_data.items():
+        with transaction.atomic():
+            # Generate an invoice
+            invoice = Invoice.objects.create(
+                due = user_billing_data['due'], date = current_date,
+                entries = user_billing_data['invoice_entries'])
+            for acc in user_billing_data['updated_billing_accounts']:
+                acc.save()
+                invoice.billing_accounts.add(acc)
 
-        # Generate an invoice
-        invoice = Invoice.objects.create(
-            due = earliest_due_date, date = current_date,
-            entries = invoice_entries)
-        for acc in updated_billing_accounts:
-            acc.save()
-            invoice.billing_accounts.add(acc)
-
-        # Record the invoicing of the client in the accounts
-        for de_dict in double_entries:
-            DoubleEntry.record(**de_dict)
+            # Record the invoicing of the client in the accounts
+            for de_dict in user_billing_data['double_entries']:
+                DoubleEntry.record(**de_dict)
 
     return True
 

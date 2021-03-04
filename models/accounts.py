@@ -266,10 +266,10 @@ class SingleEntry(models.Model, BlockchainMixin):
         #Catch exception that occurs when there's no account associated with the single
         #entry
         try :
-            return "{0} {1}: {2}".format(action, self.account,
+            return "{0} {1} ${2}".format(action, self.account,
                 self.value)
         except Account.DoesNotExist:
-            return "{0} {1}: {2}".format(action, 'N/A',
+            return "{0} {1} ${2}".format(action, 'N/A',
                 self.value)
 
     class Meta():
