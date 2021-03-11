@@ -9,6 +9,7 @@ from django.utils import timezone
 from books.models import BillingMethod, BillingTier, BillingAccount, Invoice, Account, DoubleEntry
 from books.tasks.billing import update_billing_status
 from books.utils import get_internal_system_account
+from books.billing.utils import record_payment
 
 User = get_user_model()
 
@@ -131,15 +132,9 @@ class BillingCycleTestCase(TestCase):
 
         # Record a transaction representing the payment of the user's outstanding accounts.
         # Include $50 extra
-        user_payment_value = Decimal('200.00')
-        debit_entry = {'account':self.bank, 'value':user_payment_value,
-            'details':"User Account Fees Received"}
-        credit_entry = {'account':user_accounts_receivable, 'value':user_payment_value,
-            'details':"User Account Fees Paid"}
-        double_entry_dict = {'debits':[debit_entry], 'credits': [credit_entry],
-            'details': f"Settlement of {user}'s account.",
-            'date':current_date, 'system_account':self.central_account}
-        DoubleEntry.record(**double_entry_dict)
+        record_payment(user, value = Decimal('200.00'), debit_acc = self.bank,
+            date = current_date)
+
 
         # Updating the billing status on the same day should result in all the user's
         # inactive Billing accounts being reactivated

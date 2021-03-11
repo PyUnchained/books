@@ -8,6 +8,8 @@ from django.apps import apps
 from .accounting import chart_of_accounts_setup
 from books.models import SystemAccount, AccountSettings
 
+LAST_KNOWN_SYSTEM_ACCOUNT = None
+
 def create_default_account():
     with transaction.atomic():
         system_acc, created = SystemAccount.objects.get_or_create(name = "opexa_books")
@@ -19,17 +21,21 @@ def create_default_account():
     return system_acc
 
 def get_internal_system_account():
+    global LAST_KNOWN_SYSTEM_ACCOUNT
+
     try:
-        return SystemAccount.objects.get(name = "opexa_books")
+        LAST_KNOWN_SYSTEM_ACCOUNT = SystemAccount.objects.get(name = "opexa_books")
     except SystemAccount.DoesNotExist:
-        return create_default_account()
+        LAST_KNOWN_SYSTEM_ACCOUNT = create_default_account()
 
     except SystemAccount.MultipleObjectsReturned:
         accs = SystemAccount.objects.filter(name = "opexa_books")
         chosen_acc = accs[0]
         for a in accs[1:]:
             a.delete()
-        return chosen_acc
+        LAST_KNOWN_SYSTEM_ACCOUNT = chosen_acc
+
+    return LAST_KNOWN_SYSTEM_ACCOUNT
 
 def register_new_account(user = None, form = None, *args, **system_acc_kwargs):
     """ Registers a new system account.

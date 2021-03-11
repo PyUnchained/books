@@ -4,8 +4,8 @@ from django.db.utils import ProgrammingError
 from celery import current_app
 from celery.schedules import crontab
 
-from books.models import BillingMethod
-from books.tasks.billing import update_billing_status
+from books.models import BillingMethod, Account, DoubleEntry
+from books.utils import get_internal_system_account
 
 def init_billing_system():
     """ Initialize the billing system when the server boots. """
@@ -28,3 +28,24 @@ def init_billing_system():
     # Means the DB probably hasn't been set up yet
     except ProgrammingError:
         pass
+
+def record_payment(user, **kwargs):
+
+    for required in ['value', 'date']:
+        if kwargs.get(required, None) == None:
+            raise ValueError(f"Required value missing from kwargs: {required}")
+
+    central_account = get_internal_system_account()
+    if not kwargs.get('debit_acc', None):
+        kwargs['debit_acc'] = central_account.get_account(code = "1000")
+
+    if not kwargs.get('details', None):
+        kwargs['details'] = f"{user} Subscription Fee."
+
+    user_accounts_receivable = Account.objects.get(code = f"1200 - {user.username}")
+    debit_entry = {'account':kwargs['debit_acc'], 'value':kwargs['value']}
+    credit_entry = {'account':user_accounts_receivable, 'value':kwargs['value']}
+    double_entry_dict = {'debits':[debit_entry], 'credits': [credit_entry],
+        'details': kwargs['details'],
+        'date':kwargs['date'], 'system_account':central_account}
+    DoubleEntry.record(**double_entry_dict)

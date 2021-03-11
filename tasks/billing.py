@@ -113,7 +113,6 @@ def update_billing_status(current_date = None, account_pks = []):
             billing_account.last_billed).months/billing_account.billing_method.billing_period
         periods_to_bill = Decimal(str(math.floor(periods_to_bill)))
         total = billing_account.billing_tier.unit_price*periods_to_bill
-        print (periods_to_bill)
 
         # Select the earliest due date if more than one billing account included in invoice
         due = current_date + datetime.timedelta(
