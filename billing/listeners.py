@@ -20,11 +20,9 @@ def next_billing_date_on_init(sender, instance, raw, *args, **kwargs):
     is_new = instance.pk == None
     if is_new:
         if not instance.last_billed:
-            instance.last_billed = instance.start_date
-
-        next_billed = instance.last_billed + relativedelta.relativedelta(
-            months=instance.billing_method.billing_period)
-        instance.next_billed = next_billed
+            instance.last_billed = instance.start_date - relativedelta.relativedelta(
+                days = 1)
+        instance.next_billed = instance.start_date
 
 @receiver(post_save, sender = BillingAccount)
 def check_accounts_receivable_exists(sender, instance, raw, *args, **kwargs):

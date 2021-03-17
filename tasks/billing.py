@@ -1,5 +1,7 @@
 import datetime
 import math
+import logging
+import traceback
 from dateutil import relativedelta
 from decimal import Decimal
 
@@ -13,7 +15,8 @@ from celery import shared_task
 from books.models import BillingAccount, Invoice, DoubleEntry
 from books.virtual.pdf import InvoiceBuilder
 from books.utils.celery_task import TestAwareTask
-from books.utils import get_internal_system_account
+from books.utils import (get_internal_system_account, invoice_user, generate_invoice_entry,
+    invoice_user_from_bill)
 
 User = get_user_model()
 
@@ -70,28 +73,30 @@ def update_billing_status(current_date = None, account_pks = []):
         account_qs = {}
     target_billing_accounts = BillingAccount.objects.filter(**account_qs)
 
-    def get_user_billing_info(user):
+    def get_base_data(user):
         """ Retrieves the accounts receivable account and as well as its current balance. """
 
         if user not in all_billing_data:
             account = central_account.get_account(code = f'1200 - {user.username}')
             balance = account.balance(as_at = current_date)
-            all_billing_data[user] = {'account' : (account, balance),
-                'invoice_entries' : [], 'double_entries' : [],
-                'due' : None, 'updated_billing_accounts' : []}
+            all_billing_data[user] = {'account_info' : (account, balance),
+                'account_charges' : [], 'due': None}
         return all_billing_data[user]
 
     for billing_account in target_billing_accounts:
 
         # Determine if the account needs to be billed again or the grace period has
         # expired
-        user_billing_data = get_user_billing_info(billing_account.user)
-        user_accounts_receivable, user_current_balance = user_billing_data['account']
+        
+        user_billing_data = get_base_data(billing_account.user)
+        user_accounts_receivable, user_current_balance = user_billing_data['account_info']
         billing_required = False
         grace_period_expired = False
 
         if current_date >= billing_account.next_billed:
             billing_required = True
+
+        
 
         if current_date > billing_account.last_billed + relativedelta.relativedelta(
             days = billing_account.billing_method.grace_period):
@@ -104,6 +109,8 @@ def update_billing_status(current_date = None, account_pks = []):
         elif grace_period_expired:
             billing_account.active = False
 
+
+        
         if not billing_required:
             billing_account.save() # Active state might have changed
             continue
@@ -111,8 +118,11 @@ def update_billing_status(current_date = None, account_pks = []):
         # Work out details for the invoice to be generated over this billing period
         periods_to_bill = relativedelta.relativedelta(current_date,
             billing_account.last_billed).months/billing_account.billing_method.billing_period
-        periods_to_bill = Decimal(str(math.floor(periods_to_bill)))
+        periods_to_bill = Decimal(str(math.floor(periods_to_bill))) or Decimal('1.00')
         total = billing_account.billing_tier.unit_price*periods_to_bill
+
+
+
 
         # Select the earliest due date if more than one billing account included in invoice
         due = current_date + datetime.timedelta(
@@ -123,48 +133,37 @@ def update_billing_status(current_date = None, account_pks = []):
             user_billing_data['due'] = due
 
 
-        # Create the entry as it will appear on the invoice. Convert Decimals
-        # to JSON serializable floats or ints
-        entry_details = {'description':f"{billing_account.product_description}",
-            'quantity':int(periods_to_bill), 'total': float(total),
-            'unit_price':float(billing_account.billing_tier.unit_price),
-            'billing_account':billing_account.pk}
-        user_billing_data['invoice_entries'].append(entry_details)
+        # Work out account charges
+        account_charge = {'billing_account' : billing_account,
+                'quantity' : periods_to_bill,
+                'unit_price' : billing_account.billing_tier.unit_price}
+        user_billing_data['account_charges'].append(account_charge)
 
-        # Create double entry for accounting system
-        debit_entry = {'account':user_accounts_receivable, 'value':float(total),
-            'details':f"{billing_account.product_description} (SystemBilling)"}
-        credit_entry = {'account':sales_account, 'value':float(total),
-            'details':f"{billing_account.user.username} "
-                f"{billing_account.product_description} (SystemBilling)"}
-        double_entry_dict = {'debits':[debit_entry], 'credits': [credit_entry],
-            'details': f"Billing for {billing_account.product_description}",
-            'date':current_date, 'system_account':central_account}
-        user_billing_data['double_entries'].append(double_entry_dict)
-
-        # Determine the next time the account will have to billed
-        billing_account.next_billed = current_date + relativedelta.relativedelta(
-            months = billing_account.billing_method.billing_period)
+        # Update billing account information
+        months_till_next_billing = periods_to_bill * billing_account.billing_method.billing_period
         billing_account.last_billed = current_date
-        user_billing_data['updated_billing_accounts'].append(billing_account)
+
+        next_billed = billing_account.next_billed + relativedelta.relativedelta(
+            months = int(months_till_next_billing))
+        billing_account.next_billed = next_billed
+        billing_account.save()
+
         updates_required = True
 
     if not updates_required:
         return False
 
     for user, user_billing_data in all_billing_data.items():
-        with transaction.atomic():
-            # Generate an invoice
-            invoice = Invoice.objects.create(
-                due = user_billing_data['due'], date = current_date,
-                entries = user_billing_data['invoice_entries'])
-            for acc in user_billing_data['updated_billing_accounts']:
-                acc.save()
-                invoice.billing_accounts.add(acc)
-
-            # Record the invoicing of the client in the accounts
-            for de_dict in user_billing_data['double_entries']:
-                DoubleEntry.record(**de_dict)
+        try:
+            invoice_user_from_bill(user, date = current_date,
+                    due = user_billing_data['due'],
+                    account_charges = user_billing_data['account_charges'],
+                    system_account = central_account,
+                    account_info = user_billing_data['account_info'])
+        except:
+            logging.error(f'There was an error invoicing this user {user}:')
+            logging.error(traceback.format_exc())
+            
 
     return True
 

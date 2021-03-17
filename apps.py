@@ -81,7 +81,7 @@ class BooksConfig(AppConfig):
 def bootstrap_system():
     from django.contrib.auth.models import Group
     from books.models import Account
-    from books.utils.auth import create_default_account
+    from books.utils import create_default_account
 
     try:
         if Account.objects.all().count() <= 0:
