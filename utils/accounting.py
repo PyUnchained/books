@@ -13,7 +13,6 @@ from .runtime import is_celery, is_test
 
 LAST_KNOWN_SYSTEM_ACCOUNT = None
 
-
 def chart_of_accounts_setup(system_account, skip_is_test = False):
 
     # None of this matters to the celery worker, since the web app will create
