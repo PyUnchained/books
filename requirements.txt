@@ -13,7 +13,7 @@ jdcal==1.4.1
 kombu==4.6.5
 more-itertools==7.2.0
 openpyxl==3.0.0
-Pillow==8.1.0
+Pillow==8.2.0
 psycopg2==2.8.3
 pytz==2019.3
 reportlab==3.5.28
