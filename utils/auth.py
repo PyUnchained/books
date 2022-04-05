@@ -74,5 +74,5 @@ def register_new_admin_user(account, username, password):
 def get_account_for_user(user):
     try:
         return user.systemaccount_set.all()[0]
-    except SystemAccount.DoesNotExist:
+    except (SystemAccount.DoesNotExist, IndexError):
         return None
