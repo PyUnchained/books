@@ -11,10 +11,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='billingmethod',
-            name='periodic_task',
-        ),
         migrations.AddField(
             model_name='billingaccount',
             name='charge',

@@ -9,7 +9,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('django_celery_beat', '0012_periodictask_expire_seconds'),
         ('books', '0026_auto_20201215_0356'),
     ]
 
@@ -53,7 +52,6 @@ class Migration(migrations.Migration):
                 ('day_of_month', models.IntegerField(default=1)),
                 ('billing_period', models.IntegerField(default=1)),
                 ('grace_period', models.IntegerField(default=14)),
-                ('periodic_task', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='django_celery_beat.PeriodicTask')),
             ],
         ),
         migrations.AddField(
