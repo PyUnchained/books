@@ -65,8 +65,12 @@ class BooksConfig(AppConfig):
         from books import listeners as books_listeners
         from books.billing import listeners as billing_listeners
         from books.billing.utils import init_billing_system
-        bootstrap_system()
-        init_billing_system()
+
+        try:
+            bootstrap_system()
+            init_billing_system()
+        except:
+            pass
         out_path = Path(settings.BASE_DIR).joinpath('tmp')
         out_path.mkdir(exist_ok=True) #Create tmp directory
 
