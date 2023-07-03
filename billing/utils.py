@@ -1,8 +1,6 @@
 import copy
 
 from django.db.utils import ProgrammingError
-from celery import current_app
-from celery.schedules import crontab
 
 from books.models import BillingMethod, Account, DoubleEntry
 from books.utils import get_internal_system_account

@@ -10,17 +10,14 @@ from django.conf import settings
 from django.db import transaction
 from django.contrib.auth import get_user_model
 
-from celery import shared_task
-
 from books.models import BillingAccount, Invoice, DoubleEntry
 from books.virtual.pdf import InvoiceBuilder
-from books.utils.celery_task import TestAwareTask
 from books.utils import (get_internal_system_account, invoice_user, generate_invoice_entry,
     invoice_user_from_bill)
 
 User = get_user_model()
 
-@shared_task
+
 def update_billing_status(current_date = None, account_pks = []):
     """ Updates the current billing status of an account
     
@@ -168,7 +165,6 @@ def update_billing_status(current_date = None, account_pks = []):
     return True
 
 
-@shared_task(base = TestAwareTask)
 def generate_invoice_pdf(invoice_entries = [], due = None, date = None, invoice_pk = None):
     """ Create PDF version of the invoice and associate it with an Invoice instance """
 

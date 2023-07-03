@@ -9,16 +9,11 @@ from openpyxl import load_workbook
 
 from books.models import (Account, AccountGroup, SystemAccount, AccountSettings, Invoice,
     DoubleEntry)
-from .runtime import is_celery, is_test
+from .runtime import is_test
 
 LAST_KNOWN_SYSTEM_ACCOUNT = None
 
 def chart_of_accounts_setup(system_account, skip_is_test = False):
-
-    # None of this matters to the celery worker, since the web app will create
-    # all this in the db
-    if is_celery():
-        return
 
     try:
         ACTIVE_BOOKS_PACKAGE = settings.ACTIVE_BOOKS_PACKAGE
